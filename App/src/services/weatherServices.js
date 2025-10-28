@@ -1,10 +1,8 @@
+const API_URL = 'http://10.152.163.55:8000'; // FastAPI default port is 8000
+import { getStoredWeatherData, storeWeatherData } from '../utils/weatherUtils';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL } from '../utils/config';
-
-const WEATHER_CACHE_PREFIX = 'weather_cache:';
-const FORECAST_CACHE_PREFIX = 'forecast_cache:';
-const CACHE_TTL_MS = 1000 * 60 * 30; // 30 minutes
+import SMSService from './smsService';
 
 /**
  * Check network connectivity
@@ -16,147 +14,155 @@ const isOnline = async () => {
 };
 
 /**
- * Store data in AsyncStorage with timestamp
- */
-const storeData = async (key, value) => {
-  try {
-    const payload = { ts: Date.now(), data: value };
-    await AsyncStorage.setItem(key, JSON.stringify(payload));
-  } catch (e) {
-    console.warn('Failed to store cache', e);
-  }
-};
-
-/**
- * Get data from AsyncStorage with TTL check
- */
-const getStoredData = async (key, allowStale = false) => {
-  try {
-    const raw = await AsyncStorage.getItem(key);
-    if (!raw) return null;
-    const { ts, data } = JSON.parse(raw);
-    if (allowStale) return data;
-    if (Date.now() - ts < CACHE_TTL_MS) return data;
-    return null;
-  } catch (e) {
-    console.warn('Failed to read cache', e);
-    return null;
-  }
-};
-
-/**
  * Fetch weather data from FastAPI backend using coordinates
- * Supports offline functionality with local caching
+ * Supports offline functionality with local caching and SMS fallback
  * @param {number} latitude - The latitude coordinate
  * @param {number} longitude - The longitude coordinate
  * @returns {Promise<Object>} Weather data object
  */
 export const fetchWeatherData = async (latitude, longitude) => {
-  const cacheKey = `${WEATHER_CACHE_PREFIX}${latitude}:${longitude}`;
-  
   try {
     // Check network connectivity
     const online = await isOnline();
-    
+
     if (!online) {
-      console.log('Device is offline, fetching from cache...');
-      const cached = await getStoredData(cacheKey, true);
-      if (cached) return cached;
-      throw new Error('You are offline and no cached weather data is available.');
+      console.log('Device is offline, checking for cached data and SMS options');
+
+      // First try to get SMS weather data
+      const smsWeatherData = await SMSService.getStoredWeatherData();
+      if (smsWeatherData) {
+        console.log('Using weather data from SMS');
+        return SMSService.parseWeatherFromSMS(smsWeatherData);
+      }
+
+      // Then try cached data
+      const cachedData = await getStoredWeatherData();
+      if (cachedData) {
+        console.log('Using cached weather data');
+        return cachedData;
+      }
+
+      // No cached data, offer SMS option
+      throw new Error('OFFLINE_MODE');
     }
-    
+
     // Online mode - fetch from API
-    // Use the correct endpoint format for your FastAPI backend
-    console.log(`Fetching weather data from: ${API_URL}/api/weather/current?lat=${latitude}&lon=${longitude}`);
-    
-    const response = await fetch(`${API_URL}/api/weather/current?lat=${latitude}&lon=${longitude}`);
-    
+    const response = await fetch(`${API_URL}/weather?lat=${latitude}&lon=${longitude}`);
     if (!response.ok) {
-      console.warn(`API returned ${response.status}`);
-      // Try stale cache if API fails
-      const cached = await getStoredData(cacheKey, true);
-      if (cached) return cached;
-      throw new Error(`Weather API error: ${response.status}`);
+      const errorData = await response.text();
+      throw new Error(`Weather data fetch failed: ${errorData}`);
     }
-    
-    const data = await response.json();
-    console.log('Weather data received:', data);
-    
-    // Store in cache
-    await storeData(cacheKey, data);
-    return data;
+
+    const weatherData = await response.json();
+
+    // Store data for offline use
+    await storeWeatherData(weatherData);
+
+    return weatherData;
   } catch (error) {
-    console.error('Error fetching weather:', error);
-    
-    // Last resort - try to return expired cache
-    const cached = await getStoredData(cacheKey, true);
-    if (cached) {
-      console.log('Returning stale cache data');
-      return cached;
+    if (error.message === 'OFFLINE_MODE') {
+      // Handle offline mode with SMS option
+      return await SMSService.handleOfflineWeatherRequest(latitude, longitude);
     }
-    
+
+    console.error('Error fetching weather:', error);
+
+    // Last resort - try to return cached data even if it's expired
+    try {
+      const cachedData = await getStoredWeatherData(true); // Force return even if expired
+      if (cachedData) {
+        return cachedData;
+      }
+    } catch (e) {
+      // If all fails, throw the original error
+    }
+
     throw error;
   }
 };
 
 /**
  * Fetch weather forecast data from FastAPI backend
- * Supports offline functionality with local caching
+ * Supports offline functionality with local caching and SMS fallback
  * @param {number} latitude - The latitude coordinate
  * @param {number} longitude - The longitude coordinate
  * @param {number} days - Number of forecast days (default: 5)
  * @returns {Promise<Object>} Forecast data object
  */
-export const fetchForecastData = async (latitude, longitude, days = 4) => {
-  const cacheKey = `${FORECAST_CACHE_PREFIX}${latitude}:${longitude}:${days}`;
-  
+export const fetchForecastData = async (latitude, longitude, days = 5) => {
   try {
     // Check network connectivity
     const online = await isOnline();
-    
+
     if (!online) {
-      console.log('Device is offline, fetching forecast from cache...');
-      const cached = await getStoredData(cacheKey, true);
-      if (cached) return cached;
-      throw new Error('You are offline and no cached forecast data is available.');
+      console.log('Device is offline, checking for cached forecast data');
+
+      // Return cached forecast if offline
+      const cachedData = await AsyncStorage.getItem('forecastData');
+      if (cachedData) {
+        const forecastData = JSON.parse(cachedData);
+        if (Date.now() - forecastData.timestamp < 3600000) { // Less than 1 hour old
+          return forecastData.data;
+        }
+      }
+
+      // For forecast, we don't have SMS fallback since it's complex data
+      // Just return null or throw error
+      throw new Error('No internet connection and no cached forecast available');
     }
-    
+
     // Online mode - fetch from API
-    console.log(`Fetching forecast from: ${API_URL}/api/weather/forecast?lat=${latitude}&lon=${longitude}&days=${days}`);
-    
-    const response = await fetch(`${API_URL}/api/weather/forecast?lat=${latitude}&lon=${longitude}&days=${days}`);
-    
+    const response = await fetch(`${API_URL}/forecast?lat=${latitude}&lon=${longitude}&days=${days}`);
     if (!response.ok) {
-      console.warn(`API returned ${response.status}`);
-      // Try stale cache if API fails
-      const cached = await getStoredData(cacheKey, true);
-      if (cached) return cached;
-      throw new Error(`Forecast API error: ${response.status}`);
+      const errorData = await response.text();
+      throw new Error(`Forecast data fetch failed: ${errorData}`);
     }
-    
-    const data = await response.json();
-    console.log('Forecast data received:', data);
-    
-    // Make sure the data has the expected structure
-    const processedData = {
-      ...data,
-      // Ensure days array exists
-      days: data?.days || data?.forecast || []
+
+    const forecastData = await response.json();
+
+    // Process the forecast data to match our app's format
+    const processedForecast = {
+      location: forecastData.location,
+      forecast: forecastData.daily.map(day => ({
+        dt: new Date(day.date).getTime() / 1000, // Convert to unix timestamp
+        weather: [{
+          main: day.condition,
+          icon: mapConditionToIcon(day.condition)
+        }],
+        main: {
+          temp: extractTemperature(day.temperature_max),
+          temp_min: extractTemperature(day.temperature_min),
+          temp_max: extractTemperature(day.temperature_max),
+          humidity: extractPercentage(day.humidity)
+        },
+        precipitation: extractPercentage(day.precipitation_chance)
+      }))
     };
-    
-    // Store in cache
-    await storeData(cacheKey, processedData);
-    return processedData;
+
+    // Store processed data for offline use
+    try {
+      await AsyncStorage.setItem('forecastData', JSON.stringify({
+        data: processedForecast,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      console.error('Error storing forecast data', e);
+    }
+
+    return processedForecast;
   } catch (error) {
     console.error('Error fetching forecast:', error);
-    
-    // Last resort - try to return expired cache
-    const cached = await getStoredData(cacheKey, true);
-    if (cached) {
-      console.log('Returning stale forecast cache data');
-      return cached;
+
+    // Last resort - try to return cached data even if it's expired
+    try {
+      const cachedData = await AsyncStorage.getItem('forecastData');
+      if (cachedData) {
+        return JSON.parse(cachedData).data;
+      }
+    } catch (e) {
+      // If all fails, throw the original error
     }
-    
+
     throw error;
   }
 };
@@ -166,46 +172,25 @@ export const fetchForecastData = async (latitude, longitude, days = 4) => {
  * @param {string} condition - Weather condition text
  * @returns {string} Icon code for the condition
  */
-export const mapConditionToIcon = (condition) => {
-  // Map more conditions to cover Google Weather API format
+const mapConditionToIcon = (condition) => {
   const conditionMap = {
-    // Basic conditions
     'Clear': '01d',
     'Sunny': '01d',
-    'Mostly clear': '01d',
-    'Mostly sunny': '01d',
     'Partly cloudy': '02d',
-    'Mostly cloudy': '03d',
     'Cloudy': '03d',
     'Overcast': '04d',
-    
-    // Precipitation conditions
     'Mist': '50d',
     'Fog': '50d',
-    'Haze': '50d',
     'Rain': '10d',
     'Light rain': '09d',
-    'Rain showers': '09d',
     'Moderate rain': '10d',
     'Heavy rain': '09d',
     'Showers': '09d',
-    'Drizzle': '09d',
     'Thunderstorm': '11d',
-    'Isolated thunderstorms': '11d',
-    'Scattered thunderstorms': '11d',
     'Snow': '13d',
     'Light snow': '13d',
-    'Flurries': '13d',
     'Heavy snow': '13d',
-    'Sleet': '13d',
-    'Freezing rain': '13d',
-    'Wintry mix': '13d',
-    
-    // Time-specific conditions
-    'Mostly clear night': '01n',
-    'Partly cloudy night': '02n',
-    'Mostly cloudy night': '03n',
-    'Clear night': '01n'
+    'Sleet': '13d'
   };
   
   return conditionMap[condition] || '01d'; // Default to clear/sunny
@@ -216,15 +201,9 @@ export const mapConditionToIcon = (condition) => {
  * @param {string} tempString - Temperature string like "25 °C"
  * @returns {number} Temperature value
  */
-export const extractTemperature = (tempString) => {
-  if (!tempString) return null; // Return null if no value
-  // If tempString is already a number, return it
-  if (typeof tempString === 'number') {
-    return tempString;
-  }
-  
-  const match = String(tempString).match(/(\d+)/);
-  return match ? parseInt(match[0], 10) : null; // Return null if parsing fails
+const extractTemperature = (tempString) => {
+  const match = tempString.match(/(\d+)/);
+  return match ? parseInt(match[0], 10) : 25; // Default to 25 if parsing fails
 };
 
 /**
@@ -232,9 +211,8 @@ export const extractTemperature = (tempString) => {
  * @param {string} percentString - Percentage string like "75%"
  * @returns {number} Percentage value
  */
-export const extractPercentage = (percentString) => {
-  if (!percentString) return 0; // Default if no value
-  const match = String(percentString).match(/(\d+)/);
+const extractPercentage = (percentString) => {
+  const match = percentString.match(/(\d+)/);
   return match ? parseInt(match[0], 10) : 0; // Default to 0 if parsing fails
 };
 
@@ -243,39 +221,19 @@ export const extractPercentage = (percentString) => {
  * Great for offline first approach
  * @param {number} latitude - The latitude coordinate
  * @param {number} longitude - The longitude coordinate
- * @param {number} days - Number of forecast days (default: 4)
  * @returns {Promise<Object>} Combined weather data object
  */
-export const fetchAllWeatherData = async (latitude, longitude, days = 4) => {
+export const fetchAllWeatherData = async (latitude, longitude) => {
   try {
-    const [weather, forecast] = await Promise.all([
+    const [weatherData, forecastData] = await Promise.all([
       fetchWeatherData(latitude, longitude),
-      fetchForecastData(latitude, longitude, days)
+      fetchForecastData(latitude, longitude)
     ]);
     
-    // Make sure forecast.days is properly structured
-    const forecastArray = forecast?.days || [];
-    console.log('Forecast days available:', forecastArray.length);
-    
-    // Structure the data to match what the app expects
-    const result = {
-      location: weather?.location || forecast?.location || 'Unknown Location',
-      name: weather?.location || forecast?.location || 'Unknown Location',
-      main: {
-        temp: extractTemperature(weather?.temperature || '0'),
-        humidity: weather?.humidity || 0
-      },
-      weather: [{
-        main: weather?.condition || 'Unknown',
-        description: weather?.condition || 'Unknown',
-        icon: mapConditionToIcon(weather?.condition || 'Clear')
-      }],
-      current: weather || {},
-      forecast: forecastArray || []
+    return {
+      ...weatherData,
+      forecast: forecastData.forecast || []
     };
-    
-    console.log(`Combined weather data with ${result.forecast.length} forecast days`);
-    return result;
   } catch (error) {
     console.error('Error fetching all weather data:', error);
     throw error;

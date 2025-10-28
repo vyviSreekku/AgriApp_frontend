@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import weather_routes
+from app.routes import weather_routes, market_routes
 
 app = FastAPI()
 
@@ -13,8 +13,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include the weather routes
+# Include the routes
 app.include_router(weather_routes.router, prefix="/api/weather", tags=["weather"])
+app.include_router(market_routes.router, prefix="/api/market", tags=["market"])
 
 @app.get("/")
 def read_root():

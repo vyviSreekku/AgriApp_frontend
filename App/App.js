@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Dimensions, Alert, ActivityIndicator } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons, FontAwesome5, Feather } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 import LottieView from 'lottie-react-native';
-import { getLocationAsync, checkLocationPermission } from './src/utils/locationService';
-import { fetchAllWeatherData, mapConditionToIcon, extractTemperature, extractPercentage } from './src/services/weatherServices';
+import { getLocationAsync } from './src/utils/locationService';
+import { fetchAllWeatherData } from './src/services/weatherServices';
 import { mapWeatherIcon, getDayName, formatTemperature, calculateRainChance } from './src/utils/weatherUtils';
-import { storeFullData, getFullData, isDataStale } from './src/services/dataStorageService';
 
 const { width } = Dimensions.get('window');
 const moduleCardWidth = (width - 60) / 2; // 2 cards per row with spacing
 
 export default function FarmingDashboard() {
+  const navigation = useNavigation();
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,18 +28,8 @@ export default function FarmingDashboard() {
       setLoading(true);
       
       try {
-        // First try to get cached data
-        const cachedData = await getFullData();
-        
-        // If we have cached data, use it immediately while fetching fresh data in the background
-        if (cachedData) {
-          console.log('Using cached weather data');
-          setLocation(cachedData.location);
-          setWeatherData(cachedData.weather);
-        }
-        
-        // Get location using our enhanced location service with alert handling
-        const locationData = await getLocationAsync(true);
+        // Get location using our location service
+        const locationData = await getLocationAsync();
         setLocation(locationData);
         
         // Get weather data from FastAPI backend with offline support
@@ -47,21 +38,9 @@ export default function FarmingDashboard() {
         // Get all weather data with offline support
         const allWeatherData = await fetchAllWeatherData(latitude, longitude);
         setWeatherData(allWeatherData);
-        
-        // Store the complete data for other modules to use
-        await storeFullData({
-          location: locationData,
-          weather: allWeatherData,
-          forecast: allWeatherData.forecast,
-          timestamp: Date.now()
-        });
-        
       } catch (error) {
         console.error("Error:", error);
-        // Only set error message if it's not a permission error being handled by the alert
-        if (!error.permissionDenied) {
-          setErrorMsg(error.message || 'Failed to get weather information');
-        }
+        setErrorMsg(error.message || 'Failed to get weather information');
       } finally {
         setLoading(false);
       }
@@ -72,42 +51,20 @@ export default function FarmingDashboard() {
   
   // Function to refresh weather data
   const refreshWeather = async () => {
-    setLoading(true);
-    setErrorMsg(null);
-    
-    try {
-      let currentLocation = location;
+    if (location) {
+      setLoading(true);
+      setErrorMsg(null);
       
-      // If location is null or there was a previous permission error, request location again
-      if (!currentLocation || errorMsg?.includes('Permission to access location was denied')) {
-        console.log('Requesting location permission again...');
-        // Use our enhanced location service with permission alert handling
-        const locationData = await getLocationAsync(true);
-        currentLocation = locationData;
-        setLocation(locationData);
+      try {
+        const { latitude, longitude } = location.coords;
+        const allWeatherData = await fetchAllWeatherData(latitude, longitude);
+        setWeatherData(allWeatherData);
+      } catch (error) {
+        console.error("Error refreshing weather:", error);
+        setErrorMsg('Failed to refresh weather data');
+      } finally {
+        setLoading(false);
       }
-      
-      // Get updated weather data
-      const { latitude, longitude } = currentLocation.coords;
-      const allWeatherData = await fetchAllWeatherData(latitude, longitude);
-      setWeatherData(allWeatherData);
-      
-      // Store the complete data for other modules to use
-      await storeFullData({
-        location: currentLocation,
-        weather: allWeatherData,
-        forecast: allWeatherData.forecast,
-        timestamp: Date.now()
-      });
-      
-    } catch (error) {
-      console.error("Error refreshing weather:", error);
-      // Only set error message if it's not a permission error being handled by the alert
-      if (!error.permissionDenied) {
-        setErrorMsg(error.message || 'Failed to refresh weather data');
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -147,29 +104,23 @@ export default function FarmingDashboard() {
                 <View style={styles.currentWeather}>
                   <View>
                     <Text style={styles.temperature}>
-                      {weatherData?.main?.temp 
-                        ? `${weatherData.main.temp}°C` 
-                        : weatherData?.current?.temperature_value 
-                          ? `${weatherData.current.temperature_value}°C`
-                          : weatherData?.current?.temperature || 'N/A'}
+                      {weatherData?.main?.temp ? formatTemperature(weatherData.main.temp) : '28°C'}
                     </Text>
                     <Text style={styles.location}>
-                      {weatherData?.location || 'Loading location...'}
+                      {weatherData?.name || 'Location unavailable'}
                     </Text>
                     <View style={styles.rainPrediction}>
                       <Ionicons name="water" size={14} color="#3b82f6" />
                       <Text style={styles.rainText}>
-                        {calculateRainChance(weatherData)} chance of rain today
+                        {weatherData ? calculateRainChance(weatherData) : 30}% chance of rain today
                       </Text>
                     </View>
                   </View>
                   <View style={styles.weatherIconContainer}>
                     <MaterialCommunityIcons 
-                      name={weatherData?.weather?.[0]?.icon
-                        ? mapWeatherIcon(weatherData.weather[0].icon)
-                        : weatherData?.current?.condition 
-                          ? mapWeatherIcon(mapConditionToIcon(weatherData.current.condition)) 
-                          : "weather-partly-cloudy"
+                      name={weatherData?.weather?.[0]?.icon ? 
+                        mapWeatherIcon(weatherData.weather[0].icon) : 
+                        "weather-partly-cloudy"
                       } 
                       size={80} 
                       color="#3b82f6" 
@@ -186,38 +137,26 @@ export default function FarmingDashboard() {
                 <View style={styles.weatherDivider} />
                 
                 <View style={styles.forecastContainer}>
-                  {Array.isArray(weatherData?.forecast) ? weatherData.forecast.map((day, index) => (
+                  {weatherData?.forecast?.map((day, index) => (
                     <View key={index} style={styles.forecastColumn}>
                       <Text style={styles.forecastDayLabel}>
-                        {day.date ? new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }) : 
-                         day.dt ? getDayName(day.dt) : `Day ${index + 1}`}
+                        {day.dt ? getDayName(day.dt) : day.day}
                       </Text>
                       <View style={styles.forecastDay}>
                         <MaterialCommunityIcons 
-                          name={
-                            day.weather?.[0]?.icon 
-                              ? mapWeatherIcon(day.weather[0].icon) 
-                              : day.day?.condition 
-                                ? mapWeatherIcon(mapConditionToIcon(day.day.condition)) 
-                                : "weather-sunny"
+                          name={day.weather?.[0]?.icon ? 
+                            mapWeatherIcon(day.weather[0].icon) : 
+                            day.icon || "weather-partly-cloudy"
                           } 
                           size={24} 
                           color="#3b82f6" 
                         />
                         <Text style={styles.forecastTemp}>
-                          {day.main?.temp_max 
-                            ? Math.round(day.main.temp_max) 
-                            : day.day?.temp_max 
-                              ? Math.round(day.day.temp_max) 
-                              : '?'}°
+                          {day.main?.temp ? Math.round(day.main.temp) : day.temp}°
                         </Text>
                       </View>
                     </View>
-                  )) : (
-                    <View style={styles.forecastColumn}>
-                      <Text>No forecast available</Text>
-                    </View>
-                  )}
+                  ))}
                 </View>
               </LinearGradient>
             )}
@@ -302,29 +241,29 @@ export default function FarmingDashboard() {
           </View>
         </ScrollView>
 
-        {/* Bottom Navigation */}
+        {/* Bottom Navigation - use navigation to switch tabs */}
         <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
             <Ionicons name="home" size={24} color="#4f46e5" />
             <Text style={[styles.navText, { color: "#4f46e5" }]}>Home</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Market')}>
             <Feather name="shopping-cart" size={24} color="#94a3b8" />
             <Text style={styles.navText}>Market</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Job')}>
             <Feather name="briefcase" size={24} color="#94a3b8" />
             <Text style={styles.navText}>Job</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Community')}>
             <Ionicons name="people-outline" size={24} color="#94a3b8" />
             <Text style={styles.navText}>Community</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
             <Feather name="user" size={24} color="#94a3b8" />
             <Text style={styles.navText}>Profile</Text>
           </TouchableOpacity>
@@ -447,17 +386,15 @@ const styles = StyleSheet.create({
   },
   forecastContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     marginTop: 10,
     paddingHorizontal: 10,
-    width: '100%',
   },
   forecastColumn: {
     alignItems: "center",
-    width: '25%', // Set to 25% for 4 columns
   },
   forecastDayLabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#334155",
     fontWeight: "600",
     marginBottom: 5,
@@ -465,9 +402,9 @@ const styles = StyleSheet.create({
   forecastDay: {
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.5)",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: "center",
   },
   forecastTemp: {

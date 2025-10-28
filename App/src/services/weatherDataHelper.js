@@ -3,7 +3,7 @@ import { fetchAllWeatherData } from './weatherServices';
 import { getLocationAsync } from '../utils/locationService';
 
 // Maximum age of data in milliseconds before we consider it stale
-const DEFAULT_MAX_AGE = 30 * 60 * 1000; // 30 minutes
+const DEFAULT_MAX_AGE = 60 * 60 * 1000; // 60 minutes (1 hour)
 
 /**
  * Get the latest weather data, either from storage or by fetching fresh data if needed
@@ -166,9 +166,53 @@ export const getForecastForDay = async (dayIndex = 0) => {
 export const getCurrentLocationName = async () => {
   try {
     const data = await getLatestWeatherData();
+    
+    // Check if we have the new location_data structure
+    if (data?.weather?.location_data) {
+      // Use display_name from location_data
+      return data.weather.location_data.display_name || "Unknown Location";
+    }
+    
+    // Fallback to the legacy location field
     return data?.weather?.location || "Unknown Location";
   } catch (error) {
     console.error('Error getting location name:', error);
     return "Unknown Location";
+  }
+};
+
+/**
+ * Get detailed location data including district and state
+ * This is useful for components that need more specific location information
+ * like market prices that depend on district and state
+ */
+export const getCurrentLocationData = async () => {
+  try {
+    const data = await getLatestWeatherData();
+    
+    // Check if we have the new location_data structure
+    if (data?.weather?.location_data) {
+      return data.weather.location_data;
+    }
+    
+    // Fallback to legacy format with only display name
+    return {
+      display_name: data?.weather?.location || "Unknown Location",
+      locality: null,
+      sublocality: null,
+      district: null,
+      state: null,
+      full_address: data?.weather?.location || "Unknown Location"
+    };
+  } catch (error) {
+    console.error('Error getting location data:', error);
+    return {
+      display_name: "Unknown Location",
+      locality: null,
+      sublocality: null,
+      district: null,
+      state: null,
+      full_address: "Unknown Location"
+    };
   }
 };

@@ -1,35 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * Maps weather condition text to icon code
- * @param {string} condition - Weather condition text
- * @returns {string} Icon code for the condition
- */
-export const mapConditionToIcon = (condition) => {
-  const conditionMap = {
-    'Clear': '01d',
-    'Sunny': '01d',
-    'Partly cloudy': '02d',
-    'Cloudy': '03d',
-    'Overcast': '04d',
-    'Mist': '50d',
-    'Fog': '50d',
-    'Rain': '10d',
-    'Light rain': '09d',
-    'Moderate rain': '10d',
-    'Heavy rain': '09d',
-    'Showers': '09d',
-    'Thunderstorm': '11d',
-    'Snow': '13d',
-    'Light snow': '13d',
-    'Heavy snow': '13d',
-    'Sleet': '13d'
-  };
-  
-  return conditionMap[condition] || '01d'; // Default to clear/sunny
-};
-
-/**
  * Maps OpenWeatherMap icon codes to MaterialCommunityIcons names
  * @param {string} iconCode - The OpenWeatherMap icon code
  * @returns {string} MaterialCommunityIcons name
@@ -70,39 +41,15 @@ export const getDayName = (timestamp) => {
 };
 
 /**
- * Calculate chance of rain from various forecast data structures
- * @param {Object} weatherData - The complete weather data object
- * @returns {string} Formatted rain chance percentage or "Unknown"
+ * Calculate rain chance percentage from weather data
+ * @param {Object} weatherData - Weather data object
+ * @returns {number} Rain chance percentage
  */
 export const calculateRainChance = (weatherData) => {
-  if (!weatherData) return "Unknown";
-
-  // Google Weather API nested structure
-  if (weatherData.forecast?.days?.[0]?.day?.precipitation?.probability?.percent !== undefined) {
-    return `${weatherData.forecast.days[0].day.precipitation.probability.percent}%`;
+  if (weatherData?.clouds?.all) {
+    return Math.min(weatherData.clouds.all, 100);
   }
-
-  // Google Weather API daytimeForecast format
-  if (weatherData.forecast?.forecastDays?.[0]?.daytimeForecast?.precipitation?.probability?.percent !== undefined) {
-    return `${weatherData.forecast.forecastDays[0].daytimeForecast.precipitation.probability.percent}%`;
-  }
-
-  // Standard format from backend
-  if (weatherData.forecast?.days?.[0]?.day?.precipitation?.probability !== undefined) {
-    return `${weatherData.forecast.days[0].day.precipitation.probability}%`;
-  }
-
-  // Simple precipitation field
-  if (Array.isArray(weatherData.forecast) && weatherData.forecast[0]?.day?.precipitation !== undefined) {
-    return `${weatherData.forecast[0].day.precipitation}%`;
-  }
-
-  // Fallback for OpenWeatherMap format
-  if (weatherData.forecast?.list?.[0]?.pop !== undefined) {
-    return `${Math.round(weatherData.forecast.list[0].pop * 100)}%`;
-  }
-
-  return "Unknown";
+  return 0;
 };
 
 /**

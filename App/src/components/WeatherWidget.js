@@ -75,7 +75,14 @@ const WeatherWidget = () => {
   // Extract the data needed for the widget
   const currentTemp = data?.weather?.main?.temp;
   const weatherCondition = data?.weather?.weather?.[0]?.main;
-  const locationName = data?.weather?.location || 'Unknown Location';
+  
+  // Get location name from the new location_data structure if available
+  let locationName = 'Unknown Location';
+  if (data?.weather?.location_data?.display_name) {
+    locationName = data.weather.location_data.display_name;
+  } else if (data?.weather?.location) {
+    locationName = data.weather.location;
+  }
   
   return (
     <View style={styles.container}>

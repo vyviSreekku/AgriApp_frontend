@@ -35,7 +35,18 @@ class WeatherService:
                     if "administrative_area_level_1" in component["types"]:
                         administrative_area = component["short_name"]
                 
-                # Create a formatted location name
+                # Extract district and state for agricultural data
+                district = None
+                state = None
+
+                for component in address_components:
+                    if "administrative_area_level_2" in component["types"]:
+                        district = component["long_name"]
+                    if "administrative_area_level_1" in component["types"]:
+                        state = component["long_name"]
+
+                
+                # Create a formatted location name - prioritizing the most relevant info
                 if locality and sublocality:
                     location = f"{locality}, {sublocality}"
                 elif locality:
@@ -44,12 +55,33 @@ class WeatherService:
                     location = sublocality
                 else:
                     location = data["results"][0]["formatted_address"]
+
+                # Create a more detailed location object for agricultural data needs
+                location_data = {
+                    "display_name": location,
+                    "locality": locality,
+                    "sublocality": sublocality,
+                    "district": district,
+                    "state": state,
+                    "full_address": data["results"][0]["formatted_address"],
+                    # Include all results (raw) so caller can store them; keep as-is for debugging
+                    "all_results": data.get("results", [])
+                }
                 
                 print(f"Location found: {location}")
-                return location
+                print(f"Location data: {location_data}")
+                # For display we will use only the first (primary) location but return full details
+                return location_data
                 
             print(f"No location results for coordinates: {latitude}, {longitude}")
-            return f"Unknown location ({latitude}, {longitude})"
+            return {
+                "display_name": f"Unknown location ({latitude}, {longitude})",
+                "locality": None,
+                "sublocality": None,
+                "district": None,
+                "state": None,
+                "full_address": f"Unknown location ({latitude}, {longitude})"
+            }
         except requests.exceptions.RequestException as e:
             print(f"Error fetching location: {e}")
             raise HTTPException(status_code=500, detail=f"Failed to fetch location: {e}")
@@ -82,8 +114,11 @@ class WeatherService:
             print(f"Request exception: {err}")
             raise HTTPException(status_code=500, detail=f"An error occurred: {err}")
 
-    def format_weather(self, weather_data, location_name=None):
-        print(f"Formatting weather data for location: {location_name}")
+    def format_weather(self, weather_data, location_data=None):
+        print(f"Formatting weather data for location: {location_data}")
+        
+        # Get display name for backward compatibility
+        location_name = location_data.get("display_name", "Unknown") if isinstance(location_data, dict) else location_data
         
         if not weather_data:
             print("Warning: No weather data available")
@@ -109,6 +144,7 @@ class WeatherService:
         # Format the response to match what frontend expects
         result = {
             "location": location_name,
+            "location_data": location_data if isinstance(location_data, dict) else {"display_name": location_name},
             "condition": condition,
             "temperature": f"{temperature} {unit}",
             "temperature_value": temperature,  # Add numeric value for calculations
@@ -132,8 +168,8 @@ class WeatherService:
         """
         print(f"Getting forecast for lat:{latitude}, lon:{longitude}, days:{days}")
         
-        # Get location name for the response
-        location_name = self.get_location_name(latitude, longitude)
+        # Get location data for the response
+        location_data = self.get_location_name(latitude, longitude)
         
         # Use Google Weather API's forecast endpoint
         url = (
@@ -180,8 +216,10 @@ class WeatherService:
         if not data or "forecastDays" not in data:
             print("No forecast data available from Google Weather API.")
             # Return empty result
+            location_display = location_data.get("display_name", "Unknown") if isinstance(location_data, dict) else str(location_data)
             result = {
-                "location": location_name,
+                "location": location_display,
+                "location_data": location_data,
                 "forecast_days": 0,
                 "days": [],
                 "api_source": "Google Weather API"
@@ -248,8 +286,10 @@ class WeatherService:
         if len(forecast_days) > days:
             forecast_days = forecast_days[:days]
             
+        location_display = location_data.get("display_name", "Unknown") if isinstance(location_data, dict) else str(location_data)
         result = {
-            "location": location_name,
+            "location": location_display,
+            "location_data": location_data,
             "forecast_days": len(forecast_days),
             "days": forecast_days,
             "api_source": "Google Weather API"
