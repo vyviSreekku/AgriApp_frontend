@@ -1,13 +1,43 @@
 import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, Feather } from "@expo/vector-icons";
 
 // Import screens
+
 import FarmingDashboard from '../screens/FarmingDashboard';
 import MarketScreen from '../screens/MarketScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import WeedProtectionScreen from '../screens/WeedProtectionScreen';
+import KnowledgeHubScreen from '../screens/KnowledgeHubScreen';
+import SoilPhScreen from '../screens/SoilPhScreen';
+import FertilizerRecommendationScreen from '../screens/FertilizerRecommendationScreen';
+import SoilTypeScreen from '../screens/SoilTypeScreen';
+import PestDetectionScreen from '../screens/PestDetectionScreen';
+import IrrigationAssistantScreen from '../screens/IrrigationAssistantScreen';
+import PlantImageCaptureScreen from '../screens/PlantImageCaptureScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+
 
 const Tab = createBottomTabNavigator();
+const HomeStack = createStackNavigator();
+
+function HomeStackScreen() {
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: true }}>
+      <HomeStack.Screen name="FarmingDashboard" component={FarmingDashboard} options={{ title: 'Dashboard', headerShown: false }} />
+      <HomeStack.Screen name="PlantImageCapture" component={PlantImageCaptureScreen} options={{ title: 'Capture Image', headerShown: false }} />
+      <HomeStack.Screen name="WeedProtection" component={WeedProtectionScreen} options={{ title: 'Weed Protection' }} />
+      <HomeStack.Screen name="KnowledgeHub" component={KnowledgeHubScreen} options={{ title: 'Knowledge Hub' }} />
+      <HomeStack.Screen name="SoilPh" component={SoilPhScreen} options={{ title: 'Soil pH' }} />
+      <HomeStack.Screen name="FertilizerRecommendation" component={FertilizerRecommendationScreen} options={{ title: 'Fertilizer Recommendation' }} />
+      <HomeStack.Screen name="SoilType" component={SoilTypeScreen} options={{ title: 'Soil Type' }} />
+      <HomeStack.Screen name="PestDetection" component={PestDetectionScreen} options={{ title: 'Pest Detection' }} />
+      <HomeStack.Screen name="IrrigationAssistant" component={IrrigationAssistantScreen} options={{ title: 'Irrigation Assistant' }} />
+    </HomeStack.Navigator>
+  );
+}
 
 const BottomTabNavigator = () => {
   return (
@@ -35,7 +65,7 @@ const BottomTabNavigator = () => {
     >
       <Tab.Screen 
         name="Home" 
-        component={FarmingDashboard}
+        component={HomeStackScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
@@ -52,13 +82,38 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen 
-        name="Job" 
-        component={EmptyScreen} 
+        name="Capture" 
+        component={EmptyScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="briefcase" size={size} color={color} />
+          tabBarLabel: '',
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 28,
+                backgroundColor: '#4f46e5',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: -10,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                elevation: 6,
+              }}
+            >
+              <Ionicons name="camera" size={26} color="#fff" />
+            </View>
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            // Navigate into Home stack to open the camera capture flow
+            navigation.navigate('Home', { screen: 'PlantImageCapture' });
+          },
+        })}
       />
       <Tab.Screen 
         name="Community" 
@@ -71,7 +126,7 @@ const BottomTabNavigator = () => {
       />
       <Tab.Screen 
         name="Profile" 
-        component={EmptyScreen} 
+        component={ProfileScreen} 
         options={{
           tabBarIcon: ({ color, size }) => (
             <Feather name="user" size={size} color={color} />

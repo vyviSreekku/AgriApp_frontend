@@ -3,7 +3,7 @@ from typing import Optional
 from ..services.mandi import get_crop_prices
 
 router = APIRouter(
-    tags=["Market Prices"],
+    tags=["market"],
     responses={404: {"description": "Not found"}},
 )
 

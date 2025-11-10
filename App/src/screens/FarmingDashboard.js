@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import LottieView from 'lottie-react-native';
 import { getLatestWeatherData } from '../services/weatherDataHelper';
 import { fetchAllWeatherData, mapConditionToIcon, extractTemperature, extractPercentage } from '../services/weatherServices';
-import { mapWeatherIcon, getDayName, formatTemperature, calculateRainChance } from '../utils/weatherUtils';
+import { mapWeatherIcon, getDayName, formatTemperature, calculateRainChance, getShortLocation } from '../utils/weatherUtils';
 import { storeFullData, getFullData, isDataStale } from '../services/dataStorageService';
 
 const { width } = Dimensions.get('window');
@@ -30,6 +30,10 @@ const FarmingDashboard = ({ navigation }) => {
       try {
         // Use the centralized weather data helper that handles caching
         const cachedData = await getLatestWeatherData();
+        
+        console.log('=== Weather Data Loaded ===');
+        console.log('Location:', JSON.stringify(cachedData.location, null, 2));
+        console.log('Weather:', JSON.stringify(cachedData.weather, null, 2));
         
         setLocation(cachedData.location);
         setWeatherData(cachedData.weather);
@@ -111,19 +115,23 @@ const FarmingDashboard = ({ navigation }) => {
                   <Text style={styles.temperature}>
                     {weatherData?.main?.temp 
                       ? `${weatherData.main.temp}°C` 
-                      : weatherData?.current?.temperature_value 
-                        ? `${weatherData.current.temperature_value}°C`
-                        : weatherData?.current?.temperature || 'N/A'}
+                      : weatherData?.temperature_value 
+                        ? `${weatherData.temperature_value}°C`
+                        : weatherData?.temperature || 'N/A'}
                   </Text>
-                  <Text style={styles.location}>
-                    {(weatherData?.location_data?.display_name) || 
-                     weatherData?.location || 
-                     'Loading location...'}
-                  </Text>
+                  <TouchableOpacity 
+                    onPress={refreshWeather} 
+                    style={styles.locationContainer}
+                  >
+                    <Ionicons name="location-sharp" size={16} color="#3b82f6" />
+                    <Text style={styles.location}>
+                      {getShortLocation(weatherData)}
+                    </Text>
+                  </TouchableOpacity>
                   <View style={styles.rainPrediction}>
                     <Ionicons name="water" size={14} color="#3b82f6" />
                     <Text style={styles.rainText}>
-                      {calculateRainChance(weatherData)} chance of rain today
+                      {calculateRainChance(weatherData)} chance of rain
                     </Text>
                   </View>
                 </View>
@@ -131,8 +139,8 @@ const FarmingDashboard = ({ navigation }) => {
                   <MaterialCommunityIcons 
                     name={weatherData?.weather?.[0]?.icon
                       ? mapWeatherIcon(weatherData.weather[0].icon)
-                      : weatherData?.current?.condition 
-                        ? mapWeatherIcon(mapConditionToIcon(weatherData.current.condition)) 
+                      : weatherData?.condition 
+                        ? mapWeatherIcon(mapConditionToIcon(weatherData.condition)) 
                         : "weather-partly-cloudy"
                     } 
                     size={80} 
@@ -188,7 +196,10 @@ const FarmingDashboard = ({ navigation }) => {
         </View>
 
         {/* Camera Button */}
-        <TouchableOpacity style={styles.cameraButton}>
+        <TouchableOpacity 
+          style={styles.cameraButton}
+          onPress={() => navigation.navigate('PlantImageCapture')}
+        >
           <LinearGradient
             colors={['#4f46e5', '#3b82f6']}
             style={styles.cameraGradient}
@@ -212,53 +223,53 @@ const FarmingDashboard = ({ navigation }) => {
             <Text style={styles.moduleTitle}>Crop Recommendation</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.moduleCard}>
-            <View style={[styles.moduleIcon, { backgroundColor: '#dcfce7' }]}>
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('WeedProtection')}>
+            <View style={[styles.moduleIcon, { backgroundColor: '#dcfce7' }]}> 
               <MaterialCommunityIcons name="flower" size={24} color="#22c55e" />
             </View>
             <Text style={styles.moduleTitle}>Weed Protection</Text>
           </TouchableOpacity>
           
           {/* Row 2 */}
-          <TouchableOpacity style={styles.moduleCard}>
-            <View style={[styles.moduleIcon, { backgroundColor: '#f3e8ff' }]}>
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('KnowledgeHub')}>
+            <View style={[styles.moduleIcon, { backgroundColor: '#f3e8ff' }]}> 
               <Ionicons name="book" size={24} color="#8b5cf6" />
             </View>
             <Text style={styles.moduleTitle}>Knowledge Hub</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.moduleCard}>
-            <View style={[styles.moduleIcon, { backgroundColor: '#ffedd5' }]}>
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('SoilPh')}>
+            <View style={[styles.moduleIcon, { backgroundColor: '#ffedd5' }]}> 
               <FontAwesome5 name="flask" size={24} color="#f97316" />
             </View>
             <Text style={styles.moduleTitle}>Soil pH</Text>
           </TouchableOpacity>
           
           {/* Row 3 */}
-          <TouchableOpacity style={styles.moduleCard}>
-            <View style={[styles.moduleIcon, { backgroundColor: '#fef9c3' }]}>
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('FertilizerRecommendation')}>
+            <View style={[styles.moduleIcon, { backgroundColor: '#fef9c3' }]}> 
               <Feather name="droplet" size={24} color="#eab308" />
             </View>
             <Text style={styles.moduleTitle}>Fertilizer Recommendation</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.moduleCard}>
-            <View style={[styles.moduleIcon, { backgroundColor: '#f1f5f9' }]}>
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('SoilType')}>
+            <View style={[styles.moduleIcon, { backgroundColor: '#f1f5f9' }]}> 
               <Feather name="layers" size={24} color="#64748b" />
             </View>
             <Text style={styles.moduleTitle}>Soil Type</Text>
           </TouchableOpacity>
           
           {/* Row 4 */}
-          <TouchableOpacity style={styles.moduleCard}>
-            <View style={[styles.moduleIcon, { backgroundColor: '#fee2e2' }]}>
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('PestDetection')}>
+            <View style={[styles.moduleIcon, { backgroundColor: '#fee2e2' }]}> 
               <MaterialCommunityIcons name="bug" size={24} color="#ef4444" />
             </View>
             <Text style={styles.moduleTitle}>Pest Detection</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.moduleCard}>
-            <View style={[styles.moduleIcon, { backgroundColor: '#e0e7ff' }]}>
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('IrrigationAssistant')}>
+            <View style={[styles.moduleIcon, { backgroundColor: '#e0e7ff' }]}> 
               <Feather name="cloud-rain" size={24} color="#4f46e5" />
             </View>
             <Text style={styles.moduleTitle}>Irrigation Assistant</Text>
@@ -341,8 +352,15 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 16,
     color: "#334155",
-    marginBottom: 8,
+    marginLeft: 4,
     fontWeight: "500",
+    flex: 1,
+  },
+  locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+    paddingVertical: 4,
   },
   rainPrediction: {
     flexDirection: "row",
@@ -374,6 +392,20 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  refreshHint: {
+    position: "absolute",
+    top: 50,
+    right: 10,
+    backgroundColor: "rgba(59, 130, 246, 0.9)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  refreshHintText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "500",
   },
   weatherDivider: {
     height: 1,

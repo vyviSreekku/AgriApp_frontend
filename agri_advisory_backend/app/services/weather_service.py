@@ -11,6 +11,7 @@ class WeatherService:
         self.api_key = settings.GOOGLE_WEATHER_API_KEY  # Update your config.py and .env accordingly
         print(f"WeatherService initialized with API key: {self.api_key[:5]}...")
 
+
     def get_location_name(self, latitude: float, longitude: float):
         url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={latitude},{longitude}&key={self.api_key}"
         try:
@@ -19,68 +20,80 @@ class WeatherService:
             response.raise_for_status()
             data = response.json()
             print(f"Location API response: {json.dumps(data, indent=2)}")
-            
+
+            # Robust extraction of short_name from all results
+            short_name = None
+            district = None
+            state = None
+            locality = None
+            sublocality = None
+            formatted_address = None
+            display_name = None
+
             if data.get("results"):
-                # Get the locality and administrative areas from the results
-                address_components = data["results"][0]["address_components"]
-                locality = None
-                sublocality = None
-                administrative_area = None
-                
-                for component in address_components:
-                    if "locality" in component["types"]:
-                        locality = component["long_name"]
-                    if "sublocality" in component["types"]:
-                        sublocality = component["long_name"]
-                    if "administrative_area_level_1" in component["types"]:
-                        administrative_area = component["short_name"]
-                
-                # Extract district and state for agricultural data
-                district = None
-                state = None
-
-                for component in address_components:
-                    if "administrative_area_level_2" in component["types"]:
-                        district = component["long_name"]
-                    if "administrative_area_level_1" in component["types"]:
-                        state = component["long_name"]
-
-                
-                # Create a formatted location name - prioritizing the most relevant info
+                # Search all results for the best short_name
+                for result in data["results"]:
+                    ac = result.get("address_components", [])
+                    for component in ac:
+                        if not short_name and "locality" in component["types"]:
+                            short_name = component["long_name"]
+                        if not short_name and "sublocality" in component["types"]:
+                            short_name = component["long_name"]
+                        if not short_name and "administrative_area_level_2" in component["types"]:
+                            short_name = component["long_name"]
+                        if not district and "administrative_area_level_2" in component["types"]:
+                            district = component["long_name"]
+                        if not state and "administrative_area_level_1" in component["types"]:
+                            state = component["long_name"]
+                        if not locality and "locality" in component["types"]:
+                            locality = component["long_name"]
+                        if not sublocality and "sublocality" in component["types"]:
+                            sublocality = component["long_name"]
+                    if not formatted_address and result.get("formatted_address"):
+                        formatted_address = result["formatted_address"]
+                # Fallback: use first part of formatted_address if no short_name found
+                if not short_name and formatted_address:
+                    short_name = formatted_address.split(",")[0].strip()
+                # Compose display_name
                 if locality and sublocality:
-                    location = f"{locality}, {sublocality}"
+                    display_name = f"{locality}, {sublocality}"
                 elif locality:
-                    location = locality
+                    display_name = locality
                 elif sublocality:
-                    location = sublocality
+                    display_name = sublocality
                 else:
-                    location = data["results"][0]["formatted_address"]
+                    display_name = formatted_address or f"Unknown location ({latitude}, {longitude})"
 
-                # Create a more detailed location object for agricultural data needs
                 location_data = {
-                    "display_name": location,
+                    "short_name": short_name or "Unknown",
+                    "display_name": display_name,
+                    "formatted_address": formatted_address or f"Unknown location ({latitude}, {longitude})",
                     "locality": locality,
                     "sublocality": sublocality,
                     "district": district,
                     "state": state,
-                    "full_address": data["results"][0]["formatted_address"],
-                    # Include all results (raw) so caller can store them; keep as-is for debugging
-                    "all_results": data.get("results", [])
+                    "coordinates": {
+                        "lat": latitude,
+                        "lon": longitude
+                    }
                 }
-                
-                print(f"Location found: {location}")
+                print(f"Location found: {display_name}")
                 print(f"Location data: {location_data}")
-                # For display we will use only the first (primary) location but return full details
                 return location_data
-                
+
             print(f"No location results for coordinates: {latitude}, {longitude}")
             return {
+                "short_name": "Unknown",
                 "display_name": f"Unknown location ({latitude}, {longitude})",
+                "formatted_address": f"Unknown location ({latitude}, {longitude})",
                 "locality": None,
                 "sublocality": None,
                 "district": None,
                 "state": None,
-                "full_address": f"Unknown location ({latitude}, {longitude})"
+                "coordinates": {
+                    "lat": latitude,
+                    "lon": longitude
+                }
             }
         except requests.exceptions.RequestException as e:
             print(f"Error fetching location: {e}")
@@ -116,14 +129,14 @@ class WeatherService:
 
     def format_weather(self, weather_data, location_data=None):
         print(f"Formatting weather data for location: {location_data}")
-        
+
         # Get display name for backward compatibility
         location_name = location_data.get("display_name", "Unknown") if isinstance(location_data, dict) else location_data
-        
+
         if not weather_data:
             print("Warning: No weather data available")
             raise HTTPException(status_code=404, detail="No weather data available.")
-        
+
         try:
             # Access nested data
             condition = weather_data.get("weatherCondition", {}).get("description", {}).get("text", "N/A")
@@ -132,18 +145,34 @@ class WeatherService:
             print(f"Error processing weather condition: {e}")
             logging.error(f"Error processing weather data: {e}")
             condition = "Error"
-            
+
         temperature = weather_data.get("temperature", {}).get("degrees", "N/A")
         unit = weather_data.get("temperature", {}).get("unit", "N/A")
         humidity = weather_data.get("relativeHumidity", "N/A")
         uv_index = weather_data.get("uvIndex", "N/A")
         wind_speed = weather_data.get("windChill", {}).get("degrees", "N/A")
-        
-        print(f"Extracted values - Temp: {temperature}{unit}, Humidity: {humidity}, UV: {uv_index}")
-        
-        # Format the response to match what frontend expects
+
+        # --- Combine geolocation and weather API location data ---
+        # Try to extract a location name from the weather API response if present
+        weather_location = None
+        for key in ["locationName", "resolvedAddress", "address", "name"]:
+            if key in weather_data:
+                weather_location = weather_data[key]
+                break
+        # Use geolocation short_name, display_name, and weather_location (if present)
+        geo_short = location_data.get("short_name") if isinstance(location_data, dict) else None
+        geo_display = location_data.get("display_name") if isinstance(location_data, dict) else None
+        geo_full = location_data.get("formatted_address") if isinstance(location_data, dict) else None
+        # Build a combined, deduplicated location string (most specific first)
+        combined_parts = []
+        for part in [weather_location, geo_short, geo_display, geo_full]:
+            if part and part not in combined_parts:
+                combined_parts.append(part)
+        combined_location = ", ".join([p for p in combined_parts if p and p != "Unknown"]) or "Unknown"
+
+        # Add a combined_location field to the response
         result = {
-            "location": location_name,
+            "location": combined_location,
             "location_data": location_data if isinstance(location_data, dict) else {"display_name": location_name},
             "condition": condition,
             "temperature": f"{temperature} {unit}",
@@ -153,9 +182,10 @@ class WeatherService:
             "uv_index": uv_index,
             "wind_chill": f"{wind_speed} {unit}",
             "timestamp": weather_data.get("observationTime", {}).get("observationDateTime", "N/A"),
-            "debug_raw_data": weather_data  # Include raw data temporarily for debugging
+            "debug_raw_data": weather_data,  # Include raw data temporarily for debugging
+            "combined_location": combined_location
         }
-        
+
         print(f"Final formatted result: {json.dumps(result, indent=2)}")
         return result
         

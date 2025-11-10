@@ -27,19 +27,13 @@ export const getLatestWeatherData = async (forceFresh = false, maxAge = DEFAULT_
       return storedData;
     }
     
-    // We need fresh data - first check if we have location
-    let locationData;
-    
-    if (storedData?.location?.coords) {
-      // Use stored location
-      locationData = storedData.location;
-    } else {
-      // Get fresh location
-      locationData = await getLocationAsync(true);
-    }
+    // We need fresh data - always get fresh location to ensure accuracy
+    console.log('Fetching fresh location...');
+    const locationData = await getLocationAsync();
     
     // Fetch fresh weather data
     const { latitude, longitude } = locationData.coords;
+    console.log(`Fetching weather for coordinates: ${latitude}, ${longitude}`);
     const freshWeatherData = await fetchAllWeatherData(latitude, longitude);
     
     // Create the full data object

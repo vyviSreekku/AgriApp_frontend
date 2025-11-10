@@ -19,7 +19,7 @@ export const fetchMarketPrices = async (state = null, district = null, crop = nu
     if (crop) params.append('crop', crop);
     
     const queryString = params.toString();
-    const url = `${API_URL}/api/market/prices${queryString ? `?${queryString}` : ''}`;
+    const url = `${API_URL}/market/prices${queryString ? `?${queryString}` : ''}`;
     
     console.log(`Fetching market prices from: ${url}`);
     const response = await fetch(url);
@@ -50,7 +50,7 @@ export const fetchMarketPriceSummary = async (crop, state = null) => {
     if (state) params.append('state', state);
     
     const queryString = params.toString();
-    const url = `${API_URL}/api/market/prices/summary?${queryString}`;
+    const url = `${API_URL}/market/prices/summary?${queryString}`;
     
     console.log(`Fetching market price summary from: ${url}`);
     const response = await fetch(url);

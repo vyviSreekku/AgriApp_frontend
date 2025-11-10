@@ -43,13 +43,47 @@ export const getDayName = (timestamp) => {
 /**
  * Calculate rain chance percentage from weather data
  * @param {Object} weatherData - Weather data object
- * @returns {number} Rain chance percentage
+ * @returns {string} Rain chance percentage with %
  */
 export const calculateRainChance = (weatherData) => {
-  if (weatherData?.clouds?.all) {
-    return Math.min(weatherData.clouds.all, 100);
+  // Try to get precipitation probability from debug_raw_data
+  if (weatherData?.debug_raw_data?.precipitation?.probability?.percent) {
+    return `${weatherData.debug_raw_data.precipitation.probability.percent}%`;
   }
-  return 0;
+  
+  // Fallback to clouds data
+  if (weatherData?.clouds?.all) {
+    return `${Math.min(weatherData.clouds.all, 100)}%`;
+  }
+  
+  return '0%';
+};
+
+/**
+ * Extract short location name from location data
+ * @param {Object} weatherData - Weather data object with location_data
+ * @returns {string} Short location name (first part of address)
+ */
+export const getShortLocation = (weatherData) => {
+  // First try to get the short_name from backend
+  if (weatherData?.location_data?.short_name) {
+    return weatherData.location_data.short_name;
+  }
+  
+  // Fallback to extracting from formatted_address
+  const formattedAddress = weatherData?.location_data?.formatted_address;
+  if (formattedAddress) {
+    // Get the first part before the first comma
+    return formattedAddress.split(',')[0].trim();
+  }
+  
+  // Last resort - check old display_name format
+  const displayName = weatherData?.location_data?.display_name;
+  if (displayName) {
+    return displayName.split(',')[0].trim();
+  }
+  
+  return 'Unknown Location';
 };
 
 /**

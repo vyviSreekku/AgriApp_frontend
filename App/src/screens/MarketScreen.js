@@ -422,7 +422,7 @@ const MarketScreen = ({ navigation }) => {
   }, [searchQuery]);
 
   // Handle location selection from modal
-  const handleLocationSelect = () => {
+  const handleLocationSelect = async () => {
     if (selectedState && selectedDistrict) {
       const newLocationDetails = {
         state: selectedState,
@@ -440,7 +440,16 @@ const MarketScreen = ({ navigation }) => {
 
       // If a crop is selected, refresh the data with new location
       if (selectedCrop) {
-        fetchMarketData(selectedCrop.name);
+        setLoading(true);
+        setApiError(null);
+        try {
+          await fetchMarketData(selectedCrop.name, newLocationDetails);
+        } catch (error) {
+          console.error('Error refreshing market data with new location:', error);
+          setApiError('Failed to load market data for the new location.');
+        } finally {
+          setLoading(false);
+        }
       }
     }
   };
@@ -498,13 +507,16 @@ const MarketScreen = ({ navigation }) => {
   };
   
   // Fetch market data from API
-  const fetchMarketData = async (cropName) => {
+  const fetchMarketData = async (cropName, locationOverride = null) => {
     setApiError(null);
     
     try {
-      // Use selected location if available, otherwise use current location
-      const selectedState = locationDetails.state;
-      const selectedDistrict = locationDetails.district;
+      // Use locationOverride if provided, otherwise use current locationDetails state
+      const currentLocation = locationOverride || locationDetails;
+      const selectedState = currentLocation.state;
+      const selectedDistrict = currentLocation.district;
+      
+      console.log('fetchMarketData called with:', { cropName, selectedState, selectedDistrict, locationOverride, locationDetails });
       
       const result = await getMarketPricesForCurrentLocation(cropName, selectedState, selectedDistrict);
       
@@ -530,7 +542,7 @@ const MarketScreen = ({ navigation }) => {
         
         // Also fetch price summary for the price trend chart
         try {
-          const summary = await fetchMarketPriceSummary(cropName, locationDetails.state);
+          const summary = await fetchMarketPriceSummary(cropName, selectedState);
           if (summary.success && summary.summary) {
             // Generate mock price history based on the summary data
             // In a real app, you would have actual historical data

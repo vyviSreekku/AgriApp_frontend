@@ -14,8 +14,8 @@ app.add_middleware(
 )
 
 # Include the routes
-app.include_router(weather_routes.router, prefix="/api/weather", tags=["weather"])
-app.include_router(market_routes.router, prefix="/api/market", tags=["market"])
+app.include_router(weather_routes.router, prefix="/weather", tags=["weather"])
+app.include_router(market_routes.router, prefix="/market", tags=["market"])
 
 @app.get("/")
 def read_root():

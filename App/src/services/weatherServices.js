@@ -1,4 +1,4 @@
-const API_URL = 'http://10.152.163.55:8000'; // FastAPI default port is 8000
+const API_URL = 'http://192.168.1.11:8082'; // FastAPI default port is 8000
 import { getStoredWeatherData, storeWeatherData } from '../utils/weatherUtils';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -47,7 +47,7 @@ export const fetchWeatherData = async (latitude, longitude) => {
     }
 
     // Online mode - fetch from API
-    const response = await fetch(`${API_URL}/weather?lat=${latitude}&lon=${longitude}`);
+    const response = await fetch(`${API_URL}/weather/current/?lat=${latitude}&lon=${longitude}`);
     if (!response.ok) {
       const errorData = await response.text();
       throw new Error(`Weather data fetch failed: ${errorData}`);
@@ -89,7 +89,7 @@ export const fetchWeatherData = async (latitude, longitude) => {
  * @param {number} days - Number of forecast days (default: 5)
  * @returns {Promise<Object>} Forecast data object
  */
-export const fetchForecastData = async (latitude, longitude, days = 5) => {
+export const fetchForecastData = async (latitude, longitude, days = 4) => {
   try {
     // Check network connectivity
     const online = await isOnline();
@@ -112,7 +112,7 @@ export const fetchForecastData = async (latitude, longitude, days = 5) => {
     }
 
     // Online mode - fetch from API
-    const response = await fetch(`${API_URL}/forecast?lat=${latitude}&lon=${longitude}&days=${days}`);
+    const response = await fetch(`${API_URL}/weather/forecast?lat=${latitude}&lon=${longitude}&days=${days}`);
     if (!response.ok) {
       const errorData = await response.text();
       throw new Error(`Forecast data fetch failed: ${errorData}`);
@@ -122,21 +122,21 @@ export const fetchForecastData = async (latitude, longitude, days = 5) => {
 
     // Process the forecast data to match our app's format
     const processedForecast = {
-      location: forecastData.location,
-      forecast: forecastData.daily.map(day => ({
+      location: forecastData.location_data?.formatted_address || 'Unknown Location',
+      forecast: forecastData.days?.map(day => ({
         dt: new Date(day.date).getTime() / 1000, // Convert to unix timestamp
         weather: [{
-          main: day.condition,
-          icon: mapConditionToIcon(day.condition)
+          main: day.day?.condition || 'Clear',
+          icon: mapConditionToIcon(day.day?.condition || 'Clear')
         }],
         main: {
-          temp: extractTemperature(day.temperature_max),
-          temp_min: extractTemperature(day.temperature_min),
-          temp_max: extractTemperature(day.temperature_max),
-          humidity: extractPercentage(day.humidity)
+          temp: day.day?.temp_max || 25,
+          temp_min: day.day?.temp_min || 20,
+          temp_max: day.day?.temp_max || 25,
+          humidity: day.day?.humidity || 50
         },
-        precipitation: extractPercentage(day.precipitation_chance)
-      }))
+        precipitation: day.day?.precipitation || 0
+      })) || []
     };
 
     // Store processed data for offline use
@@ -172,7 +172,7 @@ export const fetchForecastData = async (latitude, longitude, days = 5) => {
  * @param {string} condition - Weather condition text
  * @returns {string} Icon code for the condition
  */
-const mapConditionToIcon = (condition) => {
+export const mapConditionToIcon = (condition) => {
   const conditionMap = {
     'Clear': '01d',
     'Sunny': '01d',
@@ -201,7 +201,7 @@ const mapConditionToIcon = (condition) => {
  * @param {string} tempString - Temperature string like "25 °C"
  * @returns {number} Temperature value
  */
-const extractTemperature = (tempString) => {
+export const extractTemperature = (tempString) => {
   const match = tempString.match(/(\d+)/);
   return match ? parseInt(match[0], 10) : 25; // Default to 25 if parsing fails
 };
@@ -211,7 +211,7 @@ const extractTemperature = (tempString) => {
  * @param {string} percentString - Percentage string like "75%"
  * @returns {number} Percentage value
  */
-const extractPercentage = (percentString) => {
+export const extractPercentage = (percentString) => {
   const match = percentString.match(/(\d+)/);
   return match ? parseInt(match[0], 10) : 0; // Default to 0 if parsing fails
 };
