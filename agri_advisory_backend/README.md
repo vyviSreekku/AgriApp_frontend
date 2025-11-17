@@ -1,6 +1,6 @@
 # Agri Advisory Backend
 
-This is the backend service for the Agricultural Advisory application. It provides weather data, market prices, and other agricultural information to the mobile app.
+This is the backend service for the Agricultural Advisory application. It provides weather data, market prices, crop recommendations, fertilizer guidance and other agricultural information to the mobile app.
 
 ## Environment Setup
 
@@ -14,8 +14,12 @@ MANDI_API_KEY=your_mandi_api_key
 
 ## Available APIs
 
-- Weather API: `/api/weather/*`
-- Market Prices API: `/api/market/*`
+- Weather API: `/weather/*`
+- Market Prices API: `/market/*`
+- Community Posts API: `/community/*`
+- Crop Recommendation API: `/crops/recommend` (POST)
+- Fertilizer Recommendation API: `/fertilizer/recommend` (POST)
+- Soil Analysis API: `/soil/analyze` (POST - multipart/form-data with image)
 
 For more details about specific endpoints, refer to the documentation in the `app/docs/` folder.
 

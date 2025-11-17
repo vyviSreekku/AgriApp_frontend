@@ -1,48 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons, Feather } from "@expo/vector-icons";
+import authService from '../services/authService';
+
+// Auth screens
+import LoginScreen from '../screens/LoginScreen';
+import OtpScreen from '../screens/OtpScreen';
+import HomeScreen from '../screens/HomeScreen';
 
 // Import screens
 
 import FarmingDashboard from '../screens/FarmingDashboard';
-import MarketScreen from '../screens/MarketScreen';
+import MarketScreen from '../screens/Market/MarketScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import WeedProtectionScreen from '../screens/WeedProtectionScreen';
-import KnowledgeHubScreen from '../screens/KnowledgeHubScreen';
-import SoilPhScreen from '../screens/SoilPhScreen';
-import FertilizerRecommendationScreen from '../screens/FertilizerRecommendationScreen';
-import SoilTypeScreen from '../screens/SoilTypeScreen';
-import PestDetectionScreen from '../screens/PestDetectionScreen';
-import IrrigationAssistantScreen from '../screens/IrrigationAssistantScreen';
+import WeedProtectionScreen from '../screens/Weed/WeedProtectionScreen';
+import KnowledgeHubScreen from '../screens/KnowledgeHub/Knowledgehub';
+import CropInfo from '../screens/KnowledgeHub/Cropinfo';
+import PestInfo from '../screens/KnowledgeHub/Pestinfo';
+import WeedInfo from '../screens/KnowledgeHub/Weedinfo';
+import SoilPhScreen from '../screens/Soil/SoilPhScreen';
+import FertilizerRecommendationScreen from '../screens/FertilizerRecommendation/FertilizerRecommendationScreen';
+import CropRecommendationScreen from '../screens/CropRecommendation/CropRecommendationScreen';
+import SoilTypeScreen from '../screens/Soil/SoilTypeScreen';
+import PestDetectionScreen from '../screens/PestDetection/PestDetectionScreen';
 import PlantImageCaptureScreen from '../screens/PlantImageCaptureScreen';
-import { createStackNavigator } from '@react-navigation/stack';
+import Community from '../screens/Community/Community';
+import AskCommunity from '../screens/Community/AskCommunity';
+import PostDetail from '../screens/Community/PostDetail';
+import NotificationScreen from '../screens/NotificationScreen';
 
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
+const CommunityStack = createStackNavigator();
+const AuthStack = createStackNavigator();
+const RootStack = createStackNavigator();
 
 function HomeStackScreen() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: true }}>
       <HomeStack.Screen name="FarmingDashboard" component={FarmingDashboard} options={{ title: 'Dashboard', headerShown: false }} />
+      <HomeStack.Screen name="Notifications" component={NotificationScreen} options={{ title: 'Notifications', headerShown: false }} />
       <HomeStack.Screen name="PlantImageCapture" component={PlantImageCaptureScreen} options={{ title: 'Capture Image', headerShown: false }} />
       <HomeStack.Screen name="WeedProtection" component={WeedProtectionScreen} options={{ title: 'Weed Protection' }} />
       <HomeStack.Screen name="KnowledgeHub" component={KnowledgeHubScreen} options={{ title: 'Knowledge Hub' }} />
+      <HomeStack.Screen name="CropInfo" component={CropInfo} options={{ title: 'Crop Info' }} />
+      <HomeStack.Screen name="PestInfo" component={PestInfo} options={{ title: 'Pest Info' }} />
+      <HomeStack.Screen name="WeedInfo" component={WeedInfo} options={{ title: 'Weed Info' }} />
       <HomeStack.Screen name="SoilPh" component={SoilPhScreen} options={{ title: 'Soil pH' }} />
       <HomeStack.Screen name="FertilizerRecommendation" component={FertilizerRecommendationScreen} options={{ title: 'Fertilizer Recommendation' }} />
+        <HomeStack.Screen name="CropRecommendation" component={CropRecommendationScreen} options={{ title: 'Crop Recommendation' }} />
       <HomeStack.Screen name="SoilType" component={SoilTypeScreen} options={{ title: 'Soil Type' }} />
       <HomeStack.Screen name="PestDetection" component={PestDetectionScreen} options={{ title: 'Pest Detection' }} />
-      <HomeStack.Screen name="IrrigationAssistant" component={IrrigationAssistantScreen} options={{ title: 'Irrigation Assistant' }} />
     </HomeStack.Navigator>
   );
 }
 
-const BottomTabNavigator = () => {
+function CommunityStackScreen() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator
+    <CommunityStack.Navigator screenOptions={{ headerShown: false }}>
+      <CommunityStack.Screen name="CommunityMain" component={Community} options={{ title: 'Community' }} />
+      <CommunityStack.Screen name="AskCommunity" component={AskCommunity} options={{ title: 'Ask Community' }} />
+      <CommunityStack.Screen name="PostDetail" component={PostDetail} options={{ title: 'Post Details' }} />
+    </CommunityStack.Navigator>
+  );
+}
+
+function AuthStackScreen() {
+  return (
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="OTP" component={OtpScreen} />
+    </AuthStack.Navigator>
+  );
+}
+
+function MainAppTabs() {
+  return (
+    <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
@@ -117,7 +155,7 @@ const BottomTabNavigator = () => {
       />
       <Tab.Screen 
         name="Community" 
-        component={EmptyScreen} 
+        component={CommunityStackScreen} 
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="people-outline" size={size} color={color} />
@@ -134,6 +172,49 @@ const BottomTabNavigator = () => {
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+const BottomTabNavigator = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    checkLoginStatus();
+    
+    // Listen for auth changes
+    const interval = setInterval(async () => {
+      const loggedIn = await authService.isLoggedIn();
+      if (loggedIn !== isLoggedIn) {
+        setIsLoggedIn(loggedIn);
+      }
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [isLoggedIn]);
+
+  async function checkLoginStatus() {
+    const loggedIn = await authService.isLoggedIn();
+    setIsLoggedIn(loggedIn);
+  }
+
+  if (isLoggedIn === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#4f46e5" />
+      </View>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        {isLoggedIn ? (
+          <RootStack.Screen name="MainApp" component={MainAppTabs} />
+        ) : (
+          <RootStack.Screen name="Auth" component={AuthStackScreen} />
+        )}
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 };

@@ -35,9 +35,8 @@ const PlantImageCaptureScreen = ({ navigation }) => {
 
       // Launch camera
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
+        mediaTypes: ['images'],
+        allowsEditing: false, // Remove cropping
         quality: 0.8,
       });
 
@@ -72,9 +71,8 @@ const PlantImageCaptureScreen = ({ navigation }) => {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
+        mediaTypes: ['images'],
+        allowsEditing: false, // Remove cropping
         quality: 0.8,
       });
 
@@ -103,9 +101,8 @@ const PlantImageCaptureScreen = ({ navigation }) => {
 
     // Navigate to the appropriate screen with the image
     switch (selectedCategory) {
-      case 'crop':
-        // Navigate to crop recommendation/analysis screen
-        Alert.alert('Coming Soon', 'Crop analysis will be available soon.');
+      case 'pest':
+        navigation.navigate('PestDetection', { capturedImage: image });
         break;
       case 'weed':
         navigation.navigate('WeedProtection', { capturedImage: image });
@@ -127,12 +124,12 @@ const PlantImageCaptureScreen = ({ navigation }) => {
 
   const categories = [
     {
-      id: 'crop',
-      name: 'Crop Analysis',
-      description: 'Identify crop health and diseases',
-      icon: 'sprout',
-      color: '#10b981',
-      bgColor: '#d1fae5',
+      id: 'pest',
+      name: 'Pest Detection',
+      description: 'Identify pests and get control methods',
+      icon: 'ladybug',
+      color: '#f59e42',
+      bgColor: '#fef3c7',
     },
     {
       id: 'weed',
@@ -232,8 +229,10 @@ const PlantImageCaptureScreen = ({ navigation }) => {
                             color={selectedCategory === category.id ? '#fff' : category.color} 
                           />
                         </View>
-                        <Text style={styles.categoryName}>{category.name}</Text>
-                        <Text style={styles.categoryDesc}>{category.description}</Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.categoryName, { textAlign: 'left' }]}>{category.name}</Text>
+                          <Text style={[styles.categoryDesc, { textAlign: 'left', marginLeft: 0, left: 0, position: 'relative', top: 0 }]}>{category.description}</Text>
+                        </View>
                         
                         {selectedCategory === category.id && (
                           <View style={styles.selectedBadge}>

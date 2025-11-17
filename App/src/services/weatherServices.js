@@ -1,4 +1,4 @@
-const API_URL = 'http://192.168.1.11:8082'; // FastAPI default port is 8000
+import { API_URL } from '../utils/config'; // FastAPI base URL
 import { getStoredWeatherData, storeWeatherData } from '../utils/weatherUtils';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';

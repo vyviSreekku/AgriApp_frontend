@@ -1,13 +1,53 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Switch, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Switch, Alert, Modal, TextInput } from 'react-native';
+import authService from '../services/authService';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen({ navigation }) {
+  const [user, setUser] = useState(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [weatherAlerts, setWeatherAlerts] = useState(true);
   const [marketUpdates, setMarketUpdates] = useState(false);
+  const [crops, setCrops] = useState(['Wheat', 'Rice', 'Corn', 'Tomato']);
+  const [showAddCropModal, setShowAddCropModal] = useState(false);
+  const [newCropName, setNewCropName] = useState('');
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  async function loadUser() {
+    const userData = await authService.getUser();
+    setUser(userData);
+  }
+
+  const handleAddCrop = () => {
+    if (newCropName && newCropName.trim()) {
+      setCrops([...crops, newCropName.trim()]);
+      setNewCropName('');
+      setShowAddCropModal(false);
+    }
+  };
+
+  const handleRemoveCrop = (index) => {
+    Alert.alert(
+      'Remove Crop',
+      `Remove ${crops[index]}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Remove', 
+          style: 'destructive',
+          onPress: () => {
+            const newCrops = crops.filter((_, i) => i !== index);
+            setCrops(newCrops);
+          }
+        }
+      ]
+    );
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -15,7 +55,14 @@ export default function ProfileScreen({ navigation }) {
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: () => console.log('Logged out') }
+        { 
+          text: 'Logout', 
+          style: 'destructive', 
+          onPress: async () => {
+            await authService.logout();
+            navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
+          }
+        }
       ]
     );
   };
@@ -52,31 +99,32 @@ export default function ProfileScreen({ navigation }) {
                   <Feather name="camera" size={14} color="#fff" />
                 </TouchableOpacity>
               </View>
-              <Text style={styles.userName}>John Farmer</Text>
-              <Text style={styles.userEmail}>john.farmer@example.com</Text>
-              <TouchableOpacity style={styles.editProfileButton}>
-                <Feather name="edit-2" size={14} color="#4f46e5" />
-                <Text style={styles.editProfileText}>Edit Profile</Text>
-              </TouchableOpacity>
+              <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+              <Text style={styles.userEmail}>+91 {user?.phone || '—'}</Text>
             </LinearGradient>
           </View>
 
           {/* Stats Cards */}
           <View style={styles.statsContainer}>
             <View style={styles.statCard}>
-              <MaterialCommunityIcons name="sprout" size={24} color="#22c55e" />
-              <Text style={styles.statValue}>12</Text>
-              <Text style={styles.statLabel}>Crops</Text>
-            </View>
-            <View style={styles.statCard}>
-              <MaterialCommunityIcons name="map-marker" size={24} color="#0ea5e9" />
-              <Text style={styles.statValue}>5.2</Text>
-              <Text style={styles.statLabel}>Acres</Text>
-            </View>
-            <View style={styles.statCard}>
-              <MaterialCommunityIcons name="chart-line" size={24} color="#f59e0b" />
-              <Text style={styles.statValue}>28</Text>
-              <Text style={styles.statLabel}>Reports</Text>
+              <View style={styles.statHeader}>
+                <Text style={styles.cropsTitle}>My Crops</Text>
+                <TouchableOpacity onPress={() => setShowAddCropModal(true)} style={styles.addButton}>
+                  <Ionicons name="add-circle" size={24} color="#22c55e" />
+                </TouchableOpacity>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cropsList}>
+                {crops.map((crop, index) => (
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.cropTag}
+                    onLongPress={() => handleRemoveCrop(index)}
+                  >
+                    <MaterialCommunityIcons name="sprout" size={16} color="#22c55e" />
+                    <Text style={styles.cropTagText}>{crop}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
             </View>
           </View>
 
@@ -165,6 +213,53 @@ export default function ProfileScreen({ navigation }) {
 
           <View style={{ height: 40 }} />
         </ScrollView>
+
+        {/* Add Crop Modal */}
+        <Modal
+          visible={showAddCropModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowAddCropModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Add New Crop</Text>
+                <TouchableOpacity onPress={() => setShowAddCropModal(false)}>
+                  <Ionicons name="close" size={24} color="#64748b" />
+                </TouchableOpacity>
+              </View>
+              
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Enter crop name"
+                value={newCropName}
+                onChangeText={setNewCropName}
+                autoFocus
+                onSubmitEditing={handleAddCrop}
+              />
+              
+              <View style={styles.modalButtons}>
+                <TouchableOpacity 
+                  style={styles.modalCancelButton}
+                  onPress={() => {
+                    setNewCropName('');
+                    setShowAddCropModal(false);
+                  }}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.modalAddButton}
+                  onPress={handleAddCrop}
+                >
+                  <Text style={styles.modalAddText}>Add Crop</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -184,9 +279,13 @@ const styles = StyleSheet.create({
   editProfileText: { color: '#4f46e5', fontWeight: '700', fontSize: 14 },
   
   statsContainer: { flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 16, gap: 12 },
-  statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 16, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  statValue: { fontSize: 24, fontWeight: '800', color: '#1e293b', marginTop: 8 },
-  statLabel: { fontSize: 12, color: '#64748b', fontWeight: '600', marginTop: 4 },
+  statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  statHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  cropsTitle: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
+  addButton: { padding: 4 },
+  cropsList: { flexDirection: 'row' },
+  cropTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#dcfce7', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16, marginRight: 8, gap: 6 },
+  cropTagText: { fontSize: 14, color: '#22c55e', fontWeight: '600' },
   
   section: { paddingHorizontal: 20, marginTop: 16 },
   sectionTitle: { fontSize: 14, fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 },
@@ -201,4 +300,15 @@ const styles = StyleSheet.create({
   
   logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', marginHorizontal: 20, marginTop: 24, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#fee2e2', gap: 8 },
   logoutText: { fontSize: 16, fontWeight: '700', color: '#ef4444' },
+  
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  modalContent: { backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 400, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 10 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalTitle: { fontSize: 20, fontWeight: '800', color: '#1e293b' },
+  modalInput: { borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, padding: 16, fontSize: 16, color: '#1e293b', backgroundColor: '#f8fafc', marginBottom: 20 },
+  modalButtons: { flexDirection: 'row', gap: 12 },
+  modalCancelButton: { flex: 1, padding: 14, borderRadius: 12, backgroundColor: '#f1f5f9', alignItems: 'center' },
+  modalCancelText: { fontSize: 16, fontWeight: '700', color: '#64748b' },
+  modalAddButton: { flex: 1, padding: 14, borderRadius: 12, backgroundColor: '#22c55e', alignItems: 'center' },
+  modalAddText: { fontSize: 16, fontWeight: '700', color: '#fff' },
 });
