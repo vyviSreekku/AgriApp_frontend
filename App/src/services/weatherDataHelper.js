@@ -28,7 +28,6 @@ export const getLatestWeatherData = async (forceFresh = false, maxAge = DEFAULT_
     }
     
     // We need fresh data - always get fresh location to ensure accuracy
-    console.log('Fetching fresh location...');
     const locationData = await getLocationAsync();
     
     // Fetch fresh weather data

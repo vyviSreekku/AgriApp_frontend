@@ -16,13 +16,9 @@ export default function WeedProtectionScreen({ route }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
-    // Load saved image from temporary storage
-    loadSavedImage();
-
     // Check if an image was passed from PlantImageCaptureScreen
     if (route?.params?.capturedImage) {
       setImage(route.params.capturedImage);
-      saveImageTemporarily(route.params.capturedImage);
     }
 
     (async () => {
@@ -32,33 +28,6 @@ export default function WeedProtectionScreen({ route }) {
       setMediaPermission(media.status === 'granted');
     })();
   }, [route?.params?.capturedImage]);
-
-  const loadSavedImage = async () => {
-    try {
-      const savedImage = await AsyncStorage.getItem('weed_temp_image');
-      if (savedImage) {
-        setImage(savedImage);
-      }
-    } catch (error) {
-      console.error('Error loading saved image:', error);
-    }
-  };
-
-  const saveImageTemporarily = async (imageUri) => {
-    try {
-      await AsyncStorage.setItem('weed_temp_image', imageUri);
-    } catch (error) {
-      console.error('Error saving image:', error);
-    }
-  };
-
-  const clearTempImage = async () => {
-    try {
-      await AsyncStorage.removeItem('weed_temp_image');
-    } catch (error) {
-      console.error('Error clearing temp image:', error);
-    }
-  };
 
   const pickImage = async () => {
     if (!mediaPermission) {
@@ -74,7 +43,6 @@ export default function WeedProtectionScreen({ route }) {
       if (!res.canceled && res.assets && res.assets[0]) {
         const uri = res.assets[0].uri;
         setImage(uri);
-        saveImageTemporarily(uri);
         setWeedData(null);
       }
     } catch (err) {
@@ -97,7 +65,6 @@ export default function WeedProtectionScreen({ route }) {
       if (!res.canceled && res.assets && res.assets[0]) {
         const uri = res.assets[0].uri;
         setImage(uri);
-        saveImageTemporarily(uri);
         setWeedData(null);
       }
     } catch (err) {

@@ -375,7 +375,6 @@ const MarketScreen = ({ navigation }) => {
         };
         
         setLocationDetails(marketLocationDetails);
-        console.log('Location details for market API:', marketLocationDetails);
       } catch (error) {
         console.error('Error fetching location details:', error);
         setLocation('Unknown Location');
@@ -515,8 +514,6 @@ const MarketScreen = ({ navigation }) => {
       const currentLocation = locationOverride || locationDetails;
       const selectedState = currentLocation.state;
       const selectedDistrict = currentLocation.district;
-      
-      console.log('fetchMarketData called with:', { cropName, selectedState, selectedDistrict, locationOverride, locationDetails });
       
       const result = await getMarketPricesForCurrentLocation(cropName, selectedState, selectedDistrict);
       

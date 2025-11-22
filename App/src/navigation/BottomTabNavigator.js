@@ -9,7 +9,6 @@ import authService from '../services/authService';
 // Auth screens
 import LoginScreen from '../screens/LoginScreen';
 import OtpScreen from '../screens/OtpScreen';
-import HomeScreen from '../screens/HomeScreen';
 
 // Import screens
 

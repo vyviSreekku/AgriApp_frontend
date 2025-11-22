@@ -23,7 +23,6 @@ export const storeLocationData = async (locationData) => {
     await AsyncStorage.setItem(STORAGE_KEYS.LAST_UPDATED, JSON.stringify({
       location: Date.now()
     }));
-    console.log('Location data stored successfully');
   } catch (error) {
     console.error('Error storing location data:', error);
   }

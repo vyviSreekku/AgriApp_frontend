@@ -8,5 +8,5 @@ import BottomTabNavigator from './src/navigation/BottomTabNavigator';
  * The actual FarmingDashboard component is located in src/screens/FarmingDashboard.js
  */
 export default function App() {
-  return <BottomTabNavigator />;
+  return <BottomTabNavigator/>;
 }

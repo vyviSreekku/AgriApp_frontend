@@ -3,8 +3,43 @@ from fastapi import HTTPException
 from ..config import settings
 import logging
 import json
+from ..utils.api_logger import api_logger
 
 logging.basicConfig(level=logging.INFO)
+
+# Kerala Districts Dictionary
+KERALA_DISTRICTS = {
+    "Thiruvananthapuram": ["Thiruvananthapuram", "Trivandrum", "TVM"],
+    "Kollam": ["Kollam", "Quilon"],
+    "Pathanamthitta": ["Pathanamthitta"],
+    "Alappuzha": ["Alappuzha", "Alleppey"],
+    "Kottayam": ["Kottayam"],
+    "Idukki": ["Idukki"],
+    "Ernakulam": ["Ernakulam", "Kochi", "Cochin"],
+    "Thrissur": ["Thrissur", "Trichur"],
+    "Palakkad": ["Palakkad", "Palghat"],
+    "Malappuram": ["Malappuram"],
+    "Kozhikode": ["Kozhikode", "Calicut"],
+    "Wayanad": ["Wayanad"],
+    "Kannur": ["Kannur", "Cannanore"],
+    "Kasaragod": ["Kasaragod", "Kasargod"]
+}
+
+def find_kerala_district(location_text):
+    """
+    Check if location text matches any Kerala district
+    Returns the standard district name if found, None otherwise
+    """
+    if not location_text:
+        return None
+    
+    location_lower = location_text.lower()
+    
+    for district, aliases in KERALA_DISTRICTS.items():
+        for alias in aliases:
+            if alias.lower() in location_lower:
+                return district
+    return None
 
 class WeatherService:
     def __init__(self):
@@ -15,11 +50,15 @@ class WeatherService:
     def get_location_name(self, latitude: float, longitude: float):
         url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={latitude},{longitude}&key={self.api_key}"
         try:
-            print(f"Fetching location from: {url.replace(self.api_key, 'API_KEY_HIDDEN')}")
+            # Log the request
+            api_logger.log_geolocation_request(latitude, longitude, url.replace(self.api_key, 'API_KEY_HIDDEN'))
+            
             response = requests.get(url)
             response.raise_for_status()
             data = response.json()
-            print(f"Location API response: {json.dumps(data, indent=2)}")
+            
+            # Log the raw response
+            api_logger.log_geolocation_response(latitude, longitude, data, response.status_code)
 
             # Robust extraction of short_name from all results
             short_name = None
@@ -29,6 +68,7 @@ class WeatherService:
             sublocality = None
             formatted_address = None
             display_name = None
+            kerala_district = None
 
             if data.get("results"):
                 # Search all results for the best short_name
@@ -51,6 +91,18 @@ class WeatherService:
                             sublocality = component["long_name"]
                     if not formatted_address and result.get("formatted_address"):
                         formatted_address = result["formatted_address"]
+                
+                # Check if location is in Kerala and find the district
+                if state and "kerala" in state.lower():
+                    # Check all location components for Kerala district match
+                    for location_part in [locality, sublocality, district, short_name, formatted_address]:
+                        if location_part:
+                            kerala_district = find_kerala_district(location_part)
+                            if kerala_district:
+                                # Update district with Kerala district name
+                                district = kerala_district
+                                print(f"Kerala district identified: {kerala_district}")
+                                break
                 # Fallback: use first part of formatted_address if no short_name found
                 if not short_name and formatted_address:
                     short_name = formatted_address.split(",")[0].strip()
@@ -72,17 +124,20 @@ class WeatherService:
                     "sublocality": sublocality,
                     "district": district,
                     "state": state,
+                    "kerala_district": kerala_district,  # Add Kerala district identifier
+                    "is_kerala": state and "kerala" in state.lower(),
                     "coordinates": {
                         "lat": latitude,
                         "lon": longitude
                     }
                 }
-                print(f"Location found: {display_name}")
-                print(f"Location data: {location_data}")
+                if kerala_district:
+                    print(f"✓ Kerala District: {kerala_district}")
+                # Log the processed location data
+                api_logger.log_geolocation_response(latitude, longitude, {"processed_location": location_data})
                 return location_data
 
-            print(f"No location results for coordinates: {latitude}, {longitude}")
-            return {
+            default_location = {
                 "short_name": "Unknown",
                 "display_name": f"Unknown location ({latitude}, {longitude})",
                 "formatted_address": f"Unknown location ({latitude}, {longitude})",
@@ -95,8 +150,10 @@ class WeatherService:
                     "lon": longitude
                 }
             }
+            api_logger.log_geolocation_response(latitude, longitude, {"processed_location": default_location})
+            return default_location
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching location: {e}")
+            api_logger.log_geolocation_error(latitude, longitude, str(e))
             raise HTTPException(status_code=500, detail=f"Failed to fetch location: {e}")
 
 
@@ -107,29 +164,37 @@ class WeatherService:
         )
         try:
             print(f"Fetching weather from: {url.replace(self.api_key, 'API_KEY_HIDDEN')}")
+            # Log the request
+            api_logger.log_weather_request(latitude, longitude, url.replace(self.api_key, 'API_KEY_HIDDEN'))
+            
             response = requests.get(url)
             print(f"Weather API status code: {response.status_code}")
             response.raise_for_status()
             
             data = response.json()
             print(f"Weather API response: {json.dumps(data, indent=2)}")
+            
+            # Log the raw response
+            api_logger.log_weather_response(latitude, longitude, data, status_code=response.status_code)
             return data
         except requests.exceptions.HTTPError as errh:
             print(f"HTTP error: {errh}")
+            api_logger.log_weather_error(latitude, longitude, f"HTTP error: {errh}")
             raise HTTPException(status_code=502, detail=f"HTTP error: {errh}")
         except requests.exceptions.ConnectionError as errc:
             print(f"Connection error: {errc}")
+            api_logger.log_weather_error(latitude, longitude, f"Connection error: {errc}")
             raise HTTPException(status_code=502, detail=f"Connection error: {errc}")
         except requests.exceptions.Timeout as errt:
             print(f"Timeout error: {errt}")
+            api_logger.log_weather_error(latitude, longitude, f"Timeout error: {errt}")
             raise HTTPException(status_code=504, detail=f"Timeout error: {errt}")
         except requests.exceptions.RequestException as err:
             print(f"Request exception: {err}")
+            api_logger.log_weather_error(latitude, longitude, f"Request exception: {err}")
             raise HTTPException(status_code=500, detail=f"An error occurred: {err}")
 
     def format_weather(self, weather_data, location_data=None):
-        print(f"Formatting weather data for location: {location_data}")
-
         # Get display name for backward compatibility
         location_name = location_data.get("display_name", "Unknown") if isinstance(location_data, dict) else location_data
 
@@ -150,7 +215,7 @@ class WeatherService:
         unit = weather_data.get("temperature", {}).get("unit", "N/A")
         humidity = weather_data.get("relativeHumidity", "N/A")
         uv_index = weather_data.get("uvIndex", "N/A")
-        wind_speed = weather_data.get("windChill", {}).get("degrees", "N/A")
+        wind_speed = weather_data.get("wind", {}).get("speed", {}).get("value", "N/A")
 
         # --- Combine geolocation and weather API location data ---
         # Try to extract a location name from the weather API response if present
@@ -187,6 +252,17 @@ class WeatherService:
         }
 
         print(f"Final formatted result: {json.dumps(result, indent=2)}")
+        
+        # Log the formatted result
+        if isinstance(location_data, dict):
+            coords = location_data.get("coordinates", {})
+            api_logger.log_weather_response(
+                coords.get("lat", 0), 
+                coords.get("lon", 0), 
+                weather_data, 
+                result
+            )
+        
         return result
         
     def get_forecast(self, latitude, longitude, days=4):
@@ -212,6 +288,9 @@ class WeatherService:
         
         try:
             print(f"Fetching forecast from: {url.replace(self.api_key, 'API_KEY_HIDDEN')}")
+            # Log the request
+            api_logger.log_forecast_request(latitude, longitude, days, url.replace(self.api_key, 'API_KEY_HIDDEN'))
+            
             response = requests.get(url)
             print(f"Forecast API status code: {response.status_code}")
             response.raise_for_status()
@@ -219,6 +298,9 @@ class WeatherService:
             # Parse the Google Weather API response
             data = response.json()
             print(f"Raw forecast data: {json.dumps(data, indent=2)[:1000]}...")  # Truncated for log readability
+            
+            # Log the raw response
+            api_logger.log_forecast_response(latitude, longitude, days, data, status_code=response.status_code)
             
             from datetime import datetime, timedelta
             
@@ -231,15 +313,19 @@ class WeatherService:
                 print(f"Response text: {response.text[:500]}...")  # Show first part of response on error
             except:
                 pass
+            api_logger.log_forecast_error(latitude, longitude, days, f"HTTP error: {errh}")
             raise HTTPException(status_code=502, detail=f"HTTP error: {errh}")
         except requests.exceptions.ConnectionError as errc:
             print(f"Connection error: {errc}")
+            api_logger.log_forecast_error(latitude, longitude, days, f"Connection error: {errc}")
             raise HTTPException(status_code=502, detail=f"Connection error: {errc}")
         except requests.exceptions.Timeout as errt:
             print(f"Timeout error: {errt}")
+            api_logger.log_forecast_error(latitude, longitude, days, f"Timeout error: {errt}")
             raise HTTPException(status_code=504, detail=f"Timeout error: {errt}")
         except requests.exceptions.RequestException as err:
             print(f"Request exception: {err}")
+            api_logger.log_forecast_error(latitude, longitude, days, f"Request exception: {err}")
             raise HTTPException(status_code=500, detail=f"An error occurred: {err}")
             
         # Check if forecast data is available
@@ -326,6 +412,10 @@ class WeatherService:
         }
         
         print(f"Forecast result: {json.dumps(result, indent=2)}")
+        
+        # Log the formatted forecast result
+        api_logger.log_forecast_response(latitude, longitude, days, data, result)
+        
         return result
 
 # Create a singleton instance

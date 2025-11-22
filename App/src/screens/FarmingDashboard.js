@@ -8,6 +8,7 @@ import { getLatestWeatherData } from '../services/weatherDataHelper';
 import { fetchAllWeatherData, mapConditionToIcon, extractTemperature, extractPercentage } from '../services/weatherServices';
 import { mapWeatherIcon, getDayName, formatTemperature, calculateRainChance, getShortLocation } from '../utils/weatherUtils';
 import { storeFullData, getFullData, isDataStale } from '../services/dataStorageService';
+import ChatbotModal from './ChatbotModel';
 
 const { width } = Dimensions.get('window');
 const moduleCardWidth = (width - 60) / 2; // 2 cards per row with spacing
@@ -30,10 +31,6 @@ const FarmingDashboard = ({ navigation }) => {
       try {
         // Use the centralized weather data helper that handles caching
         const cachedData = await getLatestWeatherData();
-        
-        console.log('=== Weather Data Loaded ===');
-        console.log('Location:', JSON.stringify(cachedData.location, null, 2));
-        console.log('Weather:', JSON.stringify(cachedData.weather, null, 2));
         
         setLocation(cachedData.location);
         setWeatherData(cachedData.weather);
@@ -75,12 +72,33 @@ const FarmingDashboard = ({ navigation }) => {
     }
   };
 
+  // Safely extract wind speed (km/h) from various possible shapes
+  const getWindSpeed = (data) => {
+    if (!data || typeof data !== 'object') return null;
+    // Preferred top-level structured wind object
+    if (data.wind) {
+      if (data.wind.speed && typeof data.wind.speed === 'object' && typeof data.wind.speed.value === 'number') {
+        return data.wind.speed.value;
+      }
+      if (typeof data.wind.speed === 'number') {
+        return data.wind.speed;
+      }
+    }
+    // Google Weather raw nested debug data
+    const rawWind = data.debug_raw_data?.wind?.speed?.value;
+    if (typeof rawWind === 'number') return rawWind;
+    // Any alternative direct fields (future proofing)
+    if (typeof data.wind_speed === 'number') return data.wind_speed;
+    return null;
+  };
+
   const navigateToMarket = () => {
     navigation.navigate('Market');
   };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['right', 'left', 'top']}>
+      <ChatbotModal />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -175,7 +193,10 @@ const FarmingDashboard = ({ navigation }) => {
                     <View style={styles.conditionBadge}>
                       <Ionicons name="speedometer-outline" size={14} color="#e0f2fe" />
                       <Text style={styles.conditionText}>
-                        {weatherData?.wind?.speed ? Math.round(weatherData.wind.speed) : 0} km/h
+                        {(() => {
+                          const ws = getWindSpeed(weatherData);
+                          return ws !== null ? Math.round(ws) : '—';
+                        })()} km/h
                       </Text>
                     </View>
                     <View style={styles.conditionBadge}>

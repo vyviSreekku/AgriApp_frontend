@@ -21,11 +21,9 @@ export default function SoilTypeScreen({ route }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
-    loadSavedImage();
-
+    // Check if an image was passed from PlantImageCaptureScreen
     if (route?.params?.capturedImage) {
       setImage(route.params.capturedImage);
-      saveImageTemporarily(route.params.capturedImage);
     }
 
     (async () => {
@@ -35,25 +33,6 @@ export default function SoilTypeScreen({ route }) {
       setMediaPermission(media.status === 'granted');
     })();
   }, [route?.params?.capturedImage]);
-
-  const loadSavedImage = async () => {
-    try {
-      const savedImage = await AsyncStorage.getItem('soil_temp_image');
-      if (savedImage) {
-        setImage(savedImage);
-      }
-    } catch (error) {
-      console.error('Error loading saved image:', error);
-    }
-  };
-
-  const saveImageTemporarily = async (imageUri) => {
-    try {
-      await AsyncStorage.setItem('soil_temp_image', imageUri);
-    } catch (error) {
-      console.error('Error saving image:', error);
-    }
-  };
 
   const pickImage = async () => {
     if (!mediaPermission) {
@@ -69,7 +48,6 @@ export default function SoilTypeScreen({ route }) {
       if (!res.canceled && res.assets && res.assets[0]) {
         const uri = res.assets[0].uri;
         setImage(uri);
-        saveImageTemporarily(uri);
         setSoilType(null);
         setRecommendations([]);
       }
@@ -93,7 +71,6 @@ export default function SoilTypeScreen({ route }) {
       if (!res.canceled && res.assets && res.assets[0]) {
         const uri = res.assets[0].uri;
         setImage(uri);
-        saveImageTemporarily(uri);
         setSoilType(null);
         setRecommendations([]);
       }

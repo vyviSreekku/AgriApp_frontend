@@ -14,7 +14,6 @@ async def get_current_weather(lat: float = Query(...), lon: float = Query(...)):
         weather_data = weather_service.get_weather(lat, lon)
         location_name = weather_service.get_location_name(lat, lon)
         formatted_data = weather_service.format_weather(weather_data, location_name)
-        print(f"Returning weather response for {location_name}", file=sys.stderr)
         return formatted_data
     except Exception as e:
         print(f"Error in current weather endpoint: {e}", file=sys.stderr)

@@ -8,7 +8,7 @@ import { detectPest } from '../../services/pestService';
 
 const { width } = Dimensions.get('window');
 
-export default function PestDetectionScreen() {
+export default function PestDetectionScreen({ route }) {
   const [image, setImage] = useState(null);
   const [pestData, setPestData] = useState(null);
   const [cameraPermission, setCameraPermission] = useState(null);
@@ -16,34 +16,18 @@ export default function PestDetectionScreen() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
-    loadSavedImage();
-    
+    // Check if an image was passed from PlantImageCaptureScreen
+    if (route?.params?.capturedImage) {
+      setImage(route.params.capturedImage);
+    }
+
     (async () => {
       const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
       const mediaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setCameraPermission(cameraStatus.status === 'granted');
       setMediaPermission(mediaStatus.status === 'granted');
     })();
-  }, []);
-
-  const loadSavedImage = async () => {
-    try {
-      const savedImage = await AsyncStorage.getItem('pest_temp_image');
-      if (savedImage) {
-        setImage(savedImage);
-      }
-    } catch (error) {
-      console.error('Error loading saved image:', error);
-    }
-  };
-
-  const saveImageTemporarily = async (imageUri) => {
-    try {
-      await AsyncStorage.setItem('pest_temp_image', imageUri);
-    } catch (error) {
-      console.error('Error saving image:', error);
-    }
-  };
+  }, [route?.params?.capturedImage]);
 
   const pickImage = async () => {
     if (!mediaPermission) {
@@ -59,7 +43,6 @@ export default function PestDetectionScreen() {
       if (!result.canceled && result.assets && result.assets[0]) {
         const uri = result.assets[0].uri;
         setImage(uri);
-        saveImageTemporarily(uri);
         setPestData(null);
       }
     } catch (err) {
@@ -82,7 +65,6 @@ export default function PestDetectionScreen() {
       if (!result.canceled && result.assets && result.assets[0]) {
         const uri = result.assets[0].uri;
         setImage(uri);
-        saveImageTemporarily(uri);
         setPestData(null);
       }
     } catch (err) {
