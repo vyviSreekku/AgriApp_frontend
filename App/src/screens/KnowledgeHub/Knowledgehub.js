@@ -3,70 +3,55 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
-const GREEN = "#191fc3ff";
-const BG = "#e2ebf9ff";
+const PRIMARY = "#1e40af";
+const BG = "#f8fafc";
 
 const cards = [
-  { key: "crop", title: "Crop Inforrmation", desc: "Learn about different crops, growing techniques, and best practices", icon: { name: "sprout", color: "#22c55e", tint: "#dcfce7" }, route: "CropInfo" },
-  { key: "weed", title: "Weed Information", desc: "Identify and manage weeds effectively in your fields", icon: { name: "leaf", color: "#f59e0b", tint: "#fef3c7" }, route: "WeedInfo" },
-  { key: "pest", title: "Pest Infornation", desc: "Recognize pests and learn control methods to protect your crops", icon: { name: "ladybug", color: "#ef4444", tint: "#fee2e2" }, route: "PestInfo" },
+  { key: "crop", title: "Crops", icon: "sprout", color: "#059669", tint: "#ecfdf5", route: "CropInfo" },
+  { key: "weed", title: "Weeds", icon: "leaf", color: "#d97706", tint: "#fffbeb", route: "WeedInfo" },
+  { key: "pest", title: "Pests", icon: "bug", color: "#dc2626", tint: "#fef2f2", route: "PestInfo" },
+  { key: "disease", title: "Plant Disease", icon: "virus", color: "#7c3aed", tint: "#f5f3ff", route: "DiseaseInfo" },
 ];
 
 const { width } = Dimensions.get("window");
-const H_PADDING = 16;
-const CARD_GAP = 12;
-const CARD_WIDTH = (width - H_PADDING * 2 - CARD_GAP) / 2; // 2 columns on phones
-
-const toRows = (arr, size = 2) => {
-  const out = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
-};
+const CARD_WIDTH = (width - 48) / 2; 
 
 const KnowledgeHub = ({ navigation }) => {
-  const rows = toRows(cards, 2);
-
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.hero}>
-          <Text style={styles.title}>KNOWLEDGE HUB</Text>
-          <Text style={styles.subtitle}>
-            Your comprehensive resource for agricultural information. Explore our library of crop, weed, and pest information.
-          </Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        
+        {/* Simple Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.title}>Knowledge Hub</Text>
+            <Text style={styles.subtitle}>Select a category</Text>
+          </View>
+          <TouchableOpacity style={styles.searchBtn}>
+            <Ionicons name="search" size={22} color={PRIMARY} />
+          </TouchableOpacity>
         </View>
 
+        {/* Grid Layout */}
         <View style={styles.grid}>
-          {rows.map((row, idx) => (
-            <View
-              key={idx}
-              style={[styles.row, row.length === 1 && styles.rowCenter]}
+          {cards.map((item) => (
+            <TouchableOpacity
+              key={item.key}
+              activeOpacity={0.8}
+              style={styles.card}
+              onPress={() => navigation.navigate(item.route)}
             >
-              {row.map((c) => (
-                <TouchableOpacity
-                  key={c.key}
-                  activeOpacity={0.9}
-                  style={styles.card}
-                  onPress={() => {
-                    if (c.route) navigation.navigate(c.route);
-                    else navigation.navigate("KnowledgeCategory", { type: c.key });
-                  }}
-                >
-                  <View style={[styles.iconWrap, { backgroundColor: c.icon.tint }]}>
-                    <MaterialCommunityIcons name={c.icon.name} size={28} color={c.icon.color} />
-                  </View>
-
-                  <Text style={styles.cardTitle}>{c.title}</Text>
-                  <Text style={styles.cardDesc}>{c.desc}</Text>
-
-                  <View style={{ flex: 1 }} />
-                  <View style={styles.ctaRow}>
-                    <Text style={styles.ctaText}>Learn More</Text>
-                    <Ionicons name="chevron-forward" size={16} color={GREEN} />
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
+              <View style={[styles.iconWrap, { backgroundColor: item.tint }]}>
+                <MaterialCommunityIcons name={item.icon} size={32} color={item.color} />
+              </View>
+              
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              
+              <View style={styles.actionBadge}>
+                <Text style={styles.actionText}>Explore</Text>
+                <Ionicons name="chevron-forward" size={12} color={PRIMARY} />
+              </View>
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
@@ -76,51 +61,81 @@ const KnowledgeHub = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG },
-  hero: { paddingHorizontal: H_PADDING, paddingTop: 12, alignItems: "center" },
-  title: { fontSize: 22, fontWeight: "800", color: GREEN, marginTop: 8 },
-  subtitle: { color: "#475569", textAlign: "center", marginTop: 8, lineHeight: 20 },
-
-  // grid now just wraps rows
-  grid: {
-    paddingHorizontal: H_PADDING,
-    marginTop: 40,
-  },
-
-  // each row holds up to 2 cards; last row centered if only 1 card
-  row: {
+  scrollContent: { paddingBottom: 40 },
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: CARD_GAP,
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 25,
   },
-  rowCenter: {
-    justifyContent: "center",
+  title: { fontSize: 28, fontWeight: "900", color: "#0f172a", letterSpacing: -0.5 },
+  subtitle: { fontSize: 15, color: "#64748b", fontWeight: "500" },
+  searchBtn: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
-
+  grid: {
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
   card: {
     width: CARD_WIDTH,
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 24,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
+    borderColor: "#f1f5f9",
+    // Premium Shadow
+    shadowColor: "#1e293b",
+    shadowOpacity: 0.06,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    elevation: 3,
   },
   iconWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
+    width: 64,
+    height: 64,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
+    marginBottom: 16,
   },
-  cardTitle: { fontSize: 16, fontWeight: "700", color: "#0f172a" },
-  cardDesc: { fontSize: 13, color: "#475569", marginTop: 6, lineHeight: 18 },
-  ctaRow: { flexDirection: "row", alignItems: "center", marginTop: 14 },
-  ctaText: { color: GREEN, fontWeight: "700", marginRight: 4 },
+  cardTitle: { 
+    fontSize: 16, 
+    fontWeight: "800", 
+    color: "#1e293b",
+    marginBottom: 12,
+    textAlign: "center"
+  },
+  actionBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#eff6ff",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  actionText: { 
+    color: PRIMARY, 
+    fontSize: 11, 
+    fontWeight: "800", 
+    marginRight: 4,
+    textTransform: "uppercase" 
+  },
 });
 
 export default KnowledgeHub;

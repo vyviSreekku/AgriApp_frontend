@@ -288,6 +288,34 @@ const FarmingDashboard = ({ navigation }) => {
           </LinearGradient>
         </TouchableOpacity>
 
+        {/* Pest Outbreak Alert */}
+        <TouchableOpacity 
+          style={styles.pestOutbreakContainer}
+          onPress={() => navigation.navigate('PestDetection')}
+        >
+          <LinearGradient
+            colors={['#dc2626', '#991b1b']}
+            style={styles.pestOutbreakGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <View style={styles.pestOutbreakContent}>
+              <View style={styles.pestOutbreakLeft}>
+                <View style={styles.pestAlertIcon}>
+                  <MaterialCommunityIcons name="alert-circle" size={28} color="#fecaca" />
+                </View>
+                <View style={styles.pestOutbreakText}>
+                  <Text style={styles.pestOutbreakTitle}>Pest Outbreak Alert</Text>
+                  <Text style={styles.pestOutbreakSubtitle}>3 pests detected in your region</Text>
+                </View>
+              </View>
+              <View style={styles.pestOutbreakRight}>
+                <MaterialCommunityIcons name="chevron-right" size={24} color="#ffffff" />
+              </View>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+
         {/* Module Grid */}
         <Text style={styles.sectionTitle}>Farm Modules</Text>
         <View style={styles.moduleGrid}>
@@ -344,7 +372,13 @@ const FarmingDashboard = ({ navigation }) => {
             <Text style={styles.moduleTitle}>Pest Detection</Text>
           </TouchableOpacity>
           
-          {/* Irrigation Assistant removed */}
+          {/* Row 5 */}
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('PlantDiseaseDetection')}>
+            <View style={[styles.moduleIcon, { backgroundColor: '#fce7f3' }]}> 
+              <MaterialCommunityIcons name="leaf-off" size={24} color="#ec4899" />
+            </View>
+            <Text style={styles.moduleTitle}>Plant Disease Detection</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -629,6 +663,61 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 6,
     fontWeight: "400",
+  },
+  
+  // Pest Outbreak Alert
+  pestOutbreakContainer: {
+    marginHorizontal: 20,
+    marginVertical: 15,
+    borderRadius: 20,
+    overflow: "hidden",
+    shadowColor: "#dc2626",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  pestOutbreakGradient: {
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  pestOutbreakContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  pestOutbreakLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  pestAlertIcon: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 16,
+    padding: 12,
+    marginRight: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  pestOutbreakText: {
+    flex: 1,
+  },
+  pestOutbreakTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+  },
+  pestOutbreakSubtitle: {
+    color: "rgba(255, 255, 255, 0.85)",
+    fontSize: 13,
+    marginTop: 4,
+    fontWeight: "500",
+  },
+  pestOutbreakRight: {
+    marginLeft: 12,
   },
   
   // Module Grid
