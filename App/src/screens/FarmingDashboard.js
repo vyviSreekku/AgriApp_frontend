@@ -373,7 +373,7 @@ const FarmingDashboard = ({ navigation }) => {
           </TouchableOpacity>
           
           {/* Row 5 */}
-          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('PlantDiseaseDetection')}>
+          <TouchableOpacity style={styles.moduleCard} onPress={() => navigation.navigate('DiseaseDetection')}>
             <View style={[styles.moduleIcon, { backgroundColor: '#fce7f3' }]}> 
               <MaterialCommunityIcons name="leaf-off" size={24} color="#ec4899" />
             </View>

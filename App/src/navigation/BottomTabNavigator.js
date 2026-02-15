@@ -9,6 +9,7 @@ import authService from '../services/authService';
 // Auth screens
 import LoginScreen from '../screens/LoginScreen';
 import OtpScreen from '../screens/OtpScreen';
+import ProfileSetupScreen from '../screens/ProfileSetupScreen';
 
 // Import screens
 
@@ -25,6 +26,7 @@ import FertilizerRecommendationScreen from '../screens/FertilizerRecommendation/
 import CropRecommendationScreen from '../screens/CropRecommendation/CropRecommendationScreen';
 import SoilTypeScreen from '../screens/Soil/SoilTypeScreen';
 import PestDetectionScreen from '../screens/PestDetection/PestDetectionScreen';
+import DiseaseDetectionScreen from '../screens/DiseaseDetection/DiseaseDetectionScreen';
 import PlantImageCaptureScreen from '../screens/PlantImageCaptureScreen';
 import Community from '../screens/Community/Community';
 import AskCommunity from '../screens/Community/AskCommunity';
@@ -44,16 +46,17 @@ function HomeStackScreen() {
       <HomeStack.Screen name="FarmingDashboard" component={FarmingDashboard} options={{ title: 'Dashboard', headerShown: false }} />
       <HomeStack.Screen name="Notifications" component={NotificationScreen} options={{ title: 'Notifications', headerShown: false }} />
       <HomeStack.Screen name="PlantImageCapture" component={PlantImageCaptureScreen} options={{ title: 'Capture Image', headerShown: false }} />
-      <HomeStack.Screen name="WeedProtection" component={WeedProtectionScreen} options={{ title: 'Weed Protection' }} />
-      <HomeStack.Screen name="KnowledgeHub" component={KnowledgeHubScreen} options={{ title: 'Knowledge Hub' }} />
-      <HomeStack.Screen name="CropInfo" component={CropInfo} options={{ title: 'Crop Info' }} />
-      <HomeStack.Screen name="PestInfo" component={PestInfo} options={{ title: 'Pest Info' }} />
-      <HomeStack.Screen name="WeedInfo" component={WeedInfo} options={{ title: 'Weed Info' }} />
-      <HomeStack.Screen name="SoilPh" component={SoilPhScreen} options={{ title: 'Soil pH' }} />
-      <HomeStack.Screen name="FertilizerRecommendation" component={FertilizerRecommendationScreen} options={{ title: 'Fertilizer Recommendation' }} />
-        <HomeStack.Screen name="CropRecommendation" component={CropRecommendationScreen} options={{ title: 'Crop Recommendation' }} />
-      <HomeStack.Screen name="SoilType" component={SoilTypeScreen} options={{ title: 'Soil Type' }} />
-      <HomeStack.Screen name="PestDetection" component={PestDetectionScreen} options={{ title: 'Pest Detection' }} />
+      <HomeStack.Screen name="WeedProtection" component={WeedProtectionScreen} options={{ title: '' }} />
+      <HomeStack.Screen name="KnowledgeHub" component={KnowledgeHubScreen} options={{ title: '' }} />
+      <HomeStack.Screen name="CropInfo" component={CropInfo} options={{ title: '' }} />
+      <HomeStack.Screen name="PestInfo" component={PestInfo} options={{ title: '' }} />
+      <HomeStack.Screen name="WeedInfo" component={WeedInfo} options={{ title: '' }} />
+      <HomeStack.Screen name="SoilPh" component={SoilPhScreen} options={{ title: '' }} />
+      <HomeStack.Screen name="FertilizerRecommendation" component={FertilizerRecommendationScreen} options={{ title: '' }} />
+        <HomeStack.Screen name="CropRecommendation" component={CropRecommendationScreen} options={{ title: '' }} />
+      <HomeStack.Screen name="SoilType" component={SoilTypeScreen} options={{ title: '' }} />
+      <HomeStack.Screen name="PestDetection" component={PestDetectionScreen} options={{ title: '' }} />
+      <HomeStack.Screen name="DiseaseDetection" component={DiseaseDetectionScreen} options={{ title: '' }} />
     </HomeStack.Navigator>
   );
 }
@@ -73,6 +76,7 @@ function AuthStackScreen() {
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="OTP" component={OtpScreen} />
+      <AuthStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
     </AuthStack.Navigator>
   );
 }

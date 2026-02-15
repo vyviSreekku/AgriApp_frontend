@@ -1,115 +1,368 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { styles } from '../styles';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  ActivityIndicator, 
+  Alert, 
+  StyleSheet, 
+  Dimensions, 
+  KeyboardAvoidingView, 
+  Platform,
+  StatusBar 
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import otpService from '../services/otpService';
 import authService from '../services/authService';
+
+const { width } = Dimensions.get('window');
+const PRIMARY_PURPLE = '#4f46e5';
 
 export default function OtpScreen({ navigation, route }) {
   const { phone, name } = route.params;
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const inputs = useRef([]);
   const [loading, setLoading] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0);
+  const [resendTimer, setResendTimer] = useState(30);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    startResendCooldown(30);
+    const timer = setInterval(() => {
+      setResendTimer((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  function startResendCooldown(sec) {
-    setResendTimer(sec);
-    const t = setInterval(() => {
-      setResendTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(t);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }
+  const handleDigitChange = (text, index) => {
+    const newDigits = [...digits];
+    newDigits[index] = text.replace(/[^0-9]/g, '').slice(-1);
+    setDigits(newDigits);
 
-  function setDigit(i, val) {
-    const d = [...digits];
-    d[i] = val.replace(/[^0-9]/g, '').slice(-1);
-    setDigits(d);
-    if (d[i] && i < 5) inputs.current[i + 1].focus();
-  }
-
-  function backspace(i, key) {
-    if (key === 'Backspace' && digits[i] === '' && i > 0) {
-      inputs.current[i - 1].focus();
+    if (text && index < 5) {
+      inputs.current[index + 1]?.focus();
     }
-  }
+    
+    // Auto-verify when filled
+    if (index === 5 && text) {
+        // Optional: Could trigger verify here
+    }
+  };
 
-  async function handleVerify() {
+  const handleBackspace = (key, index) => {
+    if (key === 'Backspace' && !digits[index] && index > 0) {
+      inputs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerify = async () => {
     const code = digits.join('');
     if (code.length !== 6) {
-      setError('Enter all 6 digits');
+      setError('Please enter the complete 6-digit code');
       return;
     }
+    setError('');
     setLoading(true);
     try {
-      const ok = await otpService.verifyOtp(phone, code);
-      setLoading(false);
-      if (ok) {
-        await authService.setUser({ name, phone });
-        // Auth state will be updated, parent navigator will auto-switch to MainApp
+      // Simulate network delay for UX
+      await new Promise(r => setTimeout(r, 800));
+      
+      const isValid = await otpService.verifyOtp(phone, code);
+      if (isValid) {
+        // Navigate to Profile Setup to complete registration
+        navigation.navigate('ProfileSetup', { phone });
       } else {
-        setError('Invalid OTP');
+        setError('Incorrect verification code. Please try again.');
+        setLoading(false);
       }
     } catch (err) {
       setLoading(false);
-      Alert.alert('Error', 'Verification failed. Try again.');
+      Alert.alert('Verification Error', 'Something went wrong. Please try again.');
     }
-  }
+  };
 
-  async function handleResend() {
+  const handleResend = async () => {
+    setDigits(['', '', '', '', '', '']);
     setError('');
+    setResendTimer(30);
     try {
       await otpService.sendOtp(phone, name);
-      startResendCooldown(30);
-      Alert.alert('OTP Sent', 'A new OTP has been sent (simulated).');
+      Alert.alert('Code Sent', 'A new verification code has been sent to your mobile.');
+      inputs.current[0]?.focus();
     } catch (err) {
       Alert.alert('Error', 'Failed to resend OTP.');
     }
-  }
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Verify Phone</Text>
-        <Text style={styles.subtitle}>Enter the 6-digit code sent to +91 {phone}</Text>
-
-        <View style={styles.otpRow}>
-          {digits.map((d, i) => (
-            <TextInput
-              key={i}
-              ref={el => (inputs.current[i] = el)}
-              value={d}
-              onChangeText={val => setDigit(i, val)}
-              onKeyPress={({ nativeEvent }) => backspace(i, nativeEvent.key)}
-              keyboardType="number-pad"
-              maxLength={1}
-              style={styles.otpInput}
-            />
-          ))}
-        </View>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        <TouchableOpacity style={styles.button} onPress={handleVerify} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify & Login</Text>}
-        </TouchableOpacity>
-
-        <View style={{ flexDirection: 'row', marginTop: 12, alignItems: 'center' }}>
-          <Text style={styles.smallText}>Didn't receive code?</Text>
-          <TouchableOpacity onPress={handleResend} disabled={resendTimer > 0}>
-            <Text style={[styles.resendText, resendTimer > 0 && { opacity: 0.6 }]}>  Resend{resendTimer > 0 ? ` (${resendTimer}s)` : ''}</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={[styles.smallText, { marginTop: 20 }]}>This demo simulates SMS (see Metro/console for OTP).</Text>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <StatusBar barStyle="light-content" />
+      
+      {/* Header Background */}
+      <View style={styles.bgHeader}>
+         <LinearGradient
+            colors={['#4f46e5', '#3730a3']} 
+            style={styles.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+         />
+         <View style={styles.circle1} />
+         <View style={styles.circle2} />
       </View>
-    </View>
+
+      <View style={styles.contentContainer}>
+        
+        {/* Header Text */}
+        <View style={styles.headerTextContainer}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                 <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.title}>Verification</Text>
+            <Text style={styles.subtitle}>
+                We've sent a 6-digit code to
+            </Text>
+            <Text style={styles.phoneText}>+91 {phone}</Text>
+        </View>
+
+        {/* Card */}
+        <View style={styles.cardContainer}>
+            
+            <Text style={styles.promptText}>Enter Verification Code</Text>
+
+            <View style={styles.otpRow}>
+              {digits.map((d, i) => (
+                <TextInput
+                  key={i}
+                  ref={ref => inputs.current[i] = ref}
+                  style={[
+                      styles.otpInput, 
+                      d ? styles.otpInputFilled : null,
+                      error ? styles.otpInputError : null
+                  ]}
+                  value={d}
+                  onChangeText={txt => handleDigitChange(txt, i)}
+                  onKeyPress={({ nativeEvent }) => handleBackspace(nativeEvent.key, i)}
+                  keyboardType="number-pad"
+                  maxLength={1}
+                  selectTextOnFocus
+                  cursorColor={PRIMARY_PURPLE}
+                />
+              ))}
+            </View>
+            
+            {error ? (
+                <View style={styles.errorContainer}>
+                    <MaterialCommunityIcons name="alert-circle" size={16} color="#ef4444" />
+                    <Text style={styles.errorText}>{error}</Text>
+                </View>
+            ) : null}
+
+            <TouchableOpacity 
+                style={styles.verifyBtn} 
+                onPress={handleVerify}
+                activeOpacity={0.8}
+                disabled={loading}
+            >
+                <LinearGradient
+                    colors={['#4f46e5', '#4338ca']}
+                    style={styles.btnGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                >
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.btnText}>Verify & Proceed</Text>
+                    )}
+                </LinearGradient>
+            </TouchableOpacity>
+
+            <View style={styles.resendContainer}>
+                <Text style={styles.resendLabel}>Didn't receive the code?</Text>
+                {resendTimer > 0 ? (
+                    <Text style={styles.timerText}>Resend in {resendTimer}s</Text>
+                ) : (
+                    <TouchableOpacity onPress={handleResend}>
+                        <Text style={styles.resendLink}>Resend Code</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  bgHeader: {
+      height: Dimensions.get('window').height * 0.35,
+      width: '100%',
+      position: 'absolute',
+      top: 0,
+  },
+  gradient: { flex: 1 },
+  circle1: {
+      position: 'absolute',
+      top: -60,
+      right: -20,
+      width: 180,
+      height: 180,
+      borderRadius: 90,
+      backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  circle2: {
+      position: 'absolute',
+      top: 60,
+      left: -40,
+      width: 140,
+      height: 140,
+      borderRadius: 70,
+      backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  
+  contentContainer: {
+      flex: 1,
+  },
+  
+  headerTextContainer: {
+      paddingTop: 60,
+      paddingHorizontal: 24,
+      height: '35%',
+  },
+  backButton: {
+      width: 40,
+      height: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(255,255,255,0.2)',
+      borderRadius: 12,
+      marginBottom: 20,
+  },
+  title: {
+      fontSize: 28,
+      fontWeight: '800',
+      color: '#fff',
+      marginBottom: 8,
+  },
+  subtitle: {
+      fontSize: 16,
+      color: '#e0e7ff', 
+  },
+  phoneText: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#fff',
+      marginTop: 4,
+  },
+
+  cardContainer: {
+      flex: 1,
+      backgroundColor: '#fff',
+      borderTopLeftRadius: 32,
+      borderTopRightRadius: 32,
+      paddingHorizontal: 24,
+      paddingTop: 40,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 10,
+      elevation: 20,
+  },
+  
+  promptText: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#1e293b',
+      textAlign: 'center',
+      marginBottom: 30,
+  },
+  
+  otpRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 24,
+  },
+  otpInput: {
+      width: 48,
+      height: 56,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#e2e8f0',
+      backgroundColor: '#f8fafc',
+      textAlign: 'center',
+      fontSize: 24,
+      fontWeight: '700',
+      color: '#1e293b',
+  },
+  otpInputFilled: {
+      borderColor: PRIMARY_PURPLE,
+      backgroundColor: '#eef2ff',
+  },
+  otpInputError: {
+      borderColor: '#ef4444',
+      backgroundColor: '#fef2f2',
+  },
+
+  errorContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 20,
+      gap: 6,
+  },
+  errorText: {
+      color: '#ef4444',
+      fontSize: 14,
+      fontWeight: '500',
+  },
+
+  verifyBtn: {
+      borderRadius: 16,
+      overflow: 'hidden',
+      marginBottom: 30,
+      shadowColor: PRIMARY_PURPLE,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 12,
+      elevation: 8,
+  },
+  btnGradient: {
+      paddingVertical: 18,
+      alignItems: 'center',
+  },
+  btnText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: '700',
+      letterSpacing: 0.5,
+  },
+
+  resendContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 6,
+  },
+  resendLabel: {
+      color: '#64748b',
+      fontSize: 14,
+  },
+  resendLink: {
+      color: PRIMARY_PURPLE,
+      fontSize: 14,
+      fontWeight: '700',
+  },
+  timerText: {
+      color: '#94a3b8',
+      fontSize: 14,
+      fontWeight: '600',
+  },
+});
