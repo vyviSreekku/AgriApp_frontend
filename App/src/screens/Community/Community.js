@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getAllPosts, searchPosts } from "../../services/communityService";
 import { API_URL } from "../../utils/config";
+import axios from "axios";
 
 const ACCENT = "#0b0be2ff";
 
@@ -48,6 +49,7 @@ const Community = ({ navigation }) => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
+      console.log('Fetching posts from:', API_URL);
       const data = await getAllPosts(0, 20);
       console.log('[DEBUG Community] Fetched posts:', data.length);
       if (data.length > 0) {
@@ -56,6 +58,14 @@ const Community = ({ navigation }) => {
       setPosts(data);
     } catch (error) {
       console.error('Failed to fetch posts:', error);
+      if (error.response) {
+         console.error('Error Status:', error.response.status);
+         console.error('Error Data:', error.response.data);
+      } else if (error.request) {
+          console.error('No response received:', error.request);
+      } else {
+          console.error('Error Config:', error.message);
+      }
       // You can add error handling UI here
     } finally {
       setLoading(false);

@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { getPostById, createComment, deletePost, likePost } from "../../services/communityService";
 import { API_URL } from "../../utils/config";
+import authService from "../../services/authService";
 
 const ACCENT = "#0b0be2ff";
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -26,6 +27,7 @@ const PostDetail = ({ route, navigation }) => {
   const { postId } = route.params;
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [actionsVisible, setActionsVisible] = useState(false);
@@ -34,7 +36,17 @@ const PostDetail = ({ route, navigation }) => {
   const [dislikePending, setDislikePending] = useState(false);
   const [userVote, setUserVote] = useState(null); // 'like' | 'dislike' | null
 
+  const checkUser = async () => {
+    try {
+      const user = await authService.getUser();
+      setCurrentUser(user);
+    } catch (e) {
+      console.log("Failed to get user", e);
+    }
+  };
+
   useEffect(() => {
+    checkUser();
     fetchPost();
   }, [postId]);
 
@@ -126,9 +138,9 @@ const PostDetail = ({ route, navigation }) => {
       return `${diffHours} h ago`;
     } else if (diffDays < 7) {
       return `${diffDays} d ago`;
-    } else {
-      return date.toLocaleDateString();
     }
+
+    return date.toLocaleDateString();
   };
 
   const handleAddComment = async () => {
@@ -209,9 +221,11 @@ const PostDetail = ({ route, navigation }) => {
           <Ionicons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Post Details</Text>
-        <TouchableOpacity style={styles.backBtn} onPress={() => setActionsVisible(true)}>
-          <Ionicons name="ellipsis-vertical" size={20} color="#111827" />
-        </TouchableOpacity>
+        {currentUser && post.user_id === currentUser.id && (
+          <TouchableOpacity style={styles.backBtn} onPress={() => setActionsVisible(true)}>
+            <Ionicons name="ellipsis-vertical" size={20} color="#111827" />
+          </TouchableOpacity>
+        )}
       </View>
 
       <KeyboardAvoidingView
@@ -398,7 +412,8 @@ const PostDetail = ({ route, navigation }) => {
                       style: 'destructive',
                       onPress: async () => {
                         try {
-                          await deletePost(post.id, 1, false);
+                          if (!currentUser) return;
+                          await deletePost(post.id, currentUser.id, false);
                           Alert.alert('Deleted', 'Post has been deleted');
                           navigation.goBack();
                         } catch (e) {

@@ -16,21 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-
-const GROQ_API_KEY = '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';
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'qwen/qwen3-32b';
-
-const FARMING_SYSTEM_PROMPT = `You are PlantHub, an expert agricultural AI assistant for Indian farmers. Your role is to:
-1. Provide practical farming advice about crop selection, planting, irrigation, pest management, and harvesting
-2. Focus on crops commonly grown in India (rice, wheat, cotton, tomato, potato, sugarcane, etc.)
-3. Consider local weather, soil, and water conditions
-4. Give step-by-step, easy-to-understand guidance
-5. Recommend sustainable and organic methods when possible
-6. Always mention when local agricultural experts should be consulted
-7. Be conversational and encouraging
-
-Always keep responses concise (max 500 words), clear, and farmer-friendly.`;
+import { askChatbot } from '../services/chatbotService';
 
 const ChatbotModal = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -44,7 +30,6 @@ const ChatbotModal = () => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [conversationHistory, setConversationHistory] = useState([]);
   const scrollViewRef = useRef();
 
   // Keep scroll at the bottom
@@ -53,10 +38,6 @@ const ChatbotModal = () => {
       setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
     }
   }, [messages, loading, isVisible]);
-
-  const cleanThinkTags = (text) => {
-    return text.replace(/<think>.*?<\/think>/gs, '').trim();
-  };
 
   const sendMessage = async () => {
     const userMessage = input.trim();
@@ -74,57 +55,9 @@ const ChatbotModal = () => {
     setInput('');
     setLoading(true);
 
-    // Add to conversation history
-    const updatedHistory = [
-      ...conversationHistory,
-      { role: 'user', content: userMessage },
-    ];
-    setConversationHistory(updatedHistory);
-
     try {
-        if (!GROQ_API_KEY || GROQ_API_KEY.includes('YOUR_GROQ')) {
-             throw new Error('API key not configured.');
-        }
-
-        // Prepare messages for API
-        const messages_for_api = [
-        {
-            role: 'system',
-            content: FARMING_SYSTEM_PROMPT,
-        },
-        ...updatedHistory.map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content,
-        })),
-        ];
-
-        const response = await fetch(GROQ_API_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${GROQ_API_KEY}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            model: GROQ_MODEL,
-            messages: messages_for_api,
-            temperature: 0.7,
-            top_p: 0.95,
-            max_tokens: 1024,
-        }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to get response');
-        }
-
-        const data = await response.json();
-
-        if (!data.choices || data.choices.length === 0) {
-            throw new Error('No response from API');
-        }
-
-        let botResponse = data.choices[0].message.content;
-        botResponse = cleanThinkTags(botResponse);
+      const data = await askChatbot(userMessage);
+      const botResponse = data?.answer || 'I could not find an exact answer in your indexed data, but here is general guidance.';
 
         const botMsg = {
             id: (Date.now() + 1).toString(),
@@ -134,10 +67,6 @@ const ChatbotModal = () => {
         };
 
         setMessages(prev => [...prev, botMsg]);
-        setConversationHistory(prev => [
-            ...prev,
-            { role: 'bot', content: botResponse },
-        ]);
 
     } catch (error) {
         Alert.alert('Error', error.message || 'Failed to get response');

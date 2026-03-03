@@ -8,7 +8,12 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     full_name = Column(String(150), nullable=False)
     phone = Column(String(32), unique=True, index=True, nullable=False)
-    location = Column(String(255), nullable=True)
+    
+    # Updated location fields
+    image_url = Column(String(255), nullable=True)
+    location_name = Column(String(255), nullable=True)
+    location_state = Column(String(100), nullable=True)
+    location_district = Column(String(100), nullable=True)
 
     weather_alert = Column(Boolean, nullable=False, default=True)
     pest_alert = Column(Boolean, nullable=False, default=True)

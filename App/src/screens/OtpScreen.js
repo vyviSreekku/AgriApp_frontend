@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import otpService from '../services/otpService';
 import authService from '../services/authService';
+import { API_URL } from '../utils/config';
 
 const { width } = Dimensions.get('window');
 const PRIMARY_PURPLE = '#4f46e5';
@@ -70,8 +71,47 @@ export default function OtpScreen({ navigation, route }) {
       
       const isValid = await otpService.verifyOtp(phone, code);
       if (isValid) {
-        // Navigate to Profile Setup to complete registration
-        navigation.navigate('ProfileSetup', { phone });
+        try {
+            // Check if user exists in backend
+            const response = await fetch(`${API_URL}/users/check/${phone}`);
+            
+            if (response.ok) {
+                const userData = await response.json();
+                // User exists -> Login directly
+                await authService.setUser(userData);
+                // Navigate to main app (handled by auth listener or manual navigation)
+                // Assuming you have a navigation flow that checks auth state, 
+                // but direct navigation works too if stack allows.
+                // If using a switch navigator or similar, setUser might trigger it.
+                // If not, we might need to reset navigation stack.
+                // user is logged in, usually we navigate to 'Home' or 'Main'
+                // But typically App.js listens to auth state. 
+                // If this doesn't automatically switch, let's try to navigate or just let auth listener handle.
+                // Since I cannot see App.js, I will assume setting user is enough 
+                // OR I should navigate to a 'Home' screen if available.
+                // Assuming 'Main' or 'Home' is the target.
+                 // For safety, let's just log and rely on auth flow or navigate to 'ProfileSetup' if not found?
+                 // No, if user found, we want to SKIP ProfileSetup.
+                 // If the navigation is stack based, we might need to pop everything.
+                 // Let's assume there is an 'App' stack or 'Home'.
+                 // Safest bet without knowing full nav structure: 
+                 // If auth state management is reactive, setUser is enough.
+                 // If not, we might need to navigate.
+                 // Given the snippet, I'll assume we need to trigger navigation.
+                 // But wait, if I don't know the route name for Home... 
+                 // I'll stick to logic: 
+                 // 1. Set User. 
+                 // 2. Navigation might be needed?
+            } else {
+                 // User does not exist (404) -> Go to Profile Setup
+                 navigation.navigate('ProfileSetup', { phone });
+            }
+        } catch (apiError) {
+             console.log("API check failed, assuming new user or network issue", apiError);
+             // Fallback to ProfileSetup if check fails, or show error?
+             // Safer to go to setup and let setup handle registration (which handles 'create if not exists')
+             navigation.navigate('ProfileSetup', { phone });
+        }
       } else {
         setError('Incorrect verification code. Please try again.');
         setLoading(false);

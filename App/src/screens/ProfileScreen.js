@@ -99,7 +99,7 @@ export default function ProfileScreen({ navigation }) {
                   <Feather name="camera" size={14} color="#fff" />
                 </TouchableOpacity>
               </View>
-              <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+              <Text style={styles.userName}>{user?.full_name || user?.name || 'Guest'}</Text>
               <Text style={styles.userEmail}>+91 {user?.phone || '—'}</Text>
             </LinearGradient>
           </View>

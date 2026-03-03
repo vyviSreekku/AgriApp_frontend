@@ -21,12 +21,13 @@ import KnowledgeHubScreen from '../screens/KnowledgeHub/Knowledgehub';
 import CropInfo from '../screens/KnowledgeHub/Cropinfo';
 import PestInfo from '../screens/KnowledgeHub/Pestinfo';
 import WeedInfo from '../screens/KnowledgeHub/Weedinfo';
-import SoilPhScreen from '../screens/Soil/SoilPhScreen';
+import SoilPhScreen from '../screens/PHDetection/PHDetectionScreen';
 import FertilizerRecommendationScreen from '../screens/FertilizerRecommendation/FertilizerRecommendationScreen';
 import CropRecommendationScreen from '../screens/CropRecommendation/CropRecommendationScreen';
 import SoilTypeScreen from '../screens/Soil/SoilTypeScreen';
 import PestDetectionScreen from '../screens/PestDetection/PestDetectionScreen';
 import DiseaseDetectionScreen from '../screens/DiseaseDetection/DiseaseDetectionScreen';
+// import PHDetectionScreen from '../screens/PHDetection/PHDetectionScreen';
 import PlantImageCaptureScreen from '../screens/PlantImageCaptureScreen';
 import Community from '../screens/Community/Community';
 import AskCommunity from '../screens/Community/AskCommunity';
@@ -51,12 +52,13 @@ function HomeStackScreen() {
       <HomeStack.Screen name="CropInfo" component={CropInfo} options={{ title: '' }} />
       <HomeStack.Screen name="PestInfo" component={PestInfo} options={{ title: '' }} />
       <HomeStack.Screen name="WeedInfo" component={WeedInfo} options={{ title: '' }} />
-      <HomeStack.Screen name="SoilPh" component={SoilPhScreen} options={{ title: '' }} />
+      <HomeStack.Screen name="SoilPh" component={SoilPhScreen} options={{ headerShown: false }} />
       <HomeStack.Screen name="FertilizerRecommendation" component={FertilizerRecommendationScreen} options={{ title: '' }} />
         <HomeStack.Screen name="CropRecommendation" component={CropRecommendationScreen} options={{ title: '' }} />
       <HomeStack.Screen name="SoilType" component={SoilTypeScreen} options={{ title: '' }} />
       <HomeStack.Screen name="PestDetection" component={PestDetectionScreen} options={{ title: '' }} />
       <HomeStack.Screen name="DiseaseDetection" component={DiseaseDetectionScreen} options={{ title: '' }} />
+      {/* <HomeStack.Screen name="PHDetection" component={PHDetectionScreen} options={{ title: 'Soil pH Check' }} /> */}
     </HomeStack.Navigator>
   );
 }

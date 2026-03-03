@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import authService from '../services/authService';
+import { API_URL } from '../utils/config';
 
 export default function ProfileSetupScreen({ navigation, route }) {
   const { phone } = route.params || {};
@@ -30,18 +31,38 @@ export default function ProfileSetupScreen({ navigation, route }) {
       Alert.alert('Missing Information', 'Please enter your full name.');
       return;
     }
-    if (!district.trim()) {
-      Alert.alert('Missing Information', 'Please enter your district.');
-      return;
-    }
 
     setLoading(true);
     try {
-        // Here we would typically save the profile to the backend
-        // For now, we update the local auth service with the new details
+        const userDataPayload = {
+            phone: phone,
+            full_name: fullName,
+            location_district: district,
+            location_state: stateRegion
+        };
+
+        const response = await fetch(`${API_URL}/users/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userDataPayload)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create user');
+        }
+        
+        const userData = await response.json();
+        console.log('User created:', userData);
+
+        if (!userData.id) {
+            console.warn('Backend did not return user ID');
+        }
+
+        // Also store email and separate location parts locally if needed by UI, 
+        // though backend only returns the combined location.
+        // We'll merge backend response with local state for auth storage.
         await authService.setUser({ 
-            name: fullName, 
-            phone: phone, 
+            ...userData,
             email: email, 
             district: district, 
             state: stateRegion 
@@ -50,6 +71,7 @@ export default function ProfileSetupScreen({ navigation, route }) {
         // Navigation will be handled by the auth state listener in the main navigator
         // or we can manually navigate if needed, but usually setUser triggers the switch
     } catch (error) {
+        console.error(error);
         Alert.alert('Error', 'Could not save profile. Please try again.');
         setLoading(false);
     }
@@ -125,7 +147,7 @@ export default function ProfileSetupScreen({ navigation, route }) {
 
             {/* Farm Location - District (Required) */}
             <View style={styles.inputGroup}>
-                <Text style={styles.label}>District <Text style={styles.required}>*</Text></Text>
+                <Text style={styles.label}>District<Text style={styles.optional}>(Optional)</Text></Text>
                 <View style={styles.inputWrapper}>
                     <MaterialCommunityIcons name="map-marker-outline" size={20} color="#6b7280" style={styles.icon} />
                     <TextInput

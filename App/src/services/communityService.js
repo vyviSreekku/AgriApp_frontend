@@ -18,6 +18,7 @@ const COMMUNITY_API = `${API_URL}/community`;
  */
 export const getAllPosts = async (skip = 0, limit = 20) => {
   try {
+    console.log('[DEBUG] Requesting getAllPosts:', `${COMMUNITY_API}/posts`, { offset: skip, limit });
     const response = await axios.get(`${COMMUNITY_API}/posts`, {
       params: { offset: skip, limit }
     });
@@ -63,6 +64,7 @@ export const getPostById = async (postId) => {
  */
 export const searchPosts = async (keyword, skip = 0, limit = 20) => {
   try {
+    console.log('[DEBUG] Searching posts:', `${COMMUNITY_API}/posts`, { q: keyword, offset: skip, limit });
     const response = await axios.get(`${COMMUNITY_API}/posts`, {
       params: { q: keyword, offset: skip, limit }
     });
@@ -113,7 +115,9 @@ export const createPost = async (postData, imageUris = []) => {
       console.log('No images to upload');
     }
 
-    console.log('Sending request...');
+    console.log('Sending request to:', `${COMMUNITY_API}/posts`);
+    console.log('Method: POST');
+    console.log('Headers:', { 'Accept': 'application/json' });
 
     // Use fetch API instead of axios for better React Native FormData support
     const response = await fetch(`${COMMUNITY_API}/posts`, {

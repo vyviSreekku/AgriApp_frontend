@@ -11,6 +11,8 @@ from app.routes import soil_routes
 from app.routes import pest_routes
 from app.routes import weed_routes
 from app.routes import soil_ph_routes
+from app.routes import user_routes
+from app.routes import chatbot_routes
 from .database import Base, engine
 
 from .models import user  
@@ -46,6 +48,8 @@ app.include_router(soil_routes.router)
 app.include_router(pest_routes.router)
 app.include_router(weed_routes.router)
 app.include_router(soil_ph_routes.router)
+app.include_router(user_routes.router)
+app.include_router(chatbot_routes.router)
 
 @app.get("/")
 def read_root():

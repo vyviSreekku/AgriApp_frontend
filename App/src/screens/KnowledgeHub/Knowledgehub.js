@@ -18,6 +18,7 @@ import pestData from "../../../dataset/pest.json";
 import diseaseData from "../../../dataset/village_plant_disease_dataset.json";
 import weedData from "../../../dataset/weed.json";
 import KnowledgeHubDetailView from "./KnowledgeHubDetails";
+import { getPlantDiseaseImage } from "../../utils/plantDiseaseImages";
 
 const GREEN = "#191fc3ff";
 const BG = "#e2ebf9ff";
@@ -91,7 +92,7 @@ const getDiseases = () => {
           name: d.common_name || d.disease_name || "Unknown Disease",
           description: d.symptoms ? d.symptoms.split(',')[0] : "No symptoms description", // Short description for card
           category: d.plant_host,
-          image: d.common_name || d.disease_name,
+          image: d.disease_name || d.common_name,
           color: "#f59e0b",
           ...d,
           // Normalize fields for detail view:
@@ -198,23 +199,26 @@ const KNOWLEDGE_DATA = {
   plants: getPlants(),
 };
 
-import { getLocalImage, debugPrintAllPaths } from "../../utils/LocalImages";
+import { getLocalImage } from "../../utils/LocalImages";
 
-const getImageSource = (name) => {
-    // Attempt multiple lookups: Direct name, lowercase, with category context if possible
-    // Note: The previous implementation only had `name`.
-    // Since `getLocalImage` requires group and category, we will try to infer them or do a global lookup.
-    
-    // Check pests
-    // We try to match by name across all categories if category is unknown here.
-    const pestImage = getLocalImage("pests", "", name);
+const getImageSource = (item, tab) => {
+  if (tab === "diseases") {
+    const diseaseImage = getPlantDiseaseImage(item?.disease_name || item?.image || item?.name);
+    if (diseaseImage) return diseaseImage;
+  }
+
+  if (tab === "pests") {
+    const pestImage = getLocalImage("pests", item?.category || "", item?.image || item?.name || "");
     if (pestImage) return pestImage;
+  }
 
-    // Check weeds
-    const weedImage = getLocalImage("weeds", "", name);
+  if (tab === "weeds") {
+    const weedImage = getLocalImage("weeds", item?.title || item?.category || "", item?.image || item?.name || "");
     if (weedImage) return weedImage;
+  }
 
-    return { uri: `https://picsum.photos/seed/${encodeURIComponent(name)}/400/300` };
+  const seed = item?.image || item?.name || "plant";
+  return { uri: `https://picsum.photos/seed/${encodeURIComponent(seed)}/400/300` };
 };
 
 const EnhancedKnowledgeHub = ({ navigation }) => {
@@ -263,9 +267,9 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['right', 'left']}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: 40 }]}>
         <Text style={styles.headerTitle}>Knowledge Hub</Text>
         <Text style={styles.headerSubtitle}>Explore agricultural resources</Text>
       </View>
@@ -348,7 +352,7 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
                             onPress={() => handleItemPress(item)}
                         >
                              <Image
-                                source={getImageSource(item.image)}
+                                source={getImageSource(item, activeTab)}
                                 style={styles.horizontalCardImage}
                              />
                              <View style={styles.cardOverlay} />
@@ -399,7 +403,7 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
             {selectedItem && (
               <>
                 <Image
-                  source={getImageSource(selectedItem.image)}
+                  source={getImageSource(selectedItem, activeTab)}
                   style={styles.modalImage}
                 />
                 <View style={styles.modalInfo}>
@@ -448,16 +452,17 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
     backgroundColor: BG,
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "800",
     color: GREEN,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   headerSubtitle: {
     fontSize: 13,

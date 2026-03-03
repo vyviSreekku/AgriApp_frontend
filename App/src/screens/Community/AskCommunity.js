@@ -18,6 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { createPost, updatePost } from "../../services/communityService";
+import authService from "../../services/authService";
 
 const ACCENT = "#0b0be2ff";
 const MAX_TITLE = 200;
@@ -85,15 +86,21 @@ const AskCommunity = ({ navigation, route }) => {
 
     try {
       setSubmitting(true);
+      const user = await authService.getUser();
+      if (!user || !user.id) {
+        Alert.alert('Error', 'You must be logged in to post.');
+        return;
+      }
+
       const payload = {
-        user_id: 1, // TODO: replace with auth user id
+        user_id: user.id,
         title: question.trim(),
         content: (description.trim() || question.trim()),
       };
 
       if (isEdit && editingPost?.id) {
         // Update title/content; keep image unchanged for now
-        await updatePost(editingPost.id, { title: payload.title, content: payload.content }, 1, false);
+        await updatePost(editingPost.id, { title: payload.title, content: payload.content }, user.id, false);
         Alert.alert('Updated', 'Your post has been updated!', [
           { text: 'OK', onPress: () => navigation?.goBack?.() },
         ]);
