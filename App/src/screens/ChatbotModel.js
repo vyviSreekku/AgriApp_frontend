@@ -17,6 +17,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { askChatbot } from '../services/chatbotService';
+import NetInfo from '@react-native-community/netinfo';
+import ModelManager from '../services/ModelManager';
 
 const ChatbotModal = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -30,14 +32,61 @@ const ChatbotModal = () => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Offline & Model States
+  const [isOffline, setIsOffline] = useState(false);
+  const [modelReady, setModelReady] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const scrollViewRef = useRef();
+
+  // Monitor Network State
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsOffline(!state.isConnected);
+    });
+    return unsubscribe;
+  }, []);
+
+  // Initialize Model when Offline and Visible
+  useEffect(() => {
+    if (isVisible && !modelReady && !isDownloading) {
+      initializeModel();
+    }
+  }, [isVisible, modelReady]);
+
+  const initializeModel = async () => {
+    const hasModel = await ModelManager.hasModel();
+
+    if (isOffline && !hasModel) {
+      Alert.alert("Offline model unavailable", "Connect to the internet once to download the offline model for this device.");
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      const success = await ModelManager.setupModel((progress) => {
+        setDownloadProgress(progress);
+      });
+      if (success) {
+        setModelReady(true);
+      } else {
+        Alert.alert("Error", "Failed to load offline model.");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   // Keep scroll at the bottom
   useEffect(() => {
     if (isVisible) {
       setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
     }
-  }, [messages, loading, isVisible]);
+  }, [messages, loading, isVisible, downloadProgress]);
 
   const sendMessage = async () => {
     const userMessage = input.trim();
@@ -56,8 +105,42 @@ const ChatbotModal = () => {
     setLoading(true);
 
     try {
-      const data = await askChatbot(userMessage);
-      const botResponse = data?.answer || 'I could not find an exact answer in your indexed data, but here is general guidance.';
+      if (isOffline) {
+        if (!modelReady) {
+           Alert.alert("Please Wait", "Offline model is still preparing...");
+           setLoading(false);
+           return;
+        }
+
+        // Add placeholder bot message for streaming
+        const botMsgId = (Date.now() + 1).toString();
+        const botMsgPlaceholder = {
+            id: botMsgId,
+            text: "", // Start empty
+            sender: 'bot',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages(prev => [...prev, botMsgPlaceholder]);
+
+        // Stream response
+        await ModelManager.generate(userMessage, (token) => {
+            setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMsgIndex = newMessages.findIndex(m => m.id === botMsgId);
+                if (lastMsgIndex !== -1) {
+                    newMessages[lastMsgIndex] = {
+                        ...newMessages[lastMsgIndex],
+                        text: newMessages[lastMsgIndex].text + token
+                    };
+                }
+                return newMessages;
+            });
+        });
+
+      } else {
+        // Online Mode
+        const data = await askChatbot(userMessage);
+        const botResponse = data?.answer || 'I could not find an exact answer in your indexed data, but here is general guidance.';
 
         const botMsg = {
             id: (Date.now() + 1).toString(),
@@ -65,16 +148,19 @@ const ChatbotModal = () => {
             sender: 'bot',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
-
         setMessages(prev => [...prev, botMsg]);
+      }
 
     } catch (error) {
-        Alert.alert('Error', error.message || 'Failed to get response');
+        // Alert.alert('Error', error.message || 'Failed to get response');
+        console.error("Chat Error:", error);
         
         // Add error message to chat
         const errorMsg = {
             id: (Date.now() + 1).toString(),
-            text: "Sorry, I'm having trouble connecting to the network right now. Please try again.",
+            text: isOffline 
+                  ? "Sorry, I'm having trouble with the offline model." 
+                  : "Sorry, I'm having trouble connecting to the network right now. Please try again.",
             sender: 'bot',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
@@ -187,6 +273,24 @@ const ChatbotModal = () => {
               </View>
             </View>
           </KeyboardAvoidingView>
+          
+          {/* Download Progress Indicator */}
+          {isVisible && isOffline && !modelReady && isDownloading && (
+            <View style={{ padding: 10, backgroundColor: '#f0f0f0', borderTopWidth: 1, borderColor: '#ddd', alignItems: 'center' }}>
+              <Text style={{ textAlign: 'center', marginBottom: 5, color: '#555' }}>
+                Downloading Offline Model... {Math.round(downloadProgress * 100)}%
+              </Text>
+              <View style={styles.downloadProgressTrack}>
+                <View
+                  style={[
+                    styles.downloadProgressFill,
+                    { width: `${Math.max(0, Math.min(downloadProgress, 1)) * 100}%` },
+                  ]}
+                />
+              </View>
+            </View>
+          )}
+
         </SafeAreaView>
       </Modal>
     </View>
@@ -249,6 +353,18 @@ const styles = StyleSheet.create({
   closeIcon: { fontSize: 14, color: '#999', fontWeight: 'bold' },
 
   chatArea: { flex: 1 },
+  downloadProgressTrack: {
+    width: 200,
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: '#D6E6D7',
+    overflow: 'hidden',
+  },
+  downloadProgressFill: {
+    height: '100%',
+    backgroundColor: '#2E7D32',
+    borderRadius: 999,
+  },
   msgWrapper: { marginVertical: 6, flexDirection: 'row', width: '100%' },
   userWrapper: { justifyContent: 'flex-end' },
   botWrapper: { justifyContent: 'flex-start' },
