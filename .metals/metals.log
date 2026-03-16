@@ -293,3 +293,295 @@ WARNING: Unmatched cancel notification for request id 58
 2026.03.07 14:40:59 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
 2026.03.07 15:06:02 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
 2026.03.07 15:32:56 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.07 19:07:13 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.07 19:07:13 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.07 19:10:57 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.07 19:10:58 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.07 19:11:01 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.07 19:11:02 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.07 19:11:01 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+Mar 07, 2026 7:11:02 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 81
+Mar 07, 2026 7:11:03 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 85
+Mar 07, 2026 7:11:03 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 84
+2026.03.07 19:11:03 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.07 19:11:04 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.07 19:36:22 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.07 20:36:15 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.07 21:46:39 INFO  Shutting down server
+2026.03.07 21:46:39 INFO  Memory monitor stopped
+2026.03.07 21:46:39 INFO  shutting down Metals
+2026.03.07 21:46:40 INFO  Exiting server
+2026.03.08 13:57:22 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.110.1.
+2026.03.08 13:57:35 INFO  Memory monitor started
+2026.03.08 13:57:40 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+Mar 08, 2026 1:59:47 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint consume
+WARNING: Unkown message type.
+2026.03.08 14:01:01 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.110.1.
+2026.03.08 14:01:01 INFO  time: initialize in 0.11s
+2026.03.08 14:01:01 INFO  Memory monitor started
+2026.03.08 14:01:08 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.08 14:02:10 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.08 14:02:10 WARN  Build server is not auto-connectable.
+2026.03.08 14:02:10 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.08 15:07:16 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java
+2026.03.08 15:07:17 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\build\generated\autolinking\src\main\java\com\facebook\react\PackageList.java
+2026.03.08 15:07:17 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.03.08 15:07:18 INFO  Created report: Optional[file:///D:/FINAL_YEAR/React_App_new/AgriApp_frontend_and_backend/App/android/app/src/main/java/com/smolchatrn/LLMModulePackage.java]
+2026.03.08 15:07:18 INFO  empty definition using pc, found symbol in pc: com/facebook/react/ReactPackage# (full report at: "D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\.reports\metals-full\2026-03-08\r_empty-definition_15-07-18-942.md")
+2026.03.08 15:07:19 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.03.08 15:09:51 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\onnxruntime-react-native\android\src\main\java\ai\onnxruntime\reactnative\OnnxruntimePackage.java
+2026.03.08 15:09:51 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\onnxruntime-react-native\android\src\main\java\ai\onnxruntime\reactnative\OnnxruntimeModule.java
+2026.03.08 15:09:56 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\build\generated\autolinking\src\main\java\com\facebook\react\PackageList.java. Using fallback presentation compiler.
+2026.03.08 15:09:57 INFO  Created report: Optional[file:///D:/FINAL_YEAR/React_App_new/AgriApp_frontend_and_backend/App/android/app/build/generated/autolinking/src/main/java/com/facebook/react/PackageList.java]
+2026.03.08 15:09:57 INFO  empty definition using pc, found symbol in pc: com/facebook/react/ReactPackage# (full report at: "D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\.reports\metals-full\2026-03-08\r_empty-definition_15-09-57-232.md")
+2026.03.08 15:09:57 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\onnxruntime-react-native\android\src\main\java\ai\onnxruntime\reactnative\OnnxruntimePackage.java. Using fallback presentation compiler.
+2026.03.08 15:09:57 INFO  Created report: Optional[file:///D:/FINAL_YEAR/React_App_new/AgriApp_frontend_and_backend/App/node_modules/onnxruntime-react-native/android/src/main/java/ai/onnxruntime/reactnative/OnnxruntimePackage.java]
+2026.03.08 15:09:57 INFO  empty definition using pc, found symbol in pc: com/facebook/react/ReactPackage# (full report at: "D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\.reports\metals-full\2026-03-08\r_empty-definition_15-09-57-460.md")
+2026.03.08 15:09:57 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java
+2026.03.08 15:09:57 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.03.08 15:09:57 INFO  empty definition using pc, found symbol in pc: com/facebook/react/ReactPackage# (full report at: "D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\.reports\metals-full\2026-03-08\r_empty-definition_15-07-18-942.md")
+2026.03.08 15:09:57 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.03.08 15:10:16 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\build\generated\autolinking\src\main\java\com\facebook\react\PackageList.java. Using fallback presentation compiler.
+2026.03.08 15:12:51 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\onnxruntime-react-native\android\src\main\java\ai\onnxruntime\reactnative\OnnxruntimePackage.java. Using fallback presentation compiler.
+2026.03.08 15:12:53 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\onnxruntime-react-native\android\src\main\java\ai\onnxruntime\reactnative\OnnxruntimeModule.java. Using fallback presentation compiler.
+2026.03.10 00:00:27 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.110.1.
+2026.03.10 00:00:28 INFO  Memory monitor started
+2026.03.10 00:00:41 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.10 19:05:02 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.110.1.
+2026.03.10 19:05:04 INFO  Memory monitor started
+2026.03.10 19:05:11 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.10 19:07:21 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.10 19:07:21 WARN  Build server is not auto-connectable.
+2026.03.10 19:07:21 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.10 22:03:08 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.10 22:03:13 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.10 22:03:50 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.10 22:03:50 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.10 22:06:11 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.10 22:06:11 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.11 00:02:13 INFO  Shutting down server
+2026.03.11 00:02:13 INFO  Memory monitor stopped
+2026.03.11 00:02:13 INFO  shutting down Metals
+2026.03.11 00:02:15 INFO  Exiting server
+2026.03.11 16:53:45 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.11 16:53:45 INFO  time: initialize in 0.34s
+2026.03.11 16:54:01 INFO  Memory monitor started
+2026.03.11 16:54:28 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.11 18:55:09 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.11 18:55:11 INFO  Memory monitor started
+2026.03.11 18:55:22 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.11 18:57:18 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.11 18:57:18 WARN  Build server is not auto-connectable.
+2026.03.11 18:57:18 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.11 19:31:23 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:38:32 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:38:42 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:38:42 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:38:42 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:38:44 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:38:44 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:51:18 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:51:21 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.11 19:51:49 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 19:51:49 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 20:12:15 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 21:07:26 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.11 21:07:26 INFO  Memory monitor started
+2026.03.11 21:07:35 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.11 21:08:01 INFO  Shutting down server
+2026.03.11 21:08:01 INFO  Memory monitor stopped
+2026.03.11 21:08:01 INFO  shutting down Metals
+2026.03.11 21:08:01 INFO  Exiting server
+2026.03.11 22:44:24 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.11 22:44:24 INFO  Memory monitor started
+2026.03.11 22:44:32 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.11 22:46:18 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.11 22:46:19 WARN  Build server is not auto-connectable.
+2026.03.11 22:46:19 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.11 23:25:19 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 23:30:51 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.11 23:54:41 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.12 00:23:48 INFO  Shutting down server
+2026.03.12 00:23:48 INFO  Memory monitor stopped
+2026.03.12 00:23:48 INFO  shutting down Metals
+2026.03.12 00:23:50 INFO  Exiting server
+2026.03.12 20:45:07 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.12 20:45:07 INFO  Memory monitor started
+2026.03.12 20:45:13 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.12 20:47:46 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.12 20:47:46 WARN  Build server is not auto-connectable.
+2026.03.12 20:47:46 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.12 21:25:10 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.12 22:17:04 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.12 22:36:03 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.12 22:36:08 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.12 22:36:08 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.12 22:36:08 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.12 22:36:10 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.13 00:04:58 INFO  Shutting down server
+2026.03.13 00:04:58 INFO  Memory monitor stopped
+2026.03.13 00:04:58 INFO  shutting down Metals
+2026.03.13 00:05:00 INFO  Exiting server
+2026.03.13 14:37:55 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.13 14:37:56 INFO  time: initialize in 0.14s
+2026.03.13 14:37:57 INFO  Memory monitor started
+2026.03.13 14:38:08 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.13 14:41:11 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.13 14:41:12 WARN  Build server is not auto-connectable.
+2026.03.13 14:41:12 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.13 21:16:52 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.13 21:17:04 INFO  Memory monitor started
+2026.03.13 21:17:22 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.13 23:15:28 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.13 23:15:28 INFO  Memory monitor started
+2026.03.13 23:15:41 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.13 23:17:55 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.13 23:17:55 WARN  Build server is not auto-connectable.
+2026.03.13 23:17:55 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.14 00:43:29 INFO  Shutting down server
+2026.03.14 00:43:29 INFO  Memory monitor stopped
+2026.03.14 00:43:29 INFO  shutting down Metals
+2026.03.14 10:49:26 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.14 10:49:26 INFO  Memory monitor started
+2026.03.14 10:49:37 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.14 10:55:56 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.14 10:55:56 WARN  Build server is not auto-connectable.
+2026.03.14 10:55:56 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.14 12:13:43 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.14 12:13:45 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.14 21:29:25 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.14 21:29:35 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+Mar 14, 2026 9:29:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1
+2026.03.14 21:29:35 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+Mar 14, 2026 9:29:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 4
+Mar 14, 2026 9:29:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3
+Mar 14, 2026 9:29:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2
+2026.03.14 21:29:35 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.14 21:32:59 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at d:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\lsp.trace.json or C:\Users\sheeja\AppData\Local\scalameta\metals\cache\lsp.trace.json
+2026.03.14 21:33:17 INFO  logging to files D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\metals.log
+2026.03.14 21:33:17 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.14 21:33:17 INFO  Memory monitor started
+2026.03.14 21:33:33 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.14 21:37:25 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.14 21:37:25 WARN  Build server is not auto-connectable.
+2026.03.14 21:37:25 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.14 22:35:46 INFO  Shutting down server
+2026.03.14 22:35:46 INFO  Memory monitor stopped
+2026.03.14 22:35:46 INFO  shutting down Metals
+2026.03.15 20:52:46 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.15 20:52:47 INFO  time: initialize in 1.02s
+2026.03.15 20:53:36 INFO  Memory monitor started
+2026.03.15 20:54:02 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.15 20:58:52 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at d:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\lsp.trace.json or C:\Users\sheeja\AppData\Local\scalameta\metals\cache\lsp.trace.json
+2026.03.15 20:59:09 INFO  logging to files D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\metals.log
+2026.03.15 20:59:09 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.15 20:59:09 INFO  time: initialize in 0.71s
+2026.03.15 20:59:28 INFO  Memory monitor started
+2026.03.15 21:00:18 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.15 21:03:29 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.15 21:03:29 WARN  Build server is not auto-connectable.
+2026.03.15 21:03:35 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.15 22:37:13 INFO  Shutting down server
+2026.03.15 22:37:13 INFO  Memory monitor stopped
+2026.03.15 22:37:13 INFO  shutting down Metals
+2026.03.15 22:37:14 INFO  Exiting server
+2026.03.16 11:38:13 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.16 11:38:14 INFO  time: initialize in 0.1s
+2026.03.16 11:38:14 INFO  Memory monitor started
+2026.03.16 11:38:30 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.16 11:42:44 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.16 11:42:44 INFO  time: initialize in 0.14s
+2026.03.16 11:42:44 INFO  Memory monitor started
+2026.03.16 11:42:57 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.16 11:47:03 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.16 11:47:04 WARN  Build server is not auto-connectable.
+2026.03.16 11:47:04 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.16 15:33:28 INFO  Shutting down server
+2026.03.16 15:33:28 INFO  Memory monitor stopped
+2026.03.16 15:33:28 INFO  shutting down Metals
+2026.03.16 15:33:28 INFO  Exiting server
+2026.03.16 15:45:51 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.16 15:45:53 INFO  Memory monitor started
+2026.03.16 15:46:01 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.16 15:50:23 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.16 15:50:24 INFO  Memory monitor started
+2026.03.16 15:50:37 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.16 15:51:24 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.16 15:51:30 INFO  Memory monitor started
+2026.03.16 15:51:42 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.16 15:58:13 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.16 15:58:14 INFO  Memory monitor started
+2026.03.16 15:58:22 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.16 16:00:29 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.16 16:00:31 WARN  Build server is not auto-connectable.
+2026.03.16 16:00:32 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.16 16:11:41 INFO  Shutting down server
+2026.03.16 16:11:41 INFO  Memory monitor stopped
+2026.03.16 16:11:41 INFO  shutting down Metals
+2026.03.16 16:11:43 INFO  Exiting server
+2026.03.16 16:13:50 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at d:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\.metals\lsp.trace.json
+2026.03.16 16:13:50 ERROR Failed to get project directories
+java.lang.RuntimeException: java.io.IOException: There is not enough space on the disk
+	at coursier.jniutils.LoadWindowsLibrary.ensureInitialized(LoadWindowsLibrary.java:77)
+	at coursier.jniutils.NativeApi.get(NativeApi.java:30)
+	at coursier.jniutils.WindowsKnownFolders.knownFolderPath(WindowsKnownFolders.java:6)
+	at dev.dirs.jni.WindowsJni.winDirs(WindowsJni.java:13)
+	at dev.dirs.ProjectDirectories.fromPath(ProjectDirectories.java:266)
+	at scala.meta.internal.metals.MetalsProjectDirectories$.$anonfun$fromPath$1(MetalsProjectDirectories.scala:41)
+	at scala.concurrent.Future$.$anonfun$apply$1(Future.scala:691)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:500)
+	at java.util.concurrent.ForkJoinTask$RunnableExecuteAction.exec(ForkJoinTask.java:1395)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:373)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1182)
+	at java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1655)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1622)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:165)
+Caused by: java.io.IOException: There is not enough space on the disk
+	at sun.nio.ch.FileDispatcherImpl.pwrite0(Native Method)
+	at sun.nio.ch.FileDispatcherImpl.pwrite(FileDispatcherImpl.java:74)
+	at sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:130)
+	at sun.nio.ch.IOUtil.write(IOUtil.java:97)
+	at sun.nio.ch.IOUtil.write(IOUtil.java:67)
+	at sun.nio.ch.FileChannelImpl.writeInternal(FileChannelImpl.java:878)
+	at sun.nio.ch.FileChannelImpl.write(FileChannelImpl.java:861)
+	at sun.nio.ch.FileChannelImpl.transferFromArbitraryChannel(FileChannelImpl.java:771)
+	at sun.nio.ch.FileChannelImpl.transferFrom(FileChannelImpl.java:806)
+	at coursier.jniutils.LoadWindowsLibrary.fromResources(LoadWindowsLibrary.java:52)
+	at coursier.jniutils.LoadWindowsLibrary.ensureInitialized(LoadWindowsLibrary.java:75)
+	at coursier.jniutils.NativeApi.get(NativeApi.java:30)
+	at coursier.jniutils.WindowsKnownFolders.knownFolderPath(WindowsKnownFolders.java:6)
+	at dev.dirs.jni.WindowsJni.winDirs(WindowsJni.java:13)
+	at dev.dirs.ProjectDirectories.fromPath(ProjectDirectories.java:266)
+	at scala.meta.internal.metals.MetalsProjectDirectories$.$anonfun$fromPath$1(MetalsProjectDirectories.scala:41)
+	at scala.concurrent.Future$.$anonfun$apply$1(Future.scala:691)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:500)
+	at java.util.concurrent.ForkJoinTask$RunnableExecuteAction.exec(ForkJoinTask.java:1395)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:373)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1182)
+	at java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1655)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1622)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:165)
+
+2026.03.16 18:54:12 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.16 18:54:12 INFO  Memory monitor started
+2026.03.16 18:54:16 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.16 19:40:18 INFO  Started: Metals version 1.6.6 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.111.0.
+2026.03.16 19:40:24 INFO  Memory monitor started
+2026.03.16 19:40:32 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.03.16 19:42:41 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.03.16 19:42:41 WARN  Build server is not auto-connectable.
+2026.03.16 19:42:41 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.16 19:42:51 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.16 20:01:13 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.03.16 20:04:13 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.03.16 20:28:46 INFO  Shutting down server
+2026.03.16 20:28:46 INFO  Memory monitor stopped
+2026.03.16 20:28:46 INFO  shutting down Metals
+2026.03.16 20:28:49 INFO  Exiting server

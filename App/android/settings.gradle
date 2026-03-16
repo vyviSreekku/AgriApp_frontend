@@ -36,4 +36,6 @@ rootProject.name = 'App'
 expoAutolinking.useExpoVersionCatalog()
 
 include ':app'
+include ':onnxruntime-react-native'
+project(':onnxruntime-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/onnxruntime-react-native/android')
 includeBuild(expoAutolinking.reactNativeGradlePlugin)

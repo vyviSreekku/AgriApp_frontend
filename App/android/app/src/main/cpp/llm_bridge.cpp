@@ -11,7 +11,7 @@
 
 // Global LLM instance
 static LLMInference *llm = nullptr;
-static constexpr int TOKEN_BATCH_SIZE = 6;
+static constexpr int TOKEN_BATCH_SIZE = 12;
 
 // Mutex for thread safety
 static std::mutex llm_mutex;
@@ -28,6 +28,12 @@ Java_com_smolchatrn_LLMModule_nativeInit(
         jlong context_size,
         jstring chat_template,
         jint n_threads,
+    jint n_threads_batch,
+    jint batch_size,
+    jint micro_batch_size,
+    jint max_output_tokens,
+    jint flash_attention_type,
+    jboolean offload_kqv,
         jboolean use_mmap,
         jboolean use_mlock
 ) {
@@ -54,6 +60,12 @@ Java_com_smolchatrn_LLMModule_nativeInit(
                 context_size,
                 c_chat_template_path,
                 n_threads,
+                n_threads_batch,
+                batch_size,
+                micro_batch_size,
+                max_output_tokens,
+                flash_attention_type,
+                offload_kqv,
                 use_mmap,
                 use_mlock
         );
@@ -150,7 +162,7 @@ Java_com_smolchatrn_LLMModule_nativeGenerate(
             token_buffer += token;
             buffered_token_count += 1;
 
-            if (buffered_token_count >= TOKEN_BATCH_SIZE || token_buffer.size() >= 48) {
+            if (buffered_token_count >= TOKEN_BATCH_SIZE || token_buffer.size() >= 96) {
                 LOGi("Emitting token chunk: %s", token_buffer.c_str());
                 flush_tokens(token_buffer);
                 token_buffer.clear();
@@ -205,4 +217,31 @@ Java_com_smolchatrn_LLMModule_nativeRelease(
         llm = nullptr;
         LOGi("LLM released");
     }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_smolchatrn_LLMModule_nativeResetConversation(
+        JNIEnv * /* env */,
+        jobject /* this */
+) {
+    std::lock_guard<std::mutex> lock(llm_mutex);
+
+    if (!llm) {
+        LOGi("nativeResetConversation ignored because LLM is not initialized");
+        return;
+    }
+
+    llm->resetConversation();
+    LOGi("Conversation reset complete");
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_smolchatrn_LLMModule_nativeIsModelReady(
+        JNIEnv * /* env */,
+        jobject /* this */
+) {
+    std::lock_guard<std::mutex> lock(llm_mutex);
+    return llm != nullptr;
 }

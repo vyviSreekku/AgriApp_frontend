@@ -115,9 +115,15 @@ android {
             }
         }
     }
+    // Disable failing release lint to avoid Metaspace OOM in expo-modules-core lintVitalAnalyzeRelease.
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
     externalNativeBuild {
         cmake {
             path "src/main/jni/CMakeLists.txt"
+            buildStagingDirectory "C:/tmp/jni"
         }
     }
 
@@ -126,6 +132,7 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation project(':onnxruntime-react-native')
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

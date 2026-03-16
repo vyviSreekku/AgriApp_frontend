@@ -19,17 +19,21 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { askChatbot } from '../services/chatbotService';
 import NetInfo from '@react-native-community/netinfo';
 import ModelManager from '../services/ModelManager';
+import OfflineRagService from '../services/offlineRagService';
+
+const STREAM_FLUSH_INTERVAL_MS = 80;
 
 const ChatbotModal = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [messages, setMessages] = useState([
+  const initialMessages = [
     {
       id: '1',
       text: "Namaste! 👋 I'm PlantHub Assistant. How can I help you with your crops today?",
       sender: 'bot',
       time: 'Just now',
     },
-  ]);
+  ];
+  const [isVisible, setIsVisible] = useState(false);
+  const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -38,8 +42,25 @@ const ChatbotModal = () => {
   const [modelReady, setModelReady] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [hasLocalModel, setHasLocalModel] = useState(false);
+  const [ragReady, setRagReady] = useState(false);
+  const [ragCacheInfo, setRagCacheInfo] = useState({ exists: false, sizeLabel: '0 B' });
+  const [isSyncingRag, setIsSyncingRag] = useState(false);
 
   const scrollViewRef = useRef();
+  const streamedTokenBufferRef = useRef('');
+  const streamedTokenTimerRef = useRef(null);
+
+  const refreshRagCacheInfo = async () => {
+    const [available, bundleInfo] = await Promise.all([
+      OfflineRagService.isRetrievalAvailable(),
+      OfflineRagService.getCachedBundleInfo(),
+    ]);
+
+    setRagReady(available);
+    setRagCacheInfo(bundleInfo);
+    return { available, bundleInfo };
+  };
 
   // Monitor Network State
   useEffect(() => {
@@ -54,10 +75,140 @@ const ChatbotModal = () => {
     if (isVisible && !modelReady && !isDownloading) {
       initializeModel();
     }
-  }, [isVisible, modelReady]);
+  }, [isVisible, modelReady, isDownloading]);
+
+  useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+
+    let isMounted = true;
+
+    ModelManager.hasModel()
+      .then((exists) => {
+        if (isMounted) {
+          setHasLocalModel(exists);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to check local model availability:', error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+
+    let isMounted = true;
+
+    refreshRagCacheInfo()
+      .then(({ available, bundleInfo }) => {
+        if (isMounted) {
+          setRagReady(available);
+          setRagCacheInfo(bundleInfo);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to check offline RAG bundle:', error);
+      });
+
+    if (!isOffline) {
+      setIsSyncingRag(true);
+      OfflineRagService.prepareResources({ allowNetworkSync: true })
+        .then(() => {
+          if (isMounted) {
+            return refreshRagCacheInfo().then(({ available, bundleInfo }) => {
+              if (isMounted) {
+                setRagReady(available);
+                setRagCacheInfo(bundleInfo);
+              }
+            });
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to prepare offline RAG resources:', error);
+        })
+        .finally(() => {
+          if (isMounted) {
+            setIsSyncingRag(false);
+          }
+        });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isVisible, isOffline]);
+
+  useEffect(() => {
+    return () => {
+      if (streamedTokenTimerRef.current) {
+        clearTimeout(streamedTokenTimerRef.current);
+      }
+    };
+  }, []);
+
+  const flushStreamedTokens = (botMsgId) => {
+    const bufferedText = streamedTokenBufferRef.current;
+    streamedTokenBufferRef.current = '';
+
+    if (!bufferedText) {
+      return;
+    }
+
+    setMessages(prev => {
+      const newMessages = [...prev];
+      const lastMsgIndex = newMessages.findIndex(m => m.id === botMsgId);
+      if (lastMsgIndex !== -1) {
+        newMessages[lastMsgIndex] = {
+          ...newMessages[lastMsgIndex],
+          text: newMessages[lastMsgIndex].text + bufferedText,
+        };
+      }
+      return newMessages;
+    });
+  };
+
+  const queueStreamedToken = (botMsgId, token) => {
+    streamedTokenBufferRef.current += token;
+
+    if (streamedTokenTimerRef.current) {
+      return;
+    }
+
+    streamedTokenTimerRef.current = setTimeout(() => {
+      streamedTokenTimerRef.current = null;
+      flushStreamedTokens(botMsgId);
+    }, STREAM_FLUSH_INTERVAL_MS);
+  };
+
+  const closeModal = async () => {
+    setIsVisible(false);
+    setInput('');
+    setLoading(false);
+    setMessages(initialMessages);
+    streamedTokenBufferRef.current = '';
+
+    if (streamedTokenTimerRef.current) {
+      clearTimeout(streamedTokenTimerRef.current);
+      streamedTokenTimerRef.current = null;
+    }
+
+    try {
+      await ModelManager.resetConversation();
+    } catch (error) {
+      console.error('Failed to reset offline conversation state:', error);
+    }
+  };
 
   const initializeModel = async () => {
     const hasModel = await ModelManager.hasModel();
+    setHasLocalModel(hasModel);
 
     if (isOffline && !hasModel) {
       Alert.alert("Offline model unavailable", "Connect to the internet once to download the offline model for this device.");
@@ -70,6 +221,7 @@ const ChatbotModal = () => {
         setDownloadProgress(progress);
       });
       if (success) {
+        setHasLocalModel(true);
         setModelReady(true);
       } else {
         Alert.alert("Error", "Failed to load offline model.");
@@ -80,6 +232,80 @@ const ChatbotModal = () => {
       setIsDownloading(false);
     }
   };
+
+  const headerStatus = (() => {
+    if (!isOffline) {
+      return {
+        badge: 'ONLINE',
+        subtitle: hasLocalModel ? 'Using online service. Local model cached on device.' : 'Using online service.',
+        dotColor: '#2E7D32',
+        badgeBackground: '#E7F6EA',
+        badgeText: '#1B5E20',
+      };
+    }
+
+    if (modelReady) {
+      return {
+        badge: 'OFFLINE',
+        subtitle: ragReady ? 'Using local model with cached offline RAG.' : 'Using local model on device.',
+        dotColor: '#2E7D32',
+        badgeBackground: '#E8F5E9',
+        badgeText: '#1B5E20',
+      };
+    }
+
+    if (isDownloading) {
+      return {
+        badge: 'LOCAL MODEL',
+        subtitle: 'Preparing local model for offline use.',
+        dotColor: '#F9A825',
+        badgeBackground: '#FFF6D9',
+        badgeText: '#8A5A00',
+      };
+    }
+
+    if (hasLocalModel) {
+      return {
+        badge: 'LOCAL MODEL',
+        subtitle: 'Local model found. Loading for offline mode.',
+        dotColor: '#FB8C00',
+        badgeBackground: '#FFF1E0',
+        badgeText: '#9C4A00',
+      };
+    }
+
+    return {
+      badge: 'OFFLINE',
+      subtitle: 'Local model unavailable on this device.',
+      dotColor: '#D32F2F',
+      badgeBackground: '#FDECEC',
+      badgeText: '#8B1E1E',
+    };
+  })();
+
+  const ragCacheBadge = (() => {
+    if (isSyncingRag) {
+      return {
+        label: 'RAG SYNCING',
+        backgroundColor: '#FFF6D9',
+        textColor: '#8A5A00',
+      };
+    }
+
+    if (ragCacheInfo.exists) {
+      return {
+        label: `RAG CACHED ${ragCacheInfo.sizeLabel}`,
+        backgroundColor: '#E8F5E9',
+        textColor: '#1B5E20',
+      };
+    }
+
+    return {
+      label: 'RAG NOT CACHED',
+      backgroundColor: '#FDECEC',
+      textColor: '#8B1E1E',
+    };
+  })();
 
   // Keep scroll at the bottom
   useEffect(() => {
@@ -112,6 +338,8 @@ const ChatbotModal = () => {
            return;
         }
 
+        console.log('Offline chat request started');
+
         // Add placeholder bot message for streaming
         const botMsgId = (Date.now() + 1).toString();
         const botMsgPlaceholder = {
@@ -122,20 +350,28 @@ const ChatbotModal = () => {
         };
         setMessages(prev => [...prev, botMsgPlaceholder]);
 
-        // Stream response
-        await ModelManager.generate(userMessage, (token) => {
-            setMessages(prev => {
-                const newMessages = [...prev];
-                const lastMsgIndex = newMessages.findIndex(m => m.id === botMsgId);
-                if (lastMsgIndex !== -1) {
-                    newMessages[lastMsgIndex] = {
-                        ...newMessages[lastMsgIndex],
-                        text: newMessages[lastMsgIndex].text + token
-                    };
-                }
-                return newMessages;
-            });
+        const prompt = await OfflineRagService.buildAugmentedPrompt(userMessage, {
+          allowNetworkSync: false,
+          topK: 1,
+        }).catch((error) => {
+          console.error('Offline RAG prompt build failed:', error);
+          return userMessage;
         });
+
+        console.log(`Offline prompt prepared (${prompt.length} chars)`);
+
+        // Stream response
+        console.log('Starting local model generation');
+        await ModelManager.generate(prompt, (token) => {
+          queueStreamedToken(botMsgId, token);
+        });
+        console.log('Local model generation finished');
+
+        if (streamedTokenTimerRef.current) {
+          clearTimeout(streamedTokenTimerRef.current);
+          streamedTokenTimerRef.current = null;
+        }
+        flushStreamedTokens(botMsgId);
 
       } else {
         // Online Mode
@@ -192,7 +428,7 @@ const ChatbotModal = () => {
         visible={isVisible} 
         animationType="slide" 
         transparent={false}
-        onRequestClose={() => setIsVisible(false)}
+        onRequestClose={closeModal}
       >
         <SafeAreaView style={styles.modalContainer}>
           <KeyboardAvoidingView 
@@ -205,12 +441,20 @@ const ChatbotModal = () => {
                 <View>
                   <Text style={styles.headerTitle}>PlantHub AI</Text>
                   <View style={styles.statusRow}>
-                    <View style={styles.onlineDot} />
-                    <Text style={styles.headerSubtitle}>Online | Agri-Expert</Text>
+                    <View style={[styles.onlineDot, { backgroundColor: headerStatus.dotColor }]} />
+                    <Text style={styles.headerSubtitle}>{headerStatus.subtitle}</Text>
+                  </View>
+                  <View style={styles.cacheStatusRow}>
+                    <View style={[styles.cacheBadge, { backgroundColor: ragCacheBadge.backgroundColor }]}>
+                      <Text style={[styles.cacheBadgeText, { color: ragCacheBadge.textColor }]}>{ragCacheBadge.label}</Text>
+                    </View>
                   </View>
                 </View>
+                <View style={[styles.statusBadge, { backgroundColor: headerStatus.badgeBackground }]}>
+                  <Text style={[styles.statusBadgeText, { color: headerStatus.badgeText }]}>{headerStatus.badge}</Text>
+                </View>
               </View>
-              <TouchableOpacity style={styles.closeCircle} onPress={() => setIsVisible(false)}>
+              <TouchableOpacity style={styles.closeCircle} onPress={closeModal}>
                 <Text style={styles.closeIcon}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -335,7 +579,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
-  headerInfo: { flexDirection: 'row', alignItems: 'center' },
+  headerInfo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flex: 1, marginRight: 12 },
   avatarCircle: {
     width: 44,
     height: 44,
@@ -347,8 +591,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#1B5E20' },
   statusRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
+  cacheStatusRow: { flexDirection: 'row', marginTop: 8 },
   onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#4CAF50', marginRight: 5 },
   headerSubtitle: { fontSize: 12, color: '#777' },
+  cacheBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
+  cacheBadgeText: { fontSize: 10, fontWeight: '700', letterSpacing: 0.4 },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, marginLeft: 12 },
+  statusBadgeText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6 },
   closeCircle: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center' },
   closeIcon: { fontSize: 14, color: '#999', fontWeight: 'bold' },
 

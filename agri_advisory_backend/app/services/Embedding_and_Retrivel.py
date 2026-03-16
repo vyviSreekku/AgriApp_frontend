@@ -21,10 +21,19 @@ from google import genai
 # Set once in terminal:
 # setx GEMINI_API_KEY "YOUR_API_KEY"
 
-client = genai.Client(api_key="AIzaSyDTIGD-9iLPayUsWHjlKSdMNyJf6GmHMKQ")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyADsKd9Vl967GhthoVwHFjKKM3phu6sde0").strip()
+if not GEMINI_API_KEY:
+    raise RuntimeError("GEMINI_API_KEY is not set. Please set it in your environment before starting the backend.")
 
-# Use only stable free-tier model
-MODEL_NAME = "gemini-2.5-flash-lite"
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+# Try preferred model first, then fall back to broadly available free-tier models.
+MODEL_CANDIDATES = [
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-flash",
+    "gemini-1.5-flash",
+]
+MODEL_NAME = MODEL_CANDIDATES[0]
 
 LAST_CALL = 0
 MIN_INTERVAL = 60   # 1 call per minute (safe for free tier)
@@ -358,15 +367,36 @@ Question:
 Answer:
 """
 
-    print(f"[API CALL] Sending request to {MODEL_NAME}...")
+    last_error = None
 
-    response = client.models.generate_content(
-        model=MODEL_NAME,
-        contents=prompt
-    )
+    for model_name in MODEL_CANDIDATES:
+        try:
+            print(f"[API CALL] Sending request to {model_name}...")
 
-    print("[API CALL] ✓ Response received from Gemini")
-    return response.text
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+            )
+
+            print(f"[API CALL] ✓ Response received from {model_name}")
+            return response.text or "No response text received from Gemini."
+
+        except Exception as e:
+            last_error = e
+            status_code = getattr(e, "status_code", None)
+            message = getattr(e, "message", None) or str(e)
+            response_text = ""
+
+            resp_obj = getattr(e, "response", None)
+            if resp_obj is not None:
+                response_text = getattr(resp_obj, "text", "") or ""
+
+            print(
+                f"[API ERROR] model={model_name} status={status_code} message={message}"
+                + (f" body={response_text}" if response_text else "")
+            )
+
+    raise RuntimeError(f"Gemini API failed for all fallback models. Last error: {last_error}")
 
 # ---------------- FULL RAG QUERY ----------------
 

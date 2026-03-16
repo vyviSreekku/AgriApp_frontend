@@ -10,7 +10,9 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
     "@gorhom/bottom-sheet": "^5.2.6",
+    "@huggingface/tokenizers": "^0.1.2",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/bottom-tabs": "^6.5.16",
@@ -19,6 +21,8 @@
     "axios": "^1.13.2",
     "buffer": "^6.0.3",
     "expo": "~54.0.33",
+    "expo-asset": "~12.0.12",
+    "expo-constants": "~18.0.13",
     "expo-file-system": "~19.0.21",
     "expo-image": "~3.0.11",
     "expo-image-manipulator": "^14.0.8",
@@ -28,6 +32,7 @@
     "expo-status-bar": "~3.0.9",
     "lottie-ios": "^4.5.1",
     "lottie-react-native": "~7.3.1",
+    "onnxruntime-react-native": "^1.24.3",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-animatable": "^1.4.0",
@@ -43,7 +48,8 @@
     "upng-js": "^2.1.0"
   },
   "devDependencies": {
-    "@react-native-community/cli": "latest"
+    "@react-native-community/cli": "latest",
+    "@react-native/metro-config": "^0.84.1"
   },
   "private": true
 }
