@@ -11,6 +11,7 @@ import {
   Pressable,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { getLocalImage } from "../../utils/LocalImages";
 
 const GREEN = "#2317c7ff";
 const BG = "#e9eef6ff";
@@ -51,6 +52,11 @@ export default function PestInfo() {
     if (!q) return [];
     return PESTS.filter((p) => p.toLowerCase().includes(q)).slice(0, 6);
   }, [query]);
+
+  const localImage = useMemo(
+    () => getLocalImage("pests", "", selectedPest),
+    [selectedPest]
+  );
 
   const pickPest = (name) => {
     const match = PESTS.find((p) => p.toLowerCase() === name.toLowerCase());
@@ -128,7 +134,6 @@ export default function PestInfo() {
             id: `${selectedPest}-${cat.key}-${i}`,
             type: typeFor(selectedPest),
             title: `${selectedPest} - ${cat.key} ${i + 1}`,
-            image: img(`${selectedPest}-${cat.key}-${i}`),
           }));
 
           return (
@@ -148,7 +153,10 @@ export default function PestInfo() {
                 ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
                 renderItem={({ item }) => (
                   <View style={styles.card}>
-                    <Image source={{ uri: item.image }} style={styles.cardImage} />
+                    <Image
+                      source={localImage || { uri: img(item.id) }}
+                      style={styles.cardImage}
+                    />
                     <View style={styles.cardBody}>
                       <Text style={styles.cardType}>{item.type}</Text>
                       <Text numberOfLines={2} style={styles.cardTitle}>

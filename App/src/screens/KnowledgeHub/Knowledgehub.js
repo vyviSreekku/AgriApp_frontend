@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import OfflineRagService from "../../services/offlineRagService";
 
 import pestData from "../../../dataset/pest.json";
 import diseaseData from "../../../dataset/village_plant_disease_dataset.json";
@@ -226,6 +227,14 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [semanticResults, setSemanticResults] = useState([]);
+  const [isSemanticSearching, setIsSemanticSearching] = useState(false);
+
+  useEffect(() => {
+    OfflineRagService.prepareResources({ allowNetworkSync: true }).catch((error) => {
+      console.error("KnowledgeHub: failed to prepare offline RAG resources", error);
+    });
+  }, []);
 
   // Search filtering logic
   const filteredItems = useMemo(() => {
@@ -253,6 +262,84 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
         };
     }).filter(section => section.data.length > 0);
   }, [activeTab, searchQuery]);
+
+  const handleSemanticSearch = async () => {
+    const query = searchQuery.trim();
+    if (!query) {
+      setSemanticResults([]);
+      return;
+    }
+
+    try {
+      setIsSemanticSearching(true);
+      const chunks = await OfflineRagService.retrieveRelevantChunks(query, {
+        topK: 5,
+        allowNetworkSync: true,
+      });
+
+      setSemanticResults(
+        (chunks || []).map((chunk) => {
+          const content = String(chunk.content || "");
+          const firstLineEnd = content.indexOf("\n");
+          const titleLine = firstLineEnd >= 0 ? content.slice(0, firstLineEnd) : content;
+
+          // Try to derive a clean, crop-based title from the first line
+          let title = titleLine
+            .replace(/^Plant\/Crop Group:\s*/i, "")
+            .replace(/^Host crop:\s*/i, "")
+            .replace(/^Plant host:\s*/i, "")
+            .trim();
+
+          if (!title) {
+            title = "Advisory";
+          }
+
+          return {
+            id: chunk.id,
+            title,
+            preview:
+              content.length > 220
+                ? content.slice(0, 217).replace(/\s+$/g, "") + "..."
+                : content,
+          };
+        })
+      );
+    } catch (error) {
+      console.error("KnowledgeHub: semantic search failed", error);
+      setSemanticResults([]);
+    } finally {
+      setIsSemanticSearching(false);
+    }
+  };
+
+  const handleSemanticResultPress = (result) => {
+    const rawTitle = (result?.title || "").toLowerCase().trim();
+    if (!rawTitle) {
+      return;
+    }
+
+    // Try to find a matching card in the current tab by crop/disease/weed name or category
+    const sections = KNOWLEDGE_DATA[activeTab] || [];
+
+    for (const section of sections) {
+      for (const item of section.data) {
+        const name = (item.name || "").toLowerCase();
+        const category = (item.category || "").toLowerCase();
+
+        const matches =
+          !!name && (name === rawTitle || name.includes(rawTitle) || rawTitle.includes(name)) ||
+          (!!category && (category === rawTitle || category.includes(rawTitle) || rawTitle.includes(category)));
+
+        if (matches) {
+          handleItemPress(item);
+          return;
+        }
+      }
+    }
+
+    // Fallback: just apply the semantic title as a text search to narrow down cards
+    setSearchQuery(result.title || "");
+  };
 
   const handleItemPress = (item) => {
     setSelectedItem(item);
@@ -282,10 +369,16 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
           placeholder={`Search ${activeTab}...`}
           value={searchQuery}
           onChangeText={setSearchQuery}
+          onSubmitEditing={handleSemanticSearch}
           placeholderTextColor="#94a3b8"
         />
         {searchQuery.length > 0 && (
-          <Pressable onPress={() => setSearchQuery("")}>
+          <Pressable
+            onPress={() => {
+              setSearchQuery("");
+              setSemanticResults([]);
+            }}
+          >
             <MaterialCommunityIcons name="close-circle" size={18} color="#94a3b8" />
           </Pressable>
         )}
@@ -332,6 +425,41 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       >
+        {searchQuery.trim().length > 0 && (
+          <View style={styles.semanticSectionContainer}>
+            <View style={styles.sectionHeaderContainer}>
+              <Text style={styles.sectionHeaderTitle}>Semantic matches</Text>
+              <Text style={styles.sectionHeaderSubtitle}>
+                Powered by offline RAG knowledge
+              </Text>
+            </View>
+            {isSemanticSearching ? (
+              <View style={styles.semanticLoadingRow}>
+                <MaterialCommunityIcons name="loading" size={20} color={GREEN} />
+                <Text style={styles.semanticLoadingText}>Searching similar advisories...</Text>
+              </View>
+            ) : semanticResults.length > 0 ? (
+              semanticResults.map((result) => (
+                <TouchableOpacity
+                  key={result.id}
+                  style={styles.semanticCard}
+                  activeOpacity={0.8}
+                  onPress={() => handleSemanticResultPress(result)}
+                >
+                  <Text style={styles.semanticCardTitle}>{result.title}</Text>
+                  <Text style={styles.semanticCardPreview}>{result.preview}</Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View style={styles.semanticEmptyContainer}>
+                <Text style={styles.semanticEmptyText}>
+                  No semantic matches yet. Press enter to search.
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+
         {filteredItems.length > 0 ? (
           filteredItems.map((section, index) => (
             <View key={section.title + index} style={styles.sectionContainer}>

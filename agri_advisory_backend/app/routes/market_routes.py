@@ -11,7 +11,11 @@ router = APIRouter(
 async def get_market_prices(
     state: Optional[str] = Query(None, description="Filter by state name"),
     district: Optional[str] = Query(None, description="Filter by district name"),
-    crop: Optional[str] = Query(None, description="Filter by crop name (commodity)")
+    crop: Optional[str] = Query(None, description="Filter by crop name (commodity)"),
+    arrival_date: Optional[str] = Query(
+        None,
+        description="Filter by arrival date in dd/mm/YYYY format (Mandi API Arrival_Date)",
+    ),
 ):
     """
     Get agricultural market prices from the government Mandi API.
@@ -20,7 +24,12 @@ async def get_market_prices(
     If no filters are provided, the API will return a sample of recent price data.
     """
     try:
-        result = await get_crop_prices(state=state, district=district, crop=crop)
+        result = await get_crop_prices(
+            state=state,
+            district=district,
+            crop=crop,
+            arrival_date=arrival_date,
+        )
         
         if not result["success"]:
             raise HTTPException(status_code=500, detail="Failed to fetch market prices")

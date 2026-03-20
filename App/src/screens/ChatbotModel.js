@@ -20,6 +20,7 @@ import { askChatbot } from '../services/chatbotService';
 import NetInfo from '@react-native-community/netinfo';
 import ModelManager from '../services/ModelManager';
 import OfflineRagService from '../services/offlineRagService';
+import { runFullBenchmark } from '../utils/BenchmarkRunner';
 
 const STREAM_FLUSH_INTERVAL_MS = 80;
 
@@ -448,6 +449,9 @@ const ChatbotModal = () => {
                     <View style={[styles.cacheBadge, { backgroundColor: ragCacheBadge.backgroundColor }]}>
                       <Text style={[styles.cacheBadgeText, { color: ragCacheBadge.textColor }]}>{ragCacheBadge.label}</Text>
                     </View>
+                 <TouchableOpacity onPress={() => runFullBenchmark()} style={{ marginLeft: 6 }}>
+                  <Text style={{ fontSize: 10, color: '#666', textDecorationLine: 'underline' }}>Run Benchmark</Text>
+                 </TouchableOpacity>
                   </View>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: headerStatus.badgeBackground }]}>

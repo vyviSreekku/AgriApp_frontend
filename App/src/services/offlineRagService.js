@@ -23,7 +23,7 @@ const DEFAULT_TOP_K = 1;
 const MAX_CONTEXT_CHARS = 900;
 const MAX_FIELD_VALUE_CHARS = 180;
 const MAX_LOG_PREVIEW_CHARS = 140;
-const ENABLE_NATIVE_QUERY_EMBEDDING = false;
+const ENABLE_NATIVE_QUERY_EMBEDDING = true;
 const MIN_TERM_LENGTH = 2;
 const MAX_SIMPLE_QUERY_WORDS = 8;
 const MIN_LEXICAL_SCORE = 6;
@@ -626,8 +626,8 @@ const summarizeChunkForLog = (chunk) => {
   };
 };
 
-const SIMPLE_GREETING_PATTERN = /^(hi|hello|hey|namaste|good\s+(morning|afternoon|evening))(\s+there)?[!.?]*$/i;
-const SIMPLE_CAPABILITY_PATTERN = /^(what\s+can\s+you\s+do|who\s+are\s+you|help|can\s+you\s+help(\s+me)?|how\s+can\s+you\s+help)[!.?]*$/i;
+const SIMPLE_GREETING_PATTERN = /^(hi|hello|hey|greetings|namaste|good\s+(morning|afternoon|evening|day))(\s+there|\s+all)?([!.?]*)$/i;
+const SIMPLE_CAPABILITY_PATTERN = /^(what\s+can\s+you\s+do|who\s+are\s+you|help|can\s+you\s+help(\s+me)?|how\s+can\s+you\s+help|test|testing)([!.?]*)$/i;
 
 const isSimpleGeneralQuery = (question) => {
   const normalized = String(question || '').trim().replace(/\s+/g, ' ');
@@ -644,44 +644,47 @@ const isSimpleGeneralQuery = (question) => {
 };
 
 const buildCompactNoContextPrompt = (question) => [
-  'You are an agricultural assistant.',
-  'The user asked a simple greeting or general question.',
-  'Reply naturally in 1 or 2 short sentences.',
-  'Use your own knowledge. Do not mention retrieval or missing context.',
+  '### INSTRUCTION',
+  'You are a friendly agricultural assistant.',
+  'The user is greeting you or asking a general question.',
+  'Reply naturally, politely, and briefly (1 sentence).',
   '',
-  `Question: ${question}`,
-  'Answer:',
+  `### USER: ${question}`,
+  '### RESPONSE:',
 ].join('\n');
 
 const buildBasePrompt = (question, context = null) => {
+  // If we have no context and it's a simple query, use the compact prompt.
   if (!context && isSimpleGeneralQuery(question)) {
     return buildCompactNoContextPrompt(question);
   }
 
   const promptLines = [
-    'You are an agricultural assistant.',
-    'Answer briefly in at most 3 short sentences.',
-    'Prioritize the likely issue, key symptoms, and the first recommended actions.',
-    'Do not repeat the context verbatim.',
+    '### ROLE',
+    'You are an expert agricultural advisor helping farmers.',
+    '',
+    '### GUIDELINES',
+    '1. If [RETRIEVED CONTEXT] is provided and relevant, use it to answer the user.',
+    '2. If [RETRIEVED CONTEXT] is not relevant or missing, answer based on your general agricultural knowledge.',
+    '3. For crop diseases/pests, provide: Identification, Symptoms, and Control (Organic & Chemical).',
+    '4. Be practical, safe, and concise (max 4-5 sentences).',
+    '5. Do not mention "context chunks" or "database" in your response.',
   ];
 
   if (context) {
-    promptLines.push('Use the retrieved context below when it is relevant to the question.');
-    promptLines.push('If the context is insufficient, say that briefly and then provide general agricultural guidance.');
     promptLines.push('');
-    promptLines.push('Retrieved context:');
+    promptLines.push('### RETRIEVED CONTEXT');
     promptLines.push(context);
+    promptLines.push('### END OF CONTEXT');
   } else {
-    promptLines.push('No relevant retrieved context is available for this question.');
-    promptLines.push('Do not say that you cannot answer only because retrieval found no data.');
-    promptLines.push('Use your own agricultural knowledge to give the best practical answer you can.');
-    promptLines.push('If the exact diagnosis is uncertain, say that clearly and give the most likely possibilities plus safe next steps.');
-    promptLines.push('Prefer practical guidance such as likely causes, symptoms to check, immediate actions, and when to consult a local expert.');
+    promptLines.push('');
+    promptLines.push('### NOTE');
+    promptLines.push('No local database records matched this query. Use your general agricultural knowledge to answer.');
   }
 
   promptLines.push('');
-  promptLines.push(`Question: ${question}`);
-  promptLines.push('Answer:');
+  promptLines.push(`### USER QUESTION: ${question}`);
+  promptLines.push('### ADVISORY RESPONSE:');
 
   return promptLines.join('\n');
 };
@@ -836,11 +839,14 @@ export const OfflineRagService = {
           score += queryVector[dimIndex] * ragBundle.matrix[offset + dimIndex];
         }
 
-        similarities.push({
-          id: chunk.id,
-          content: chunk.content,
-          score,
-        });
+        // Apply a high threshold for strict relevance
+        if (score >= 0.45) {
+          similarities.push({
+            id: chunk.id,
+            content: chunk.content,
+            score,
+          });
+        }
       }
     } else {
       const queryProfile = buildQueryProfile(query);
@@ -864,8 +870,11 @@ export const OfflineRagService = {
     }
 
     similarities.sort((left, right) => right.score - left.score);
-    const selected = similarities.slice(0, topK);
-    console.log(`Offline RAG retrieval complete with ${selected.length} chunks`);
+    // Dynamic top-K: Only select chunks that are close to the top match
+    const topMatchScore = similarities[0]?.score || 0;
+    const selected = similarities.filter(s => s.score >= topMatchScore * 0.85).slice(0, topK);
+    
+    console.log(`Offline RAG retrieval complete with ${selected.length} chunks (threshold=0.45, top=${topMatchScore.toFixed(2)})`);
     selected.forEach((chunk, index) => {
       const summary = summarizeChunkForLog(chunk);
       console.log(`Offline RAG chunk ${index + 1}: id=${summary.id} score=${summary.score} title="${summary.title}" records=${summary.recordCount} preview="${summary.preview}"`);
@@ -875,6 +884,14 @@ export const OfflineRagService = {
 
   buildAugmentedPrompt: async (question, { allowNetworkSync = false, topK = DEFAULT_TOP_K } = {}) => {
     console.log('Offline RAG prompt build started');
+
+    // Optimization: Skip RAG entirely for simple greetings or general queries
+    // This implements the "Think before using RAG" strategy to save resources and reduce hallucination risk
+    if (isSimpleGeneralQuery(question)) {
+      console.log('Offline RAG skipped for simple/general query');
+      return buildBasePrompt(question);
+    }
+
     const chunks = await OfflineRagService.retrieveRelevantChunks(question, { allowNetworkSync, topK });
     if (!chunks.length) {
       console.log('Offline RAG prompt build returned a no-context instruction prompt');
@@ -902,6 +919,35 @@ export const OfflineRagService = {
     console.log(`Offline RAG prompt context assembled with ${selectedChunks.length} chunks and ${context.length} context chars`);
 
     return buildBasePrompt(question, context);
+  },
+
+  benchmarkRetrieval: async (queries = ['Rice blast symptoms', 'How to treat tomato blight', 'Wheat rust prevention', 'Cotton pest control', 'Maize fertilizer schedule']) => {
+    console.log('--- Starting Offline RAG Retrieval Benchmark ---');
+    const results = [];
+    let totalTime = 0;
+
+    // Warm up first
+    await OfflineRagService.retrieveRelevantChunks('warmup query', { topK: 1 });
+
+    for (const query of queries) {
+      const start = Date.now();
+      const chunks = await OfflineRagService.retrieveRelevantChunks(query, { topK: 3 });
+      const duration = Date.now() - start;
+      
+      console.log(`Query: "${query}" -> Found ${chunks.length} chunks in ${duration}ms`);
+      results.push({ query, duration, chunkCount: chunks.length });
+      totalTime += duration;
+    }
+
+    const averageTime = (totalTime / queries.length).toFixed(2);
+    const report = {
+      averageTimeMs: averageTime,
+      totalQueries: queries.length,
+      details: results
+    };
+    
+    console.log(`--- Benchmark Complete: Avg ${averageTime}ms per query ---`);
+    return report;
   },
 };
 

@@ -454,6 +454,18 @@ const ALIASES = {
     "horse purslane": "trianthema portulacastrum",
     // Pests
     "brown leaf hopper": "brown plant hopper",
+    "aphid": "wheat aphid",
+    "stem borer": "apple stem borer",
+    "leaf miner": "serpentine leaf miner",
+    "armyworm": "armyworm",
+    "whitefly": "whitefly",
+    "thrips": "thrips spp",
+    "mealybug": "cotton mealybug",
+    "cutworm": "tobacco cutworm",
+    "fruit borer": "fruit borer",
+    "gall midge": "paddy gall midge",
+    "spider mite": "apple spider mite",
+    "nematode": "wheat gall nematode",
 };
 
 /**

@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any, Union
 from ..config import settings
 
@@ -162,7 +162,12 @@ def process_mandi_data(data: Dict[str, Any], max_records: Optional[int] = None) 
     
     return processed_data
 
-async def get_crop_prices(state: Optional[str] = None, district: Optional[str] = None, crop: Optional[str] = None) -> Dict[str, Any]:
+async def get_crop_prices(
+    state: Optional[str] = None,
+    district: Optional[str] = None,
+    crop: Optional[str] = None,
+    arrival_date: Optional[str] = None,
+) -> Dict[str, Any]:
     """
     Get crop prices from the Mandi API as a service for the FastAPI backend.
     
@@ -176,14 +181,42 @@ async def get_crop_prices(state: Optional[str] = None, district: Optional[str] =
     """
     # Set a reasonable limit for API calls
     limit = 10
-    
-    # Fetch data from the API
-    data = get_mandi_prices(
-        state=state,
-        district=district,
-        commodity=crop,
-        limit=limit
-    )
+
+    # If no arrival_date is provided, start from today's date (dd/mm/YYYY)
+    # and move backwards day by day (up to ~1 month) until some data is found.
+    if arrival_date is None:
+        start_date = datetime.now()
+    else:
+        # Parse provided arrival_date; if parsing fails, fall back to today
+        try:
+            start_date = datetime.strptime(arrival_date, "%d/%m/%Y")
+        except ValueError:
+            start_date = datetime.now()
+
+    data = None
+    effective_date_str = None
+
+    for day_offset in range(0, 31):  # today and previous 30 days
+        query_date = start_date - timedelta(days=day_offset)
+        date_str = query_date.strftime("%d/%m/%Y")
+
+        data = get_mandi_prices(
+            state=state,
+            district=district,
+            commodity=crop,
+            arrival_date=date_str,
+            limit=limit,
+        )
+
+        if not data or not isinstance(data, dict):
+            continue
+
+        # Skip if API reported error or returned no records
+        if "error" in data or not data.get("records"):
+            continue
+
+        effective_date_str = date_str
+        break
     
     result = {
         "success": False,
@@ -194,18 +227,20 @@ async def get_crop_prices(state: Optional[str] = None, district: Optional[str] =
             "updated_date": None,
             "state": state,
             "district": district,
-            "crop": crop
-        }
+            "crop": crop,
+            # The actual Arrival_Date used for the successful query (dd/mm/YYYY)
+            "effective_arrival_date": effective_date_str,
+        },
     }
-    
-    if data and isinstance(data, dict):
+
+    if data and isinstance(data, dict) and effective_date_str is not None:
         # Extract metadata
         result["success"] = True
         result["metadata"]["total_records"] = data.get("total", 0)
         result["metadata"]["fetched_records"] = len(data.get("records", []))
         result["metadata"]["updated_date"] = data.get("updated_date", None)
-        
+
         # Process the data
         result["data"] = process_mandi_data(data)
-    
+
     return result

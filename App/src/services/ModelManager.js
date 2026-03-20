@@ -14,44 +14,44 @@ const MAX_PROMPT_LOG_CHARS = 180;
 
 export const MODEL_PERFORMANCE_PRESETS = {
   balanced: {
-    contextSize: 384,
+    contextSize: 4096,
     nThreads: 4,
     nThreadsBatch: 4,
-    batchSize: 128,
-    microBatchSize: 64,
-    maxOutputTokens: 80,
+    batchSize: 1024,
+    microBatchSize: 128,
+    maxOutputTokens: 512,
     flashAttentionType: FLASH_ATTENTION_AUTO,
     offloadKqv: false,
   },
   fast: {
-    contextSize: 320,
+    contextSize: 2048,
     nThreads: 4,
     nThreadsBatch: 4,
-    batchSize: 96,
-    microBatchSize: 48,
-    maxOutputTokens: 64,
-    flashAttentionType: FLASH_ATTENTION_AUTO,
-    offloadKqv: false,
-  },
-  maxSpeed: {
-    contextSize: 256,
-    nThreads: 3,
-    nThreadsBatch: 3,
-    batchSize: 64,
-    microBatchSize: 32,
-    maxOutputTokens: 48,
-    flashAttentionType: FLASH_ATTENTION_AUTO,
-    offloadKqv: false,
-  },
-  releaseSafe: {
-    contextSize: 384,
-    nThreads: 2,
-    nThreadsBatch: 2,
-    batchSize: 64,
-    microBatchSize: 32,
+    batchSize: 512,
+    microBatchSize: 128,
     maxOutputTokens: 256,
     flashAttentionType: FLASH_ATTENTION_AUTO,
-    offloadKqv: false,
+    offloadKqv: true,
+  },
+  maxSpeed: {
+    contextSize: 2048,
+    nThreads: 4,
+    nThreadsBatch: 4,
+    batchSize: 512,
+    microBatchSize: 128,
+    maxOutputTokens: 256,
+    flashAttentionType: FLASH_ATTENTION_AUTO,
+    offloadKqv: true,
+  },
+  releaseSafe: {
+    contextSize: 4096,
+    nThreads: 4,
+    nThreadsBatch: 4,
+    batchSize: 1024,
+    microBatchSize: 128,
+    maxOutputTokens: 512,
+    flashAttentionType: FLASH_ATTENTION_AUTO,
+    offloadKqv: true,
   },
 };
 
@@ -192,9 +192,30 @@ export const ModelManager = {
   },
 
   /**
+   * Benchmarks the loaded model.
+   * @param {object} config - Benchmark configuration.
+   * @param {number} config.pp - Prompt processing token count (default: 8).
+   * @param {number} config.tg - Text generation token count (default: 16).
+   * @param {number} config.pl - Prompt length (default: 1).
+   * @param {number} config.nr - Number of runs (default: 1).
+   * @returns {Promise<string>} - Benchmark report string.
+   */
+  benchmark: async ({ pp = 8, tg = 16, pl = 1, nr = 1 } = {}) => {
+    if (!LLMModule?.bench) {
+      throw new Error("LLMModule.bench is not available.");
+    }
+    const ready = await ModelManager.isModelReady();
+    if (!ready) {
+      throw new Error("Model not ready for benchmarking.");
+    }
+    return LLMModule.bench({ pp, tg, pl, nr });
+  },
+
+  /**
    * Generates text response for a given prompt.
    * Uses event listeners to stream tokens back to JS.
    * @param {string} prompt - Input text or chat history formatted string.
+
    * @param {function} onTokenCallback - Callback for each token received.
    * @returns {Promise<string>} - The full response string.
    */
