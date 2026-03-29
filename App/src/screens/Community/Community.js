@@ -13,7 +13,7 @@ import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getAllPosts, searchPosts } from "../../services/communityService";
-import { API_URL } from "../../utils/config";
+import { getApiUrl } from "../../utils/config";
 import axios from "axios";
 
 const ACCENT = "#0b0be2ff";
@@ -31,10 +31,12 @@ const Community = ({ navigation }) => {
   const [posts, setPosts] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [serverBaseUrl, setServerBaseUrl] = React.useState(null);
 
   // Fetch posts on mount
   React.useEffect(() => {
     fetchPosts();
+    loadServerBaseUrl();
   }, []);
 
   // Refresh posts when screen comes into focus
@@ -49,7 +51,8 @@ const Community = ({ navigation }) => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      console.log('Fetching posts from:', API_URL);
+      const baseUrl = await getApiUrl();
+      console.log('Fetching posts from:', baseUrl);
       const data = await getAllPosts(0, 20);
       console.log('[DEBUG Community] Fetched posts:', data.length);
       if (data.length > 0) {
@@ -69,6 +72,15 @@ const Community = ({ navigation }) => {
       // You can add error handling UI here
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadServerBaseUrl = async () => {
+    try {
+      const url = await getApiUrl();
+      setServerBaseUrl(url);
+    } catch (error) {
+      console.warn('Failed to load server base URL for Community screen:', error);
     }
   };
 
@@ -178,7 +190,7 @@ const Community = ({ navigation }) => {
         )}
 
         {!loading && posts.map((post) => (
-          <PostCard key={post.id} post={post} navigation={navigation} />
+          <PostCard key={post.id} post={post} navigation={navigation} serverBaseUrl={serverBaseUrl} />
         ))}
       </ScrollView>
       
@@ -195,7 +207,7 @@ const Community = ({ navigation }) => {
   );
 };
 
-const PostCard = ({ post, navigation }) => {
+const PostCard = ({ post, navigation, serverBaseUrl }) => {
   // Format the date
   const formatTime = (dateString) => {
     const date = new Date(dateString);
@@ -219,7 +231,8 @@ const PostCard = ({ post, navigation }) => {
   const getImageUrl = (imageUrl) => {
     if (!imageUrl) return "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1600&auto=format&fit=crop";
     if (imageUrl.startsWith('http')) return imageUrl;
-    return `${API_URL.replace(/\/$/, '')}/${String(imageUrl).replace(/^\//, '')}`;
+    const baseUrl = serverBaseUrl || '';
+    return `${baseUrl.replace(/\/$/, '')}/${String(imageUrl).replace(/^\//, '')}`;
   };
 
   // Determine primary image (first of images[] if present, else legacy image_url)

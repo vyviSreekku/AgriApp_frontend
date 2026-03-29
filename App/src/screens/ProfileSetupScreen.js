@@ -15,7 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import authService from '../services/authService';
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
 export default function ProfileSetupScreen({ navigation, route }) {
   const { phone } = route.params || {};
@@ -41,7 +41,8 @@ export default function ProfileSetupScreen({ navigation, route }) {
             location_state: stateRegion
         };
 
-        const response = await fetch(`${API_URL}/users/login`, {
+        const baseUrl = await getApiUrl();
+        const response = await fetch(`${baseUrl}/users/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userDataPayload)

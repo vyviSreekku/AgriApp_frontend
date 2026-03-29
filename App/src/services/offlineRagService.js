@@ -2,10 +2,12 @@ import RNFS from 'react-native-fs';
 import { NativeModules } from 'react-native';
 import { Buffer } from 'buffer';
 
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
-const CHATBOT_API = `${API_URL}/chatbot`;
-const OFFLINE_RAG_BUNDLE_URL = `${CHATBOT_API}/offline-rag-bundle`;
+const getOfflineRagBundleUrl = async () => {
+  const baseUrl = await getApiUrl();
+  return `${baseUrl}/chatbot/offline-rag-bundle`;
+};
 
 const EMBEDDING_MODEL_ID = 'Xenova/all-MiniLM-L6-v2';
 const EMBEDDING_MODEL_URL = `https://huggingface.co/${EMBEDDING_MODEL_ID}/resolve/main/onnx/model_quantized.onnx`;
@@ -743,8 +745,9 @@ const loadCachedRagBundle = async () => {
 const refreshRagBundle = async () => {
   if (!ragBundlePromise) {
     ragBundlePromise = (async () => {
-      console.log(`Offline RAG requesting bundle from ${OFFLINE_RAG_BUNDLE_URL}`);
-      const response = await fetch(OFFLINE_RAG_BUNDLE_URL);
+      const bundleUrl = await getOfflineRagBundleUrl();
+      console.log(`Offline RAG requesting bundle from ${bundleUrl}`);
+      const response = await fetch(bundleUrl);
       const bundleJson = await response.json().catch(() => ({}));
 
       if (!response.ok) {

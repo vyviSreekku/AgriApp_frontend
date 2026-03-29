@@ -314,6 +314,21 @@ const RenderWeedDetails = ({ item }) => (
       ))}
     </DetailSection>
 
+    {item.notes && (
+      <DetailSection title="Field Notes" icon="note-text" color="#475569">
+        {typeof item.notes === 'object' ? (
+          Object.entries(item.notes).map(([key, val]) => (
+            <View key={key} style={styles.row}>
+              <Text style={[styles.label, {textTransform: 'capitalize'}]}>{key.replace(/_/g, ' ')}:</Text>
+              <Text style={styles.value}>{val}</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.paragraph}>{String(item.notes)}</Text>
+        )}
+      </DetailSection>
+    )}
+
     {(item.ecological_value || item.associated_pests) && (
         <DetailSection title="Secondary Value & Linkages" icon="link" color="#64748b">
             {item.associated_pests && (
@@ -343,8 +358,16 @@ const RenderDiseaseDetails = ({ item }) => (
     
     <DetailSection title="Disease Diagnostic Card" icon="hospital-box" color="#ef4444">
       <KeyValueRow label="ID" value={item.disease_id || "N/A"} />
-      <KeyValueRow label="Pathogen" value={item.causal_agent || "Unknown"} italic />
+      {/* Pathogen details mapped from dataset */}
+      <KeyValueRow label="Pathogen Type" value={item.pathogen_type || "Unknown"} />
+      <KeyValueRow label="Biological Name" value={item.biological_name || "N/A"} italic />
+      {item.disease_class && (
+        <KeyValueRow label="Disease Class" value={item.disease_class} />
+      )}
       <KeyValueRow label="Host" value={item.plant_host || "N/A"} />
+      {item.affected_parts && (
+        <KeyValueRow label="Affected Parts" value={item.affected_parts} />
+      )}
     </DetailSection>
 
     <DetailSection title="Diagnostic Analysis" icon="magnify" color="#f59e0b">
@@ -394,6 +417,36 @@ const RenderDiseaseDetails = ({ item }) => (
         </View>
       )}
 
+      {item.management_biological && (
+        <View style={styles.controlGroup}>
+          <Text style={[styles.subHeader, {color: '#0f766e'}]}>🧫 Biological:</Text>
+          {Array.isArray(item.management_biological) ? 
+            item.management_biological.map((s, i) => (
+                <View key={i} style={styles.bulletRow}>
+                    <MaterialCommunityIcons name="leaf" size={16} color="#0f766e" />
+                    <Text style={styles.bulletPoint}>{s}</Text>
+                </View>
+            )) 
+            : <Text style={styles.paragraph}>{item.management_biological}</Text>
+          }
+        </View>
+      )}
+
+      {item.prevention && (
+        <View style={styles.controlGroup}>
+          <Text style={styles.subHeader}>🛡️ Prevention:</Text>
+          {Array.isArray(item.prevention) ?
+            item.prevention.map((p, i) => (
+              <View key={i} style={styles.bulletRow}>
+                <MaterialCommunityIcons name="shield-check" size={16} color="#10b981" />
+                <Text style={styles.bulletPoint}>{p}</Text>
+              </View>
+            ))
+            : <Text style={styles.paragraph}>{item.prevention}</Text>
+          }
+        </View>
+      )}
+
       {item.resistance_varieties && (
         <View style={[styles.highlightBox, {backgroundColor: '#dcfce7'}]}>
            <Text style={[styles.subHeader, {color: '#166534'}]}>🛡️ Resistance:</Text>
@@ -401,6 +454,148 @@ const RenderDiseaseDetails = ({ item }) => (
         </View>
       )}
     </DetailSection>
+  </View>
+);
+
+const RenderCropDetails = ({ item }) => (
+  <View style={styles.detailContainer}>
+    <DetailSection title="Crop Profile" icon="sprout" color="#22c55e">
+      <KeyValueRow label="Scientific Name" value={item.scientific_name || "N/A"} italic />
+      {item.family && <KeyValueRow label="Family" value={item.family} />}
+      {item.origin && <KeyValueRow label="Origin" value={item.origin} />}
+      {item.plant_type && <KeyValueRow label="Plant Type" value={item.plant_type} />}
+      {item.growth_habit && <KeyValueRow label="Growth Habit" value={item.growth_habit} />}
+      {item.lifespan && <KeyValueRow label="Lifespan" value={item.lifespan} />}
+    </DetailSection>
+
+    <DetailSection title="Growing Conditions" icon="weather-sunny" color="#0ea5e9">
+      <View style={styles.gridContainer}>
+        <GridItem label="Climate" value={item.climate} icon="weather-partly-cloudy" />
+        <GridItem
+          label="Temp (°C)"
+          value={item.temperature_range_celsius}
+          icon="thermometer"
+        />
+        <GridItem label="Humidity" value={item.humidity} icon="water" />
+        <GridItem label="Soil" value={item.soil_type} icon="terrain" />
+        <GridItem label="Watering" value={item.watering} icon="water-check" />
+        <GridItem label="Sunlight" value={item.sunlight} icon="white-balance-sunny" />
+      </View>
+    </DetailSection>
+
+    <DetailSection title="Season & Yield" icon="calendar-range" color="#f97316">
+      {item.growing_season && (
+        <KeyValueRow label="Growing Season" value={item.growing_season} />
+      )}
+      {item.harvest_time && <KeyValueRow label="Harvest Time" value={item.harvest_time} />}
+      {item.yield_per_hectare_tonnes && (
+        <KeyValueRow
+          label="Yield (t/ha)"
+          value={item.yield_per_hectare_tonnes}
+        />
+      )}
+      {Array.isArray(item.propagation) && item.propagation.length > 0 && (
+        <KeyValueRow
+          label="Propagation"
+          value={item.propagation.join(", ")}
+        />
+      )}
+    </DetailSection>
+
+    {item.nutritional_value_per_100g && (
+      <DetailSection
+        title="Nutritional Value (per 100 g)"
+        icon="food-apple-outline"
+        color="#f97316"
+      >
+        {Object.entries(item.nutritional_value_per_100g).map(([key, val]) => (
+          <View key={key} style={styles.row}>
+            <Text style={styles.label}>{key.replace(/_/g, " ")}</Text>
+            <Text style={styles.value}>{String(val)}</Text>
+          </View>
+        ))}
+      </DetailSection>
+    )}
+
+    <DetailSection title="Economic & Dataset Info" icon="chart-bar" color="#6366f1">
+      {item.economic_importance && (
+        <View style={{ marginBottom: 12 }}>
+          <Text style={styles.subHeader}>Economic Importance</Text>
+          <Text style={styles.paragraph}>{item.economic_importance}</Text>
+        </View>
+      )}
+
+      {Array.isArray(item.top_producing_countries) &&
+        item.top_producing_countries.length > 0 && (
+          <View style={{ marginBottom: 12 }}>
+            <Text style={styles.subHeader}>Top Producing Countries</Text>
+            <View style={styles.chipContainer}>
+              {item.top_producing_countries.map((c, i) => (
+                <Chip key={i} text={c} color="#6366f1" />
+              ))}
+            </View>
+          </View>
+        )}
+
+      {Array.isArray(item.plantvillage_classes) &&
+        item.plantvillage_classes.length > 0 && (
+          <View style={{ marginBottom: 12 }}>
+            <Text style={styles.subHeader}>PlantVillage Classes</Text>
+            <View style={styles.chipContainer}>
+              {item.plantvillage_classes.map((c, i) => (
+                <Chip key={i} text={c} color="#4f46e5" />
+              ))}
+            </View>
+          </View>
+        )}
+
+      {(item.total_images_in_dataset || item.healthy_images || item.diseased_images) && (
+        <View style={styles.infoBox}>
+          <Text style={styles.infoLabel}>Dataset Image Stats</Text>
+          {item.total_images_in_dataset && (
+            <Text style={styles.paragraph}>
+              Total images: {item.total_images_in_dataset}
+            </Text>
+          )}
+          {typeof item.healthy_images !== "undefined" && (
+            <Text style={styles.paragraph}>Healthy: {item.healthy_images}</Text>
+          )}
+          {typeof item.diseased_images !== "undefined" && (
+            <Text style={styles.paragraph}>Diseased: {item.diseased_images}</Text>
+          )}
+        </View>
+      )}
+    </DetailSection>
+
+    {Array.isArray(item.diseases_in_dataset) &&
+      item.diseases_in_dataset.length > 0 && (
+        <DetailSection title="Diseases in Dataset" icon="virus" color="#dc2626">
+          {item.diseases_in_dataset.map((d, i) => (
+            <View key={i} style={styles.chemicalCard}>
+              <View style={styles.chemHeader}>
+                <MaterialCommunityIcons name="biohazard" size={16} color="#dc2626" />
+                <Text style={styles.chemName}>{d.name}</Text>
+              </View>
+              <Text style={styles.chemDetails}>Type: {d.type}</Text>
+              {d.pathogen && (
+                <Text style={styles.chemDetails}>Pathogen: {d.pathogen}</Text>
+              )}
+              {d.symptoms && (
+                <Text style={styles.chemDetails}>Symptoms: {d.symptoms}</Text>
+              )}
+              {d.management && (
+                <Text style={styles.chemDetails}>Management: {d.management}</Text>
+              )}
+            </View>
+          ))}
+        </DetailSection>
+      )}
+
+    {item.notes && (
+      <DetailSection title="Notes" icon="note-text" color="#475569">
+        <Text style={styles.paragraph}>{String(item.notes)}</Text>
+      </DetailSection>
+    )}
   </View>
 );
 
@@ -412,6 +607,8 @@ const KnowledgeHubDetailView = ({ category, item }) => {
             return <RenderWeedDetails item={item} />;
         case 'diseases':
             return <RenderDiseaseDetails item={item} />;
+        case 'plants':
+            return <RenderCropDetails item={item} />;
         default:
             return (
                 <View>

@@ -1,9 +1,13 @@
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
-const CHATBOT_API = `${API_URL}/chatbot`;
+const getChatbotApiBase = async () => {
+  const baseUrl = await getApiUrl();
+  return `${baseUrl}/chatbot`;
+};
 
 export const askChatbot = async (question) => {
-  const response = await fetch(`${CHATBOT_API}/query`, {
+  const chatbotApi = await getChatbotApiBase();
+  const response = await fetch(`${chatbotApi}/query`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -21,7 +25,8 @@ export const askChatbot = async (question) => {
 };
 
 export const checkChatbotHealth = async () => {
-  const response = await fetch(`${CHATBOT_API}/health`);
+  const chatbotApi = await getChatbotApiBase();
+  const response = await fetch(`${chatbotApi}/health`);
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {

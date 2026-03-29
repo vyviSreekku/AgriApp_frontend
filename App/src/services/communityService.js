@@ -1,7 +1,10 @@
 import axios from 'axios';
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
-const COMMUNITY_API = `${API_URL}/community`;
+const getCommunityApiBase = async () => {
+  const baseUrl = await getApiUrl();
+  return `${baseUrl}/community`;
+};
 
 /**
  * Community Service
@@ -18,8 +21,9 @@ const COMMUNITY_API = `${API_URL}/community`;
  */
 export const getAllPosts = async (skip = 0, limit = 20) => {
   try {
-    console.log('[DEBUG] Requesting getAllPosts:', `${COMMUNITY_API}/posts`, { offset: skip, limit });
-    const response = await axios.get(`${COMMUNITY_API}/posts`, {
+    const communityApi = await getCommunityApiBase();
+    console.log('[DEBUG] Requesting getAllPosts:', `${communityApi}/posts`, { offset: skip, limit });
+    const response = await axios.get(`${communityApi}/posts`, {
       params: { offset: skip, limit }
     });
     console.log('[DEBUG] Fetched', response.data.length, 'posts');
@@ -40,7 +44,8 @@ export const getAllPosts = async (skip = 0, limit = 20) => {
  */
 export const getPostById = async (postId) => {
   try {
-    const response = await axios.get(`${COMMUNITY_API}/posts/${postId}`);
+    const communityApi = await getCommunityApiBase();
+    const response = await axios.get(`${communityApi}/posts/${postId}`);
     console.log('[DEBUG] Fetched post:', response.data.id, response.data.title);
     console.log('[DEBUG] Post has', response.data.images?.length || 0, 'images');
     if (response.data.images) {
@@ -64,8 +69,9 @@ export const getPostById = async (postId) => {
  */
 export const searchPosts = async (keyword, skip = 0, limit = 20) => {
   try {
-    console.log('[DEBUG] Searching posts:', `${COMMUNITY_API}/posts`, { q: keyword, offset: skip, limit });
-    const response = await axios.get(`${COMMUNITY_API}/posts`, {
+    const communityApi = await getCommunityApiBase();
+    console.log('[DEBUG] Searching posts:', `${communityApi}/posts`, { q: keyword, offset: skip, limit });
+    const response = await axios.get(`${communityApi}/posts`, {
       params: { q: keyword, offset: skip, limit }
     });
     return response.data;
@@ -87,7 +93,8 @@ export const createPost = async (postData, imageUris = []) => {
   try {
     console.log('Creating post with data:', postData);
     console.log('Image URIs:', imageUris);
-    console.log('API endpoint:', `${COMMUNITY_API}/posts`);
+    const communityApi = await getCommunityApiBase();
+    console.log('API endpoint:', `${communityApi}/posts`);
 
     const formData = new FormData();
     formData.append('user_id', String(postData.user_id));
@@ -115,12 +122,12 @@ export const createPost = async (postData, imageUris = []) => {
       console.log('No images to upload');
     }
 
-    console.log('Sending request to:', `${COMMUNITY_API}/posts`);
+    console.log('Sending request to:', `${communityApi}/posts`);
     console.log('Method: POST');
     console.log('Headers:', { 'Accept': 'application/json' });
 
     // Use fetch API instead of axios for better React Native FormData support
-    const response = await fetch(`${COMMUNITY_API}/posts`, {
+    const response = await fetch(`${communityApi}/posts`, {
       method: 'POST',
       body: formData,
       headers: {
@@ -158,8 +165,9 @@ export const createPost = async (postData, imageUris = []) => {
  */
 export const updatePost = async (postId, updateData, requestingUserId = 1, isAdmin = false) => {
   try {
+    const communityApi = await getCommunityApiBase();
     const response = await axios.patch(
-      `${COMMUNITY_API}/posts/${postId}`,
+      `${communityApi}/posts/${postId}`,
       updateData,
       { params: { requesting_user_id: requestingUserId, is_admin: isAdmin } }
     );
@@ -177,7 +185,8 @@ export const updatePost = async (postId, updateData, requestingUserId = 1, isAdm
  */
 export const deletePost = async (postId, requestingUserId = 1, isAdmin = false) => {
   try {
-    const response = await axios.delete(`${COMMUNITY_API}/posts/${postId}` , {
+    const communityApi = await getCommunityApiBase();
+    const response = await axios.delete(`${communityApi}/posts/${postId}` , {
       params: { requesting_user_id: requestingUserId, is_admin: isAdmin },
     });
     return response.data;
@@ -195,7 +204,8 @@ export const deletePost = async (postId, requestingUserId = 1, isAdmin = false) 
  */
 export const likePost = async (postId, delta = 1) => {
   try {
-    const response = await axios.post(`${COMMUNITY_API}/posts/${postId}/like`, null, {
+    const communityApi = await getCommunityApiBase();
+    const response = await axios.post(`${communityApi}/posts/${postId}/like`, null, {
       params: { delta }
     });
     return response.data; // { likes_count }
@@ -214,7 +224,8 @@ export const likePost = async (postId, delta = 1) => {
  */
 export const getCommentsByPost = async (postId) => {
   try {
-    const response = await axios.get(`${COMMUNITY_API}/posts/${postId}/comments`);
+    const communityApi = await getCommunityApiBase();
+    const response = await axios.get(`${communityApi}/posts/${postId}/comments`);
     return response.data;
   } catch (error) {
     console.error('Error fetching comments:', error.response?.data || error.message);
@@ -234,7 +245,8 @@ export const createComment = async (postId, commentData) => {
   try {
     // Backend expects path param postId and body with { user_id, content }
     const payload = { user_id: commentData.user_id, content: commentData.content };
-    const response = await axios.post(`${COMMUNITY_API}/posts/${postId}/comments`, payload);
+    const communityApi = await getCommunityApiBase();
+    const response = await axios.post(`${communityApi}/posts/${postId}/comments`, payload);
     return response.data;
   } catch (error) {
     console.error('Error creating comment:', error.response?.data || error.message);
@@ -251,7 +263,8 @@ export const createComment = async (postId, commentData) => {
  */
 export const updateComment = async (commentId, updateData) => {
   try {
-    const response = await axios.put(`${COMMUNITY_API}/comments/${commentId}`, updateData);
+    const communityApi = await getCommunityApiBase();
+    const response = await axios.put(`${communityApi}/comments/${commentId}`, updateData);
     return response.data;
   } catch (error) {
     console.error('Error updating comment:', error.response?.data || error.message);
@@ -266,7 +279,8 @@ export const updateComment = async (commentId, updateData) => {
  */
 export const deleteComment = async (commentId) => {
   try {
-    const response = await axios.delete(`${COMMUNITY_API}/comments/${commentId}`);
+    const communityApi = await getCommunityApiBase();
+    const response = await axios.delete(`${communityApi}/comments/${commentId}`);
     return response.data;
   } catch (error) {
     console.error('Error deleting comment:', error.response?.data || error.message);

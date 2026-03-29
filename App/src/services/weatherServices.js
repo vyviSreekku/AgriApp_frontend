@@ -1,4 +1,4 @@
-import { API_URL } from '../utils/config'; // FastAPI base URL
+import { getApiUrl } from '../utils/config'; // FastAPI base URL
 import { getStoredWeatherData, storeWeatherData } from '../utils/weatherUtils';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -47,7 +47,8 @@ export const fetchWeatherData = async (latitude, longitude) => {
     }
 
     // Online mode - fetch from API
-    const response = await fetch(`${API_URL}/weather/current/?lat=${latitude}&lon=${longitude}`);
+    const baseUrl = await getApiUrl();
+    const response = await fetch(`${baseUrl}/weather/current/?lat=${latitude}&lon=${longitude}`);
     if (!response.ok) {
       const errorData = await response.text();
       throw new Error(`Weather data fetch failed: ${errorData}`);
@@ -112,7 +113,8 @@ export const fetchForecastData = async (latitude, longitude, days = 4) => {
     }
 
     // Online mode - fetch from API
-    const response = await fetch(`${API_URL}/weather/forecast?lat=${latitude}&lon=${longitude}&days=${days}`);
+    const baseUrl = await getApiUrl();
+    const response = await fetch(`${baseUrl}/weather/forecast?lat=${latitude}&lon=${longitude}&days=${days}`);
     if (!response.ok) {
       const errorData = await response.text();
       throw new Error(`Forecast data fetch failed: ${errorData}`);

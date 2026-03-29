@@ -12,65 +12,61 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { getLocalImage } from "../../utils/LocalImages";
+import pestData from "../../../dataset/pest.json";
 
 const GREEN = "#2317c7ff";
 const BG = "#e9eef6ff";
 
+const ALL_PLANTS = Array.isArray(pestData?.plants) ? pestData.plants : [];
+const ALL_PESTS = ALL_PLANTS.flatMap((plant) =>
+  Array.isArray(plant.pests)
+    ? plant.pests.map((p) => ({
+        ...p,
+        crop: plant.plant_name,
+      }))
+    : []
+);
 
-const CATEGORIES = [
-  { key: "Sucking Pests", icon: "bug-outline", color: "#ef4444" },
-  { key: "Borers", icon: "bug-outline", color: "#f59e0b" },
-  { key: "Defoliators", icon: "bug-outline", color: "#10b981" },
-  { key: "Mites", icon: "spider", color: "#6366f1" },
-  { key: "Nematodes", icon: "bug-outline", color: "#0ea5e9" },
-];
-
-const PESTS = [
-  "Aphid",
-  "Stem Borer",
-  "Leaf Miner",
-  "Armyworm",
-  "Whitefly",
-  "Thrips",
-  "Mealybug",
-  "Cutworm",
-  "Fruit Borer",
-  "Gall Midge",
-  "Spider Mite",
-  "Nematode",
-];
+const PEST_OPTIONS = ALL_PESTS.map((p) => ({
+  key: `${p.crop}: ${p.pest_name}`,
+  label: `${p.pest_name} (${p.crop})`,
+}));
 
 const img = (seed) => `https://picsum.photos/seed/${encodeURIComponent(seed)}/600/400`;
 
 export default function PestInfo() {
-  const [selectedPest, setSelectedPest] = useState("Aphid");
+  const [selectedKey, setSelectedKey] = useState(PEST_OPTIONS[0]?.key || "");
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+
+  const selectedPest = useMemo(
+    () => ALL_PESTS.find((p) => `${p.crop}: ${p.pest_name}` === selectedKey),
+    [selectedKey]
+  );
+
+  const pestLabel = selectedPest
+    ? `${selectedPest.pest_name} (${selectedPest.crop})`
+    : "";
 
   const suggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return PESTS.filter((p) => p.toLowerCase().includes(q)).slice(0, 6);
+    return PEST_OPTIONS.filter((p) => p.label.toLowerCase().includes(q)).slice(0, 8);
   }, [query]);
 
   const localImage = useMemo(
-    () => getLocalImage("pests", "", selectedPest),
+    () =>
+      selectedPest?.pest_name
+        ? getLocalImage("pests", "", selectedPest.pest_name)
+        : null,
     [selectedPest]
   );
 
   const pickPest = (name) => {
-    const match = PESTS.find((p) => p.toLowerCase() === name.toLowerCase());
-    if (match) setSelectedPest(match);
+    const match = PEST_OPTIONS.find((p) => p.label === name || p.key === name);
+    if (match) setSelectedKey(match.key);
     setQuery("");
     setFocused(false);
-  };
-
-  // Simple type label from pest name
-  const typeFor = (name) => {
-    const n = name.toLowerCase();
-    if (n.includes("mite")) return "Mite";
-    if (n.includes("nematode")) return "Nematode";
-    return "Insect";
   };
 
   return (
@@ -94,7 +90,7 @@ export default function PestInfo() {
               style={styles.searchInput}
               value={query}
               onChangeText={setQuery}
-              placeholder="Search pest name (e.g., Aphid)"
+              placeholder="Search pest (e.g., Yellow stem borer)"
               returnKeyType="search"
               onFocus={() => setFocused(true)}
               onSubmitEditing={() => query && pickPest(query)}
@@ -112,63 +108,124 @@ export default function PestInfo() {
                 <Text style={styles.suggestionEmpty}>No matches</Text>
               ) : (
                 suggestions.map((p) => (
-                  <Pressable key={p} style={styles.suggestionRow} onPress={() => pickPest(p)}>
+                  <Pressable
+                    key={p.key}
+                    style={styles.suggestionRow}
+                    onPress={() => pickPest(p.label)}
+                  >
                     <MaterialCommunityIcons
-                      name={p.toLowerCase().includes("mite") ? "spider" : "bug-outline"}
+                      name={p.label.toLowerCase().includes("mite") ? "spider" : "bug-outline"}
                       size={16}
                       color={GREEN}
                     />
-                    <Text style={styles.suggestionText}>{p}</Text>
+                    <Text style={styles.suggestionText}>{p.label}</Text>
                   </Pressable>
                 ))
               )}
             </View>
           )}
 
-          <Text style={styles.selectedText}>Showing: {selectedPest}</Text>
+          <Text style={styles.selectedText}>Showing: {pestLabel || "No pest selected"}</Text>
         </View>
 
-        {/* Categories with horizontal cards (placeholder content) */}
-        {CATEGORIES.map((cat) => {
-          const items = [0, 1, 2].map((i) => ({
-            id: `${selectedPest}-${cat.key}-${i}`,
-            type: typeFor(selectedPest),
-            title: `${selectedPest} - ${cat.key} ${i + 1}`,
-          }));
-
-          return (
-            <View key={cat.key} style={styles.section}>
-              <View style={styles.stageHeader}>
-                <View style={styles.stageBadge}>
-                  <MaterialCommunityIcons name={cat.icon} size={16} color={cat.color} />
-                </View>
-                <Text style={styles.sectionTitle}>{cat.key}</Text>
-              </View>
-
-              <FlatList
-                data={items}
-                keyExtractor={(it) => it.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-                renderItem={({ item }) => (
-                  <View style={styles.card}>
-                    <Image
-                      source={localImage || { uri: img(item.id) }}
-                      style={styles.cardImage}
-                    />
-                    <View style={styles.cardBody}>
-                      <Text style={styles.cardType}>{item.type}</Text>
-                      <Text numberOfLines={2} style={styles.cardTitle}>
-                        {item.title}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              />
+        {/* Pest overview from dataset */}
+        <View style={styles.section}>
+          <View style={styles.stageHeader}>
+            <View style={styles.stageBadge}>
+              <MaterialCommunityIcons name="ladybug" size={16} color="#22c55e" />
             </View>
-          );
-        })}
+            <Text style={styles.sectionTitle}>Pest Overview</Text>
+          </View>
+
+          {selectedPest ? (
+            <>
+              <Text style={styles.infoTitle}>{selectedPest.pest_name}</Text>
+              <Text style={styles.infoLine}>
+                <Text style={styles.infoLabel}>Crop: </Text>
+                {selectedPest.crop}
+              </Text>
+              {selectedPest.scientific_name && (
+                <Text style={styles.infoLine}>
+                  <Text style={styles.infoLabel}>Scientific name: </Text>
+                  {selectedPest.scientific_name}
+                </Text>
+              )}
+              {selectedPest.pest_type && (
+                <Text style={styles.infoLine}>
+                  <Text style={styles.infoLabel}>Type: </Text>
+                  {selectedPest.pest_type}
+                </Text>
+              )}
+              {Array.isArray(selectedPest.symptoms) && selectedPest.symptoms.length > 0 && (
+                <Text style={styles.infoLine}>
+                  <Text style={styles.infoLabel}>Key symptom: </Text>
+                  {selectedPest.symptoms[0]}
+                </Text>
+              )}
+              {selectedPest.impact_on_crop && (
+                <Text style={styles.infoLine}>
+                  <Text style={styles.infoLabel}>Impact: </Text>
+                  {selectedPest.impact_on_crop}
+                </Text>
+              )}
+            </>
+          ) : (
+            <Text style={styles.suggestionEmpty}>No data available for this pest.</Text>
+          )}
+        </View>
+
+        {/* Control measures from dataset */}
+        {selectedPest?.treatment_after_attack && (
+          <View style={styles.section}>
+            <View style={styles.stageHeader}>
+              <View style={styles.stageBadge}>
+                <MaterialCommunityIcons name="spray" size={16} color="#f97316" />
+              </View>
+              <Text style={styles.sectionTitle}>Key Control Measures</Text>
+            </View>
+
+            <FlatList
+              data={buildControlItems(selectedPest.treatment_after_attack)}
+              keyExtractor={(item, index) => `${selectedPest.pest_name}-${item.type}-${index}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+              renderItem={({ item }) => (
+                <View style={styles.card}>
+                  <Image
+                    source={localImage || { uri: img(`${selectedPest.pest_name}-${item.title}`) }}
+                    style={styles.cardImage}
+                  />
+                  <View style={styles.cardBody}>
+                    <Text style={styles.cardType}>{item.type}</Text>
+                    <Text numberOfLines={2} style={styles.cardTitle}>
+                      {item.title}
+                    </Text>
+                    {item.details ? (
+                      <Text numberOfLines={3} style={styles.cardDescription}>
+                        {item.details}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+              )}
+            />
+          </View>
+        )}
+
+        {/* Preventive measures from dataset */}
+        {selectedPest?.preventive_measures && (
+          <View style={styles.section}>
+            <View style={styles.stageHeader}>
+              <View style={styles.stageBadge}>
+                <MaterialCommunityIcons name="shield-check" size={16} color="#6366f1" />
+              </View>
+              <Text style={styles.sectionTitle}>Preventive Measures</Text>
+            </View>
+
+            {renderPreventiveMeasures(selectedPest.preventive_measures)}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -230,6 +287,10 @@ const styles = StyleSheet.create({
   suggestionEmpty: { padding: 12, color: "#64748b" },
   selectedText: { marginTop: 10, color: "#475569" },
 
+  infoTitle: { fontSize: 18, fontWeight: "800", color: "#0f172a", marginBottom: 8 },
+  infoLine: { color: "#1f2933", marginTop: 4 },
+  infoLabel: { fontWeight: "700", color: "#111827" },
+
   // Category header
   stageHeader: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   stageBadge: {
@@ -255,4 +316,78 @@ const styles = StyleSheet.create({
   cardBody: { padding: 10 },
   cardType: { fontSize: 12, color: "#64748b", marginBottom: 2 },
   cardTitle: { fontSize: 14, fontWeight: "700", color: "#0f172a" },
+  cardDescription: { fontSize: 12, color: "#475569", marginTop: 4 },
 });
+
+function buildControlItems(treatment) {
+  const items = [];
+
+  if (Array.isArray(treatment.chemical_control)) {
+    treatment.chemical_control.forEach((c) => {
+      items.push({
+        type: "Chemical",
+        title: c.pesticide_name,
+        details: [c.dosage, c.application_method].filter(Boolean).join(" · "),
+      });
+    });
+  }
+
+  if (Array.isArray(treatment.biological_control)) {
+    treatment.biological_control.forEach((b) => {
+      items.push({
+        type: "Biological",
+        title: b.method,
+        details: b.details || "",
+      });
+    });
+  }
+
+  if (Array.isArray(treatment.organic_control)) {
+    treatment.organic_control.forEach((o) => {
+      items.push({
+        type: "Organic",
+        title: o.method,
+        details: o.details || "",
+      });
+    });
+  }
+
+  return items.slice(0, 12);
+}
+
+function renderPreventiveMeasures(preventive) {
+  const sections = [];
+
+  const pushList = (list, title, icon, color) => {
+    if (!Array.isArray(list) || list.length === 0) return;
+    sections.push(
+      <View key={title} style={{ marginBottom: 10 }}>
+        <Text style={[styles.cardType, { color }]}>{title}</Text>
+        {list.map((text, idx) => (
+          <View key={idx} style={styles.suggestionRow}>
+            <MaterialCommunityIcons name={icon} size={16} color={color} />
+            <Text style={styles.suggestionText}>{text}</Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
+  pushList(preventive.cultural_practices, "Cultural practices", "sprout", "#16a34a");
+  pushList(preventive.physical_measures, "Physical measures", "cog", "#0ea5e9");
+  pushList(preventive.mechanical_measures, "Mechanical measures", "hammer-wrench", "#f97316");
+  pushList(preventive.preventive_sprays, "Preventive sprays", "spray", "#6366f1");
+
+  if (preventive.resistant_varieties) {
+    sections.push(
+      <View key="resistant-varieties" style={{ marginTop: 8 }}>
+        <Text style={[styles.cardType, { color: "#166534" }]}>Resistant varieties</Text>
+        <Text style={styles.cardDescription}>{preventive.resistant_varieties}</Text>
+      </View>
+    );
+  }
+
+  return sections.length > 0 ? sections : (
+    <Text style={styles.suggestionEmpty}>No detailed preventive measures available.</Text>
+  );
+}

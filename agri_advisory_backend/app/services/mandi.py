@@ -15,7 +15,6 @@ def get_mandi_prices(
     api_key: str = None,
     format: str = "json",
     offset: int = 0,
-    limit: int = 10,
     sort_by: str = "Market"
 ) -> Union[Dict[str, Any], str, None]:
     """
@@ -43,7 +42,6 @@ def get_mandi_prices(
         "api-key": api_key,
         "format": format,
         "offset": offset,
-        "limit": limit
     }
     
     # Add filters if provided
@@ -180,9 +178,7 @@ async def get_crop_prices(
     - Dictionary containing processed market price data and metadata
     """
     # Set a reasonable limit for API calls
-    limit = 10
-
-    # If no arrival_date is provided, start from today's date (dd/mm/YYYY)
+    # If no arrival_date is provided, start from 7 days ago
     # and move backwards day by day (up to ~1 month) until some data is found.
     if arrival_date is None:
         start_date = datetime.now()
@@ -193,30 +189,38 @@ async def get_crop_prices(
         except ValueError:
             start_date = datetime.now()
 
+    import concurrent.futures
+
     data = None
     effective_date_str = None
+    max_days = 30
+    batch_size = 3
+    found = False
 
-    for day_offset in range(0, 31):  # today and previous 30 days
-        query_date = start_date - timedelta(days=day_offset)
+    def fetch_for_date(offset):
+        query_date = start_date - timedelta(days=offset)
         date_str = query_date.strftime("%d/%m/%Y")
-
-        data = get_mandi_prices(
+        d = get_mandi_prices(
             state=state,
             district=district,
             commodity=crop,
             arrival_date=date_str,
-            limit=limit,
         )
+        return (date_str, d)
 
-        if not data or not isinstance(data, dict):
-            continue
-
-        # Skip if API reported error or returned no records
-        if "error" in data or not data.get("records"):
-            continue
-
-        effective_date_str = date_str
-        break
+    for batch_start in range(0, max_days + 1, batch_size):
+        offsets = list(range(batch_start, min(batch_start + batch_size, max_days + 1)))
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = list(executor.map(fetch_for_date, offsets))
+        # Sort by earliest date (lowest offset)
+        for date_str, d in sorted(results, key=lambda x: x[0]):
+            if d and isinstance(d, dict) and d.get("records") and not d.get("error"):
+                data = d
+                effective_date_str = date_str
+                found = True
+                break
+        if found:
+            break
     
     result = {
         "success": False,

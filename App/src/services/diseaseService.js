@@ -1,4 +1,4 @@
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
 /**
  * Detect plant disease from an uploaded image
@@ -7,6 +7,7 @@ import { API_URL } from '../utils/config';
  */
 export const detectDisease = async (imageUri) => {
   try {
+    const baseUrl = await getApiUrl();
     const formData = new FormData();
     
     const filename = imageUri.split('/').pop();
@@ -20,7 +21,7 @@ export const detectDisease = async (imageUri) => {
     });
 
     // NOTE: Ensure your backend has this endpoint or mock it
-    const response = await fetch(`${API_URL}/disease/detect`, {
+    const response = await fetch(`${baseUrl}/disease/detect`, {
       method: 'POST',
       body: formData,
       headers: {

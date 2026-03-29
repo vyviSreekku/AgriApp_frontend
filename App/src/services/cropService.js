@@ -1,4 +1,4 @@
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
 /**
  * Request a crop recommendation from the backend
@@ -14,7 +14,8 @@ import { API_URL } from '../utils/config';
  * @returns {Promise<{recommended_crop: string, inputs: Object}>}
  */
 export const recommendCrop = async (inputs = {}) => {
-  const url = `${API_URL}/crops/recommend`;
+  const baseUrl = await getApiUrl();
+  const url = `${baseUrl}/crops/recommend`;
   const resp = await fetch(url, {
     method: 'POST',
     headers: {

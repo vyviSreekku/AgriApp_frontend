@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { API_URL } from '../../utils/config';
+import { getApiUrl } from '../../utils/config';
 
 // Simple reusable sub components (trimmed from provided example code)
 const AppHeader = ({ title, subtitle }) => (
@@ -69,7 +69,8 @@ export default function CropRecommendationScreen() {
         potassium: parseFloat(k),
         soil_ph: parseFloat(ph),
       };
-      const response = await fetch(`${API_URL}/crops/recommend`, {
+      const baseUrl = await getApiUrl();
+      const response = await fetch(`${baseUrl}/crops/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

@@ -1,4 +1,4 @@
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
 /**
  * Analyze soil pH from an uploaded image (pH test strip or soil sample)
@@ -8,6 +8,7 @@ import { API_URL } from '../utils/config';
 
 export const analyzeSoilPH = async (imageUri) => {
   try {
+    const baseUrl = await getApiUrl();
     const formData = new FormData();
     const filename = imageUri.split('/').pop();
     const match = /\.(\w+)$/.exec(filename);
@@ -18,7 +19,7 @@ export const analyzeSoilPH = async (imageUri) => {
       type: type,
     });
     console.log('[DEBUG soilPhService] Uploading image:', { filename, type, uri: imageUri });
-    const response = await fetch(`${API_URL}/soil-ph/analyze`, {
+    const response = await fetch(`${baseUrl}/soil-ph/analyze`, {
       method: 'POST',
       body: formData,
       headers: {

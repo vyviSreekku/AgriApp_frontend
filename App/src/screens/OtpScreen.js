@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import otpService from '../services/otpService';
 import authService from '../services/authService';
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
 const { width } = Dimensions.get('window');
 const PRIMARY_PURPLE = '#4f46e5';
@@ -73,7 +73,8 @@ export default function OtpScreen({ navigation, route }) {
       if (isValid) {
         try {
             // Check if user exists in backend
-            const response = await fetch(`${API_URL}/users/check/${phone}`);
+            const baseUrl = await getApiUrl();
+            const response = await fetch(`${baseUrl}/users/check/${phone}`);
             
             if (response.ok) {
                 const userData = await response.json();

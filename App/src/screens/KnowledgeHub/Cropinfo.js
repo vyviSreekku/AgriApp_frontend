@@ -5,55 +5,105 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
-  FlatList,
   TextInput,
   Pressable,
+  Image,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import cropData from "../../../dataset/crop.json";
+import { getCropImage } from "../../utils/LocalImages";
+import KnowledgeHubDetailView from "./KnowledgeHubDetails";
 
 const GREEN = "#2317c7ff";
 const BG = "#e9eef6ff";
 
-const STAGES = [
-  { key: "Seedling", icon: "sprout", color: "#15bc5dff" },
-  { key: "Vegetative", icon: "leaf", color: "#10b981" },
-  { key: "Flowering", icon: "flower-outline", color: "#f59e0b" },
-  { key: "Maturity", icon: "corn", color: "#f97316" },
-];
-
-const CROPS = ["Millet", "Maize", "Wheat", "Rice", "Cotton", "Sorghum", "Soybean"];
-
-const img = (seed) => `https://picsum.photos/seed/${encodeURIComponent(seed)}/600/400`;
+const ALL_CROPS = Array.isArray(cropData?.crops) ? cropData.crops : [];
+const CROP_NAMES = ALL_CROPS.map((c) => c.crop_name);
+const DATASET_META = cropData || {};
+const DISEASE_BREAKDOWN = DATASET_META.disease_breakdown || {};
 
 export default function CropInfo() {
-  const [selectedCrop, setSelectedCrop] = useState("Millet");
+  const [selectedCropName, setSelectedCropName] = useState(
+    CROP_NAMES[0] || "Tomato"
+  );
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
 
   const suggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return CROPS.filter((c) => c.toLowerCase().includes(q)).slice(0, 6);
+    return CROP_NAMES.filter((c) => c.toLowerCase().includes(q)).slice(0, 6);
   }, [query]);
 
+  const selectedCrop = useMemo(
+    () => ALL_CROPS.find((c) => c.crop_name === selectedCropName),
+    [selectedCropName]
+  );
+
+  const cropImage = useMemo(
+    () => getCropImage(selectedCrop?.crop_name),
+    [selectedCrop?.crop_name]
+  );
+
   const pickCrop = (name) => {
-    const match = CROPS.find((c) => c.toLowerCase() === name.toLowerCase());
-    if (match) setSelectedCrop(match);
+    const match = CROP_NAMES.find((c) => c.toLowerCase() === name.toLowerCase());
+    if (match) setSelectedCropName(match);
     setQuery("");
     setFocused(false);
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: BG }}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Header */}
         <View style={styles.hero}>
-          <View style={[styles.iconWrap, { backgroundColor: "#dcfce7" }]}>
+          <View style={[styles.iconWrap, { backgroundColor: "#dcfce7" }]}> 
             <MaterialCommunityIcons name="sprout" size={28} color="#22c55e" />
           </View>
           <Text style={styles.title}>Crop Information</Text>
-          <Text style={styles.subtitle}>Search a crop to view its stages.</Text>
+          <Text style={styles.subtitle}>
+            From the PlantVillage dataset ({DATASET_META.total_crops} crops,{' '}
+            {DATASET_META.total_classes} classes, {DATASET_META.total_images} images).
+          </Text>
+        </View>
+
+        {/* Dataset snapshot */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Dataset Overview</Text>
+          <View style={styles.metricRow}>
+            <View style={styles.metricCard}>
+              <MaterialCommunityIcons name="sprout" size={18} color={GREEN} />
+              <Text style={styles.metricLabel}>Crops</Text>
+              <Text style={styles.metricValue}>{DATASET_META.total_crops}</Text>
+            </View>
+            <View style={styles.metricCard}>
+              <MaterialCommunityIcons name="layers" size={18} color="#0ea5e9" />
+              <Text style={styles.metricLabel}>Classes</Text>
+              <Text style={styles.metricValue}>{DATASET_META.total_classes}</Text>
+            </View>
+            <View style={styles.metricCard}>
+              <MaterialCommunityIcons
+                name="image-multiple"
+                size={18}
+                color="#f97316"
+              />
+              <Text style={styles.metricLabel}>Images</Text>
+              <Text style={styles.metricValue}>{DATASET_META.total_images}</Text>
+            </View>
+          </View>
+
+          <View style={styles.badgeRow}>
+            {Object.entries(DISEASE_BREAKDOWN).map(([key, val]) => (
+              <View key={key} style={styles.badgeChip}>
+                <Text style={styles.badgeText}>
+                  {key.replace(/_/g, " ")}: {val}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
 
         {/* Search */}
@@ -72,7 +122,11 @@ export default function CropInfo() {
             />
             {query.length > 0 && (
               <Pressable onPress={() => setQuery("")}>
-                <MaterialCommunityIcons name="close-circle" size={18} color="#94a3b8" />
+                <MaterialCommunityIcons
+                  name="close-circle"
+                  size={18}
+                  color="#94a3b8"
+                />
               </Pressable>
             )}
           </View>
@@ -83,7 +137,11 @@ export default function CropInfo() {
                 <Text style={styles.suggestionEmpty}>No matches</Text>
               ) : (
                 suggestions.map((c) => (
-                  <Pressable key={c} style={styles.suggestionRow} onPress={() => pickCrop(c)}>
+                  <Pressable
+                    key={c}
+                    style={styles.suggestionRow}
+                    onPress={() => pickCrop(c)}
+                  >
                     <MaterialCommunityIcons
                       name={c === "Maize" ? "corn" : "sprout"}
                       size={16}
@@ -96,48 +154,41 @@ export default function CropInfo() {
             </View>
           )}
 
-          <Text style={styles.selectedText}>Showing: {selectedCrop}</Text>
+          <Text style={styles.selectedText}>Showing: {selectedCropName}</Text>
         </View>
 
-        {/* Stages with horizontal cards (placeholder content) */}
-        {STAGES.map((stage) => {
-          const items = [0, 1, 2].map((i) => ({
-            id: `${selectedCrop}-${stage.key}-${i}`,
-            type: "Type",
-            title: `${selectedCrop} - ${stage.key} Issue ${i + 1}`,
-            image: img(`${selectedCrop}-${stage.key}-${i}`),
-          }));
-
-          return (
-            <View key={stage.key} style={styles.section}>
-              <View style={styles.stageHeader}>
-                <View style={styles.stageBadge}>
-                  <MaterialCommunityIcons name={stage.icon} size={16} color={stage.color} />
-                </View>
-                <Text style={styles.sectionTitle}>{stage.key} Stage</Text>
-              </View>
-
-              <FlatList
-                data={items}
-                keyExtractor={(it) => it.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-                renderItem={({ item }) => (
-                  <View style={styles.card}>
-                    <Image source={{ uri: item.image }} style={styles.cardImage} />
-                    <View style={styles.cardBody}>
-                      <Text style={styles.cardType}>{item.type}</Text>
-                      <Text numberOfLines={2} style={styles.cardTitle}>
-                        {item.title}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              />
+        {/* Crop overview from dataset using shared Knowledge Hub renderer */}
+        <View style={styles.section}>
+          <View style={styles.stageHeader}>
+            <View style={styles.stageBadge}>
+              <MaterialCommunityIcons name="sprout" size={16} color="#16a34a" />
             </View>
-          );
-        })}
+            <Text style={styles.sectionTitle}>Crop Overview</Text>
+          </View>
+
+          {selectedCrop ? (
+            <>
+              {cropImage && (
+                <Image
+                  source={cropImage}
+                  style={styles.heroImage}
+                  resizeMode="cover"
+                />
+              )}
+              <Text style={styles.infoTitle}>{selectedCrop.crop_name}</Text>
+              <KnowledgeHubDetailView
+                category="plants"
+                item={{
+                  ...selectedCrop,
+                  name: selectedCrop.crop_name,
+                  color: GREEN,
+                }}
+              />
+            </>
+          ) : (
+            <Text style={styles.suggestionEmpty}>No data available for this crop.</Text>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -199,6 +250,8 @@ const styles = StyleSheet.create({
   suggestionEmpty: { padding: 12, color: "#64748b" },
   selectedText: { marginTop: 10, color: "#475569" },
 
+  infoTitle: { fontSize: 18, fontWeight: "800", color: "#0f172a", marginBottom: 8 },
+
   // Stage header
   stageHeader: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   stageBadge: {
@@ -211,17 +264,44 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
 
-  // Cards
-  card: {
-    width: 180,
+  heroImage: {
+    width: "100%",
+    height: 180,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+
+  metricRow: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+  metricCard: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginHorizontal: 4,
+    borderRadius: 10,
+    backgroundColor: "#f8fafc",
     borderWidth: 1,
     borderColor: "#e5e7eb",
-    borderRadius: 14,
-    backgroundColor: "#fff",
-    overflow: "hidden",
+    alignItems: "center",
   },
-  cardImage: { width: "100%", height: 110 },
-  cardBody: { padding: 10 },
-  cardType: { fontSize: 12, color: "#64748b", marginBottom: 2 },
-  cardTitle: { fontSize: 14, fontWeight: "700", color: "#0f172a" },
+  metricLabel: { fontSize: 11, color: "#64748b", marginTop: 4 },
+  metricValue: { fontSize: 15, fontWeight: "700", color: "#0f172a", marginTop: 2 },
+
+  badgeRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 10,
+    gap: 6,
+  },
+  badgeChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "#eff6ff",
+  },
+  badgeText: { fontSize: 11, color: "#1d4ed8" },
 });

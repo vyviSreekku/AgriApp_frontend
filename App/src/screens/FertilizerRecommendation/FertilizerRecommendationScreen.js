@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { API_URL } from '../../utils/config';
+import { getApiUrl } from '../../utils/config';
 
 const AppHeader = ({ title, subtitle }) => (
   <View style={styles.header}> 
@@ -61,7 +61,8 @@ export default function FertilizerRecommendationScreen() {
         potassium: parseFloat(k),
         crop: crop || undefined,
       };
-      const response = await fetch(`${API_URL}/fertilizer/recommend`, {
+      const baseUrl = await getApiUrl();
+      const response = await fetch(`${baseUrl}/fertilizer/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

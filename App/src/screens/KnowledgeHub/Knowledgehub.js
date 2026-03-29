@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -13,11 +13,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import OfflineRagService from "../../services/offlineRagService";
 
 import pestData from "../../../dataset/pest.json";
 import diseaseData from "../../../dataset/village_plant_disease_dataset.json";
 import weedData from "../../../dataset/weed.json";
+import cropData from "../../../dataset/crop.json";
 import KnowledgeHubDetailView from "./KnowledgeHubDetails";
 import { getPlantDiseaseImage } from "../../utils/plantDiseaseImages";
 
@@ -132,6 +132,9 @@ const getWeeds = () => {
                 image: weedName,
                 color: "#22c55e",
                 ...weed,
+                // attach crop-level context for detail view
+                weed_management_practices: crop.weed_management_practices,
+                notes: crop.notes,
               });
             });
           }
@@ -148,7 +151,9 @@ const getWeeds = () => {
                 category: "Major Weeds",
                 image: weedName,
                 color: "#22c55e",
-                ...weed
+                ...weed,
+                weed_management_practices: crop.weed_management_practices,
+                notes: crop.notes,
              });
          });
       }
@@ -162,34 +167,36 @@ const getWeeds = () => {
 };
 
 const getPlants = () => {
-    if (!pestData || !pestData.plants) return [];
-    
-    // Group by category (Cereal crop, Fruit crop, etc.)
-    const grouped = {};
-    
-    pestData.plants.forEach((plant) => {
-        const category = plant.category || "Other Crops";
-        if (!grouped[category]) grouped[category] = [];
-        
-        grouped[category].push({
-            id: `plant-${plant.plant_name}-${Math.random()}`,
-            name: plant.plant_name,
-            description: plant.scientific_name || "No scientific name",
-            category: category,
-            image: plant.plant_name,
-            color: "#3b82f6",
-            // specific fields
-            soil_requirement: plant.soil_requirement,
-            climatic_requirement: plant.climatic_requirement,
-            major_growing_regions: plant.major_growing_regions,
-            ...plant
-        });
-    });
+  if (!cropData || !Array.isArray(cropData.crops)) return [];
 
-    return Object.keys(grouped).map(category => ({
-        title: category,
-        data: grouped[category]
-    }));
+  // Group crops by plant type (e.g., "Deciduous fruit tree", "Annual cereal crop")
+  const grouped = {};
+
+  cropData.crops.forEach((crop) => {
+    const group = crop.plant_type || "Crops";
+    if (!grouped[group]) grouped[group] = [];
+
+    grouped[group].push({
+      id: `crop-${crop.crop_id || crop.crop_name}-${Math.random()}`,
+      name: crop.crop_name,
+      description:
+        crop.economic_importance ||
+        crop.climate ||
+        crop.plant_type ||
+        crop.scientific_name ||
+        "Crop information",
+      category: group,
+      image: crop.crop_name,
+      color: "#3b82f6",
+      // spread full crop record so detail view can access all fields
+      ...crop,
+    });
+  });
+
+  return Object.keys(grouped).map((group) => ({
+    title: group,
+    data: grouped[group],
+  }));
 };
 
 // Data structure for all categories
@@ -200,7 +207,7 @@ const KNOWLEDGE_DATA = {
   plants: getPlants(),
 };
 
-import { getLocalImage } from "../../utils/LocalImages";
+import { getLocalImage, getCropImage } from "../../utils/LocalImages";
 
 const getImageSource = (item, tab) => {
   if (tab === "diseases") {
@@ -218,6 +225,11 @@ const getImageSource = (item, tab) => {
     if (weedImage) return weedImage;
   }
 
+  if (tab === "plants") {
+    const cropImage = getCropImage(item?.name || item?.crop_name || "");
+    if (cropImage) return cropImage;
+  }
+
   const seed = item?.image || item?.name || "plant";
   return { uri: `https://picsum.photos/seed/${encodeURIComponent(seed)}/400/300` };
 };
@@ -227,14 +239,7 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [semanticResults, setSemanticResults] = useState([]);
-  const [isSemanticSearching, setIsSemanticSearching] = useState(false);
-
-  useEffect(() => {
-    OfflineRagService.prepareResources({ allowNetworkSync: true }).catch((error) => {
-      console.error("KnowledgeHub: failed to prepare offline RAG resources", error);
-    });
-  }, []);
+  
 
   // Search filtering logic
   const filteredItems = useMemo(() => {
@@ -263,84 +268,6 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
     }).filter(section => section.data.length > 0);
   }, [activeTab, searchQuery]);
 
-  const handleSemanticSearch = async () => {
-    const query = searchQuery.trim();
-    if (!query) {
-      setSemanticResults([]);
-      return;
-    }
-
-    try {
-      setIsSemanticSearching(true);
-      const chunks = await OfflineRagService.retrieveRelevantChunks(query, {
-        topK: 5,
-        allowNetworkSync: true,
-      });
-
-      setSemanticResults(
-        (chunks || []).map((chunk) => {
-          const content = String(chunk.content || "");
-          const firstLineEnd = content.indexOf("\n");
-          const titleLine = firstLineEnd >= 0 ? content.slice(0, firstLineEnd) : content;
-
-          // Try to derive a clean, crop-based title from the first line
-          let title = titleLine
-            .replace(/^Plant\/Crop Group:\s*/i, "")
-            .replace(/^Host crop:\s*/i, "")
-            .replace(/^Plant host:\s*/i, "")
-            .trim();
-
-          if (!title) {
-            title = "Advisory";
-          }
-
-          return {
-            id: chunk.id,
-            title,
-            preview:
-              content.length > 220
-                ? content.slice(0, 217).replace(/\s+$/g, "") + "..."
-                : content,
-          };
-        })
-      );
-    } catch (error) {
-      console.error("KnowledgeHub: semantic search failed", error);
-      setSemanticResults([]);
-    } finally {
-      setIsSemanticSearching(false);
-    }
-  };
-
-  const handleSemanticResultPress = (result) => {
-    const rawTitle = (result?.title || "").toLowerCase().trim();
-    if (!rawTitle) {
-      return;
-    }
-
-    // Try to find a matching card in the current tab by crop/disease/weed name or category
-    const sections = KNOWLEDGE_DATA[activeTab] || [];
-
-    for (const section of sections) {
-      for (const item of section.data) {
-        const name = (item.name || "").toLowerCase();
-        const category = (item.category || "").toLowerCase();
-
-        const matches =
-          !!name && (name === rawTitle || name.includes(rawTitle) || rawTitle.includes(name)) ||
-          (!!category && (category === rawTitle || category.includes(rawTitle) || rawTitle.includes(category)));
-
-        if (matches) {
-          handleItemPress(item);
-          return;
-        }
-      }
-    }
-
-    // Fallback: just apply the semantic title as a text search to narrow down cards
-    setSearchQuery(result.title || "");
-  };
-
   const handleItemPress = (item) => {
     setSelectedItem(item);
     setShowDetailModal(true);
@@ -350,7 +277,7 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
     { key: "pests", label: "Pests", icon: "ladybug", color: "#ef4444" },
     { key: "diseases", label: "Diseases", icon: "hospital-box", color: "#f59e0b" },
     { key: "weeds", label: "Weeds", icon: "leaf", color: "#22c55e" },
-    { key: "plants", label: "Plants", icon: "sprout", color: "#3b82f6" },
+    { key: "plants", label: "Crops", icon: "sprout", color: "#3b82f6" },
   ];
 
   return (
@@ -369,14 +296,12 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
           placeholder={`Search ${activeTab}...`}
           value={searchQuery}
           onChangeText={setSearchQuery}
-          onSubmitEditing={handleSemanticSearch}
           placeholderTextColor="#94a3b8"
         />
         {searchQuery.length > 0 && (
           <Pressable
             onPress={() => {
               setSearchQuery("");
-              setSemanticResults([]);
             }}
           >
             <MaterialCommunityIcons name="close-circle" size={18} color="#94a3b8" />
@@ -425,41 +350,6 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       >
-        {searchQuery.trim().length > 0 && (
-          <View style={styles.semanticSectionContainer}>
-            <View style={styles.sectionHeaderContainer}>
-              <Text style={styles.sectionHeaderTitle}>Semantic matches</Text>
-              <Text style={styles.sectionHeaderSubtitle}>
-                Powered by offline RAG knowledge
-              </Text>
-            </View>
-            {isSemanticSearching ? (
-              <View style={styles.semanticLoadingRow}>
-                <MaterialCommunityIcons name="loading" size={20} color={GREEN} />
-                <Text style={styles.semanticLoadingText}>Searching similar advisories...</Text>
-              </View>
-            ) : semanticResults.length > 0 ? (
-              semanticResults.map((result) => (
-                <TouchableOpacity
-                  key={result.id}
-                  style={styles.semanticCard}
-                  activeOpacity={0.8}
-                  onPress={() => handleSemanticResultPress(result)}
-                >
-                  <Text style={styles.semanticCardTitle}>{result.title}</Text>
-                  <Text style={styles.semanticCardPreview}>{result.preview}</Text>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <View style={styles.semanticEmptyContainer}>
-                <Text style={styles.semanticEmptyText}>
-                  No semantic matches yet. Press enter to search.
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-
         {filteredItems.length > 0 ? (
           filteredItems.map((section, index) => (
             <View key={section.title + index} style={styles.sectionContainer}>
@@ -548,8 +438,8 @@ const EnhancedKnowledgeHub = ({ navigation }) => {
                   {/* Render distinct format based on active tab/category */}
                   <KnowledgeHubDetailView category={activeTab} item={selectedItem} />
                   
-                  {/* Fallback for 'plants' or unknown types using old generic view */}
-                  {!['pests', 'weeds', 'diseases'].includes(activeTab) && (
+                  {/* Fallback for unknown types only (exclude mapped categories like plants/crops) */}
+                  {!['pests', 'weeds', 'diseases', 'plants'].includes(activeTab) && (
                     <View>
                         <Text style={styles.modalDescription}>
                             {selectedItem.description}

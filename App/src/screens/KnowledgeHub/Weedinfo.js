@@ -11,62 +11,76 @@ import {
   Pressable,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import weedData from "../../../dataset/weed.json";
 
 const GREEN = "#2317c7ff";
 const BG = "#e9eef6ff";
 
-const CATEGORIES = [
-  { key: "Grasses", icon: "sprout", color: "#16a34a" },
-  { key: "Sedges", icon: "leaf", color: "#06b6d4" },
-  { key: "Broadleaf Weeds", icon: "leaf", color: "#f59e0b" },
-  { key: "Aquatic/Marsh", icon: "water", color: "#6366f1" },
-];
+const ALL_PLANTS = Array.isArray(weedData?.plant) ? weedData.plant : [];
 
-const WEEDS = [
-  "Amaranthus (Pigweed)",
-  "Parthenium (Congress grass)",
-  "Cyperus rotundus (Nutgrass)",
-  "Echinochloa crus-galli (Barnyard grass)",
-  "Cynodon dactylon (Bermuda grass)",
-  "Phalaris minor (Canary grass)",
-  "Chenopodium album (Lambsquarters)",
-  "Digitaria sanguinalis (Crabgrass)",
-  "Convolvulus arvensis (Field Bindweed)",
-  "Imperata cylindrica (Cogon grass)",
-  "Eichhornia crassipes (Water Hyacinth)",
-];
+const ALL_WEEDS = ALL_PLANTS.flatMap((plant) => {
+  const list = [];
+
+  const containers = [];
+  if (plant.weed_categories) containers.push(plant.weed_categories);
+  if (plant.major_weeds) containers.push(plant.major_weeds);
+
+  containers.forEach((groupObj) => {
+    Object.keys(groupObj || {}).forEach((groupKey) => {
+      const arr = groupObj[groupKey];
+      if (!Array.isArray(arr)) return;
+      arr.forEach((w) => {
+        list.push({
+          ...w,
+          crop: plant.crop,
+          groupKey,
+          management: plant.weed_management_practices || null,
+        });
+      });
+    });
+  });
+
+  return list;
+});
+
+const WEED_OPTIONS = ALL_WEEDS.map((w) => ({
+  key: `${w.crop}: ${w.common_name || w.scientific_name}`,
+  label: `${w.common_name || w.scientific_name} (${w.crop})`,
+}));
 
 const img = (seed) => `https://picsum.photos/seed/${encodeURIComponent(seed)}/600/400`;
 
-const categoryFor = (name) => {
-  const n = name.toLowerCase();
-  if (n.includes("eichhornia") || n.includes("water") || n.includes("hyacinth")) return "Aquatic/Marsh";
-  if (n.includes("cyperus") || n.includes("sedge") || n.includes("nutgrass")) return "Sedges";
-  if (
-    n.includes("grass") ||
-    n.includes("echinochloa") ||
-    n.includes("cynodon") ||
-    n.includes("phalaris") ||
-    n.includes("imperata") ||
-    n.includes("digitaria")
-  ) return "Grasses";
-  return "Broadleaf Weeds";
+const typeFromGroup = (groupKey) => {
+  const g = (groupKey || "").toLowerCase();
+  if (g.includes("grass")) return "Grasses";
+  if (g.includes("broad")) return "Broadleaf Weeds";
+  if (g.includes("sedge")) return "Sedges";
+  return "Weed";
 };
 
 export default function WeedInfo() {
-  const [selectedWeed, setSelectedWeed] = useState("Amaranthus (Pigweed)");
+  const [selectedKey, setSelectedKey] = useState(WEED_OPTIONS[0]?.key || "");
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+
+  const selectedWeed = useMemo(
+    () => ALL_WEEDS.find((w) => `${w.crop}: ${w.common_name || w.scientific_name}` === selectedKey),
+    [selectedKey]
+  );
+
+  const weedLabel = selectedWeed
+    ? `${selectedWeed.common_name || selectedWeed.scientific_name} (${selectedWeed.crop})`
+    : "";
 
   const suggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return WEEDS.filter((w) => w.toLowerCase().includes(q)).slice(0, 6);
+    return WEED_OPTIONS.filter((w) => w.label.toLowerCase().includes(q)).slice(0, 8);
   }, [query]);
 
   const pickWeed = (name) => {
-    const match = WEEDS.find((w) => w.toLowerCase() === name.toLowerCase());
-    if (match) setSelectedWeed(match);
+    const match = WEED_OPTIONS.find((w) => w.label === name || w.key === name);
+    if (match) setSelectedKey(match.key);
     setQuery("");
     setFocused(false);
   };
@@ -110,57 +124,111 @@ export default function WeedInfo() {
                 <Text style={styles.suggestionEmpty}>No matches</Text>
               ) : (
                 suggestions.map((w) => (
-                  <Pressable key={w} style={styles.suggestionRow} onPress={() => pickWeed(w)}>
+                  <Pressable
+                    key={w.key}
+                    style={styles.suggestionRow}
+                    onPress={() => pickWeed(w.label)}
+                  >
                     <MaterialCommunityIcons name="leaf" size={16} color={GREEN} />
-                    <Text style={styles.suggestionText}>{w}</Text>
+                    <Text style={styles.suggestionText}>{w.label}</Text>
                   </Pressable>
                 ))
               )}
             </View>
           )}
 
-          <Text style={styles.selectedText}>Showing: {selectedWeed}</Text>
+          <Text style={styles.selectedText}>Showing: {weedLabel || "No weed selected"}</Text>
         </View>
 
-        {/* Categories with horizontal cards (placeholder content) */}
-        {CATEGORIES.map((cat) => {
-          const items = [0, 1, 2].map((i) => ({
-            id: `${selectedWeed}-${cat.key}-${i}`,
-            type: categoryFor(selectedWeed),
-            title: `${selectedWeed} - ${cat.key} ${i + 1}`,
-            image: img(`${selectedWeed}-${cat.key}-${i}`),
-          }));
-
-          return (
-            <View key={cat.key} style={styles.section}>
-              <View style={styles.stageHeader}>
-                <View style={styles.stageBadge}>
-                  <MaterialCommunityIcons name={cat.icon} size={16} color={cat.color} />
-                </View>
-                <Text style={styles.sectionTitle}>{cat.key}</Text>
-              </View>
-
-              <FlatList
-                data={items}
-                keyExtractor={(it) => it.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-                renderItem={({ item }) => (
-                  <View style={styles.card}>
-                    <Image source={{ uri: item.image }} style={styles.cardImage} />
-                    <View style={styles.cardBody}>
-                      <Text style={styles.cardType}>{item.type}</Text>
-                      <Text numberOfLines={2} style={styles.cardTitle}>
-                        {item.title}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              />
+        {/* Weed overview from dataset */}
+        <View style={styles.section}>
+          <View style={styles.stageHeader}>
+            <View style={styles.stageBadge}>
+              <MaterialCommunityIcons name="leaf" size={16} color="#16a34a" />
             </View>
-          );
-        })}
+            <Text style={styles.sectionTitle}>Weed Overview</Text>
+          </View>
+
+          {selectedWeed ? (
+            <>
+              <Text style={styles.infoTitle}>{selectedWeed.common_name || selectedWeed.scientific_name}</Text>
+              {selectedWeed.scientific_name && (
+                <Text style={styles.infoLine}>
+                  <Text style={styles.infoLabel}>Scientific name: </Text>
+                  {selectedWeed.scientific_name}
+                </Text>
+              )}
+              <Text style={styles.infoLine}>
+                <Text style={styles.infoLabel}>Crop: </Text>
+                {selectedWeed.crop}
+              </Text>
+              <Text style={styles.infoLine}>
+                <Text style={styles.infoLabel}>Type: </Text>
+                {typeFromGroup(selectedWeed.groupKey)}
+              </Text>
+              {selectedWeed.family && (
+                <Text style={styles.infoLine}>
+                  <Text style={styles.infoLabel}>Family: </Text>
+                  {selectedWeed.family}
+                </Text>
+              )}
+              {selectedWeed.impact && (
+                <Text style={styles.infoLine}>
+                  <Text style={styles.infoLabel}>Impact: </Text>
+                  {selectedWeed.impact}
+                </Text>
+              )}
+
+              {selectedWeed.identification && (
+                <View style={{ marginTop: 8 }}>
+                  <Text style={styles.infoLabel}>Identification</Text>
+                  {Object.entries(selectedWeed.identification).map(([k, v]) => (
+                    <Text key={k} style={styles.infoLine}>
+                      <Text style={styles.infoLabel}>{formatIdKey(k)}: </Text>
+                      {v}
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </>
+          ) : (
+            <Text style={styles.suggestionEmpty}>No data available for this weed.</Text>
+          )}
+        </View>
+
+        {/* Weed management practices (crop-level) */}
+        {selectedWeed?.management && (
+          <View style={styles.section}>
+            <View style={styles.stageHeader}>
+              <View style={styles.stageBadge}>
+                <MaterialCommunityIcons name="sprout" size={16} color="#f59e0b" />
+              </View>
+              <Text style={styles.sectionTitle}>Weed Management</Text>
+            </View>
+
+            <FlatList
+              data={buildWeedManagementItems(selectedWeed.management)}
+              keyExtractor={(item, index) => `${selectedWeed.crop}-${item.type}-${index}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+              renderItem={({ item }) => (
+                <View style={styles.card}>
+                  <Image
+                    source={{ uri: img(`${selectedWeed.crop}-${item.type}`) }}
+                    style={styles.cardImage}
+                  />
+                  <View style={styles.cardBody}>
+                    <Text style={styles.cardType}>{item.type}</Text>
+                    <Text numberOfLines={3} style={styles.cardDescription}>
+                      {item.text}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -222,6 +290,10 @@ const styles = StyleSheet.create({
   suggestionEmpty: { padding: 12, color: "#64748b" },
   selectedText: { marginTop: 10, color: "#475569" },
 
+  infoTitle: { fontSize: 18, fontWeight: "800", color: "#0f172a", marginBottom: 8 },
+  infoLine: { color: "#1f2933", marginTop: 4 },
+  infoLabel: { fontWeight: "700", color: "#111827" },
+
   // Category header
   stageHeader: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   stageBadge: {
@@ -247,4 +319,40 @@ const styles = StyleSheet.create({
   cardBody: { padding: 10 },
   cardType: { fontSize: 12, color: "#64748b", marginBottom: 2 },
   cardTitle: { fontSize: 14, fontWeight: "700", color: "#0f172a" },
+  cardDescription: { fontSize: 12, color: "#475569", marginTop: 4 },
 });
+
+function formatIdKey(key) {
+  return key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function buildWeedManagementItems(management) {
+  const items = [];
+
+  const pushList = (list, typeLabel) => {
+    if (!Array.isArray(list)) return;
+    list.forEach((text) => {
+      items.push({ type: typeLabel, text });
+    });
+  };
+
+  // Rice structure
+  pushList(management.pre_emergence, "Pre-emergence");
+  pushList(management.post_emergence, "Post-emergence");
+  pushList(management.mechanical_and_manual, "Mechanical/Manual");
+
+  // Wheat/Maize structure
+  if (management.cultural_methods || management.mechanical_methods || management.chemical_methods) {
+    pushList(management.cultural_methods, "Cultural");
+    pushList(management.mechanical_methods, "Mechanical");
+    if (management.chemical_methods) {
+      pushList(management.chemical_methods.pre_emergence, "Pre-emergence");
+      pushList(management.chemical_methods.post_emergence, "Post-emergence");
+      pushList(management.chemical_methods.efficiency_booster, "Additive");
+    }
+  }
+
+  return items.slice(0, 12);
+}

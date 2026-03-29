@@ -17,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { getPostById, createComment, deletePost, likePost } from "../../services/communityService";
-import { API_URL } from "../../utils/config";
+import { getApiUrl } from "../../utils/config";
 import authService from "../../services/authService";
 
 const ACCENT = "#0b0be2ff";
@@ -35,6 +35,7 @@ const PostDetail = ({ route, navigation }) => {
   const [likePending, setLikePending] = useState(false);
   const [dislikePending, setDislikePending] = useState(false);
   const [userVote, setUserVote] = useState(null); // 'like' | 'dislike' | null
+  const [serverBaseUrl, setServerBaseUrl] = useState(null);
 
   const checkUser = async () => {
     try {
@@ -48,6 +49,7 @@ const PostDetail = ({ route, navigation }) => {
   useEffect(() => {
     checkUser();
     fetchPost();
+    loadServerBaseUrl();
   }, [postId]);
 
   // Refetch when the screen gains focus (componentDidFocus equivalent)
@@ -119,12 +121,22 @@ const PostDetail = ({ route, navigation }) => {
     }
   };
 
+  const loadServerBaseUrl = async () => {
+    try {
+      const url = await getApiUrl();
+      setServerBaseUrl(url);
+    } catch (error) {
+      console.warn('Failed to load server base URL for PostDetail:', error);
+    }
+  };
+
   // Build full image URL for gallery items
   const getImageUrl = (imageUrl) => {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
+    const baseUrl = serverBaseUrl || '';
     // Remove any leading slash from imageUrl to avoid double slashes
-    return `${API_URL.replace(/\/$/, '')}/${imageUrl.replace(/^\//, '')}`;
+    return `${baseUrl.replace(/\/$/, '')}/${imageUrl.replace(/^\//, '')}`;
   };
 
   const formatTime = (dateString) => {

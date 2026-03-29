@@ -1,4 +1,4 @@
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
 /**
  * Detect pest from an uploaded image
@@ -7,6 +7,7 @@ import { API_URL } from '../utils/config';
  */
 export const detectPest = async (imageUri) => {
   try {
+    const baseUrl = await getApiUrl();
     const formData = new FormData();
     
     const filename = imageUri.split('/').pop();
@@ -21,7 +22,7 @@ export const detectPest = async (imageUri) => {
 
     console.log('[DEBUG pestService] Uploading image:', { filename, type, uri: imageUri });
 
-    const response = await fetch(`${API_URL}/pest/detect`, {
+    const response = await fetch(`${baseUrl}/pest/detect`, {
       method: 'POST',
       body: formData,
       headers: {

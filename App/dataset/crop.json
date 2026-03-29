@@ -1,0 +1,870 @@
+{
+  "dataset_name": "PlantVillage Crop Details",
+  "description": "Detailed agronomic, nutritional, and disease information for all 14 crop species present in the PlantVillage dataset (54,305 leaf images, 38 classes)",
+  "source": "PlantVillage Dataset \u2014 Hughes & Salath\u00e9 (2016), Frontiers in Plant Science",
+  "total_crops": 14,
+  "total_classes": 38,
+  "total_images": 54305,
+  "disease_breakdown": {
+    "fungal": 17,
+    "bacterial": 4,
+    "oomycete_mold": 2,
+    "viral": 2,
+    "mite": 1,
+    "healthy_classes": 12
+  },
+  "crops": [
+    {
+      "crop_id": 1,
+      "crop_name": "Apple",
+      "scientific_name": "Malus domestica",
+      "family": "Rosaceae",
+      "origin": "Central Asia (Kazakhstan)",
+      "plant_type": "Deciduous fruit tree",
+      "growth_habit": "Tree, 2\u201310 m tall",
+      "lifespan": "Perennial (50\u2013100 years)",
+      "climate": "Temperate",
+      "temperature_range_celsius": "15\u201324",
+      "humidity": "Moderate (60\u201380%)",
+      "soil_type": "Well-drained loamy soil, pH 6.0\u20137.0",
+      "watering": "Regular irrigation; drought-sensitive during fruit development",
+      "sunlight": "Full sun (6\u20138 hours/day)",
+      "propagation": [
+        "Grafting",
+        "Budding",
+        "Seeds"
+      ],
+      "growing_season": "Spring to Autumn",
+      "harvest_time": "August\u2013November depending on variety",
+      "yield_per_hectare_tonnes": "20\u201340",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 52,
+        "carbohydrates_g": 13.8,
+        "fiber_g": 2.4,
+        "protein_g": 0.3,
+        "fat_g": 0.2,
+        "vitamin_c_mg": 4.6,
+        "potassium_mg": 107
+      },
+      "economic_importance": "One of the most commercially important fruits globally; used fresh, in juices, cider, vinegar, and desserts",
+      "top_producing_countries": [
+        "China",
+        "USA",
+        "Turkey",
+        "Poland",
+        "India"
+      ]
+      
+    },
+    {
+      "crop_id": 2,
+      "crop_name": "Blueberry",
+      "scientific_name": "Vaccinium corymbosum",
+      "family": "Ericaceae",
+      "origin": "North America",
+      "plant_type": "Deciduous shrub",
+      "growth_habit": "Shrub, 1\u20134 m tall",
+      "lifespan": "Perennial (20\u201350 years)",
+      "climate": "Temperate to cool-temperate",
+      "temperature_range_celsius": "13\u201325",
+      "humidity": "Moderate (50\u201370%)",
+      "soil_type": "Acidic, well-drained sandy loam, pH 4.5\u20135.5",
+      "watering": "Consistent moisture; mulching helps retain soil moisture",
+      "sunlight": "Full sun (6\u20138 hours/day)",
+      "propagation": [
+        "Softwood cuttings",
+        "Hardwood cuttings",
+        "Seeds"
+      ],
+      "growing_season": "Spring to Summer",
+      "harvest_time": "June\u2013August",
+      "yield_per_hectare_tonnes": "5\u201310",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 57,
+        "carbohydrates_g": 14.5,
+        "fiber_g": 2.4,
+        "protein_g": 0.7,
+        "fat_g": 0.3,
+        "vitamin_c_mg": 9.7,
+        "potassium_mg": 77
+      },
+      "economic_importance": "High-value superfruit; rich in antioxidants (anthocyanins); used fresh, frozen, in bakery and health products",
+      "top_producing_countries": [
+        "USA",
+        "Canada",
+        "Chile",
+        "Poland",
+        "Germany"
+      ],
+      "plantvillage_classes": [
+        "Blueberry___healthy"
+      ],
+      "diseases_in_dataset": [],
+      "notes": "Only healthy class present in PlantVillage dataset; no diseased blueberry images included",
+      "total_images_in_dataset": 1502,
+      "healthy_images": 1502,
+      "diseased_images": 0
+    },
+    {
+      "crop_id": 3,
+      "crop_name": "Cherry",
+      "scientific_name": "Prunus avium (sweet) / Prunus cerasus (sour)",
+      "family": "Rosaceae",
+      "origin": "Europe and Western Asia",
+      "plant_type": "Deciduous fruit tree",
+      "growth_habit": "Tree, 5\u201310 m tall",
+      "lifespan": "Perennial (15\u201340 years)",
+      "climate": "Temperate; requires chilling hours",
+      "temperature_range_celsius": "15\u201322",
+      "humidity": "Moderate (60\u201375%)",
+      "soil_type": "Deep, well-drained loam, pH 6.0\u20137.5",
+      "watering": "Regular but avoid waterlogging; drip irrigation preferred",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Grafting",
+        "Budding"
+      ],
+      "growing_season": "Spring",
+      "harvest_time": "May\u2013July",
+      "yield_per_hectare_tonnes": "5\u201315",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 50,
+        "carbohydrates_g": 12.2,
+        "fiber_g": 1.6,
+        "protein_g": 1.0,
+        "fat_g": 0.3,
+        "vitamin_c_mg": 7.0,
+        "potassium_mg": 222
+      },
+      "economic_importance": "Important fresh fruit and processing crop; used in jams, juices, liqueurs, and dried products",
+      "top_producing_countries": [
+        "Turkey",
+        "USA",
+        "Iran",
+        "Spain",
+        "Italy"
+      ],
+      "plantvillage_classes": [
+        "Cherry_(including_sour)___Powdery_mildew",
+        "Cherry_(including_sour)___healthy"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Powdery Mildew",
+          "pathogen": "Podosphaera clandestina",
+          "type": "Fungal",
+          "symptoms": "White powdery fungal growth on young leaves, shoots, and fruit surfaces; leaf curling and stunting",
+          "management": "Sulfur-based fungicides, potassium bicarbonate, neem oil, proper air circulation"
+        }
+      ],
+      "total_images_in_dataset": 1900,
+      "healthy_images": 854,
+      "diseased_images": 1052
+    },
+    {
+      "crop_id": 4,
+      "crop_name": "Corn (Maize)",
+      "scientific_name": "Zea mays",
+      "family": "Poaceae",
+      "origin": "Mesoamerica (Mexico)",
+      "plant_type": "Annual cereal crop",
+      "growth_habit": "Tall grass, 1.5\u20133 m",
+      "lifespan": "Annual",
+      "climate": "Tropical to temperate",
+      "temperature_range_celsius": "18\u201332",
+      "humidity": "Moderate (50\u201380%)",
+      "soil_type": "Well-drained loamy soil, pH 5.8\u20137.0",
+      "watering": "1000\u20131200 mm/season; critical at pollination",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Direct seeding"
+      ],
+      "growing_season": "60\u2013100 days from planting",
+      "harvest_time": "3\u20134 months after planting",
+      "yield_per_hectare_tonnes": "5\u201310",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 365,
+        "carbohydrates_g": 74.3,
+        "fiber_g": 7.3,
+        "protein_g": 9.4,
+        "fat_g": 4.7,
+        "vitamin_c_mg": 0,
+        "potassium_mg": 287
+      },
+      "economic_importance": "World's largest crop by production; used for food, animal feed, biofuel (ethanol), starch, and industrial products",
+      "top_producing_countries": [
+        "USA",
+        "China",
+        "Brazil",
+        "Argentina",
+        "Ukraine"
+      ],
+      "plantvillage_classes": [
+        "Corn_(maize)___Cercospora_leaf_spot_Gray_leaf_spot",
+        "Corn_(maize)___Common_rust",
+        "Corn_(maize)___Northern_Leaf_Blight",
+        "Corn_(maize)___healthy"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Cercospora Leaf Spot / Gray Leaf Spot",
+          "pathogen": "Cercospora zeae-maydis",
+          "type": "Fungal",
+          "symptoms": "Rectangular grayish-tan lesions parallel to leaf veins; can cause premature senescence",
+          "management": "Resistant hybrids, crop rotation, foliar fungicides (strobilurins)"
+        },
+        {
+          "name": "Common Rust",
+          "pathogen": "Puccinia sorghi",
+          "type": "Fungal",
+          "symptoms": "Small, circular to elongated brick-red powdery pustules on both leaf surfaces",
+          "management": "Resistant varieties, fungicides (propiconazole) at early infection stages"
+        },
+        {
+          "name": "Northern Leaf Blight",
+          "pathogen": "Exserohilum turcicum",
+          "type": "Fungal",
+          "symptoms": "Long, cigar-shaped gray-green to tan lesions on leaves; can cause significant yield loss",
+          "management": "Resistant hybrids, fungicide application, crop rotation"
+        }
+      ],
+      "total_images_in_dataset": 3852,
+      "healthy_images": 1162,
+      "diseased_images": 2690
+    },
+    {
+      "crop_id": 5,
+      "crop_name": "Grape",
+      "scientific_name": "Vitis vinifera",
+      "family": "Vitaceae",
+      "origin": "Near East / Mediterranean",
+      "plant_type": "Deciduous woody vine",
+      "growth_habit": "Climbing vine, trained on trellises",
+      "lifespan": "Perennial (30\u2013100+ years)",
+      "climate": "Mediterranean; warm summers, mild winters",
+      "temperature_range_celsius": "15\u201335",
+      "humidity": "Low to moderate (50\u201370%)",
+      "soil_type": "Well-drained rocky or sandy loam, pH 5.5\u20136.5",
+      "watering": "Moderate; drip irrigation; deficit irrigation improves fruit quality",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Cuttings",
+        "Grafting"
+      ],
+      "growing_season": "Spring to Autumn",
+      "harvest_time": "August\u2013October",
+      "yield_per_hectare_tonnes": "8\u201320",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 69,
+        "carbohydrates_g": 18.1,
+        "fiber_g": 0.9,
+        "protein_g": 0.7,
+        "fat_g": 0.2,
+        "vitamin_c_mg": 10.8,
+        "potassium_mg": 191
+      },
+      "economic_importance": "Critical for wine, raisins, fresh fruit, and juice industries; one of the oldest cultivated crops",
+      "top_producing_countries": [
+        "China",
+        "Italy",
+        "USA",
+        "Spain",
+        "France"
+      ],
+      "plantvillage_classes": [
+        "Grape___Black_rot",
+        "Grape___Esca_(Black_Measles)",
+        "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)",
+        "Grape___healthy"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Black Rot",
+          "pathogen": "Guignardia bidwellii",
+          "type": "Fungal",
+          "symptoms": "Circular tan lesions with dark borders on leaves; shriveled black mummified berries",
+          "management": "Mancozeb, myclobutanil fungicides; sanitation; remove mummified berries"
+        },
+        {
+          "name": "Esca (Black Measles)",
+          "pathogen": "Phaeomoniella chlamydospora, Phaeoacremonium spp.",
+          "type": "Fungal",
+          "symptoms": "Tiger-stripe patterns on leaves, dark berries, internal wood discoloration and decay",
+          "management": "No effective chemical cure; remove and destroy infected vines; preventive wound protection"
+        },
+        {
+          "name": "Leaf Blight (Isariopsis Leaf Spot)",
+          "pathogen": "Pseudocercospora vitis",
+          "type": "Fungal",
+          "symptoms": "Irregular dark brown spots on leaves with yellow halos; premature defoliation",
+          "management": "Copper-based fungicides, proper canopy management"
+        }
+      ],
+      "total_images_in_dataset": 4062,
+      "healthy_images": 423,
+      "diseased_images": 3639
+    },
+    {
+      "crop_id": 6,
+      "crop_name": "Orange",
+      "scientific_name": "Citrus sinensis",
+      "family": "Rutaceae",
+      "origin": "Southeast Asia (South China / Northeast India)",
+      "plant_type": "Evergreen fruit tree",
+      "growth_habit": "Tree, 5\u20139 m tall",
+      "lifespan": "Perennial (50\u2013100 years)",
+      "climate": "Subtropical to tropical",
+      "temperature_range_celsius": "20\u201330",
+      "humidity": "Moderate to high (60\u201380%)",
+      "soil_type": "Well-drained sandy loam to clay loam, pH 6.0\u20137.5",
+      "watering": "Regular irrigation; sensitive to waterlogging",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Grafting",
+        "Budding"
+      ],
+      "growing_season": "Year-round in tropics",
+      "harvest_time": "November\u2013March (subtropical)",
+      "yield_per_hectare_tonnes": "15\u201330",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 47,
+        "carbohydrates_g": 11.8,
+        "fiber_g": 2.4,
+        "protein_g": 0.9,
+        "fat_g": 0.1,
+        "vitamin_c_mg": 53.2,
+        "potassium_mg": 181
+      },
+      "economic_importance": "Leading citrus crop globally; major source of vitamin C; used in juice, zest, essential oils, and fresh consumption",
+      "top_producing_countries": [
+        "Brazil",
+        "China",
+        "India",
+        "USA",
+        "Mexico"
+      ],
+      "plantvillage_classes": [
+        "Orange___Haunglongbing_(Citrus_greening)"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Huanglongbing (Citrus Greening)",
+          "pathogen": "Candidatus Liberibacter asiaticus",
+          "type": "Bacterial (vector-borne by Asian citrus psyllid)",
+          "symptoms": "Yellow shoots (Huanglongbing = yellow dragon disease), blotchy mottling, small lopsided bitter fruits, dieback",
+          "management": "No cure; remove infected trees, control psyllid vector with insecticides, use certified disease-free nursery stock"
+        }
+      ],
+      "notes": "Only one diseased class in PlantVillage; no healthy orange class included",
+      "total_images_in_dataset": 5507,
+      "healthy_images": 0,
+      "diseased_images": 5507
+    },
+    {
+      "crop_id": 7,
+      "crop_name": "Peach",
+      "scientific_name": "Prunus persica",
+      "family": "Rosaceae",
+      "origin": "China",
+      "plant_type": "Deciduous fruit tree",
+      "growth_habit": "Tree, 3\u20136 m tall",
+      "lifespan": "Perennial (15\u201330 years)",
+      "climate": "Temperate; requires chilling hours (400\u20131200 hrs <7\u00b0C)",
+      "temperature_range_celsius": "18\u201325",
+      "humidity": "Low to moderate (50\u201365%)",
+      "soil_type": "Sandy loam to clay loam, pH 6.0\u20137.0, well-drained",
+      "watering": "Moderate; drip or sprinkler irrigation",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Grafting",
+        "Budding",
+        "Seeds"
+      ],
+      "growing_season": "Spring to Summer",
+      "harvest_time": "June\u2013September",
+      "yield_per_hectare_tonnes": "10\u201320",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 39,
+        "carbohydrates_g": 9.5,
+        "fiber_g": 1.5,
+        "protein_g": 0.9,
+        "fat_g": 0.3,
+        "vitamin_c_mg": 6.6,
+        "potassium_mg": 190
+      },
+      "economic_importance": "Important stone fruit; used fresh, canned, dried, in jams and juices",
+      "top_producing_countries": [
+        "China",
+        "Spain",
+        "Italy",
+        "Greece",
+        "USA"
+      ],
+      "plantvillage_classes": [
+        "Peach___Bacterial_spot",
+        "Peach___healthy"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Bacterial Spot",
+          "pathogen": "Xanthomonas arboricola pv. pruni",
+          "type": "Bacterial",
+          "symptoms": "Small water-soaked spots on leaves that turn brown/purple with yellow halos; shot-hole appearance; sunken spots on fruit",
+          "management": "Copper bactericides, resistant varieties, avoid overhead irrigation"
+        }
+      ],
+      "total_images_in_dataset": 2657,
+      "healthy_images": 360,
+      "diseased_images": 2297
+    },
+    {
+      "crop_id": 8,
+      "crop_name": "Bell Pepper",
+      "scientific_name": "Capsicum annuum",
+      "family": "Solanaceae",
+      "origin": "Central and South America",
+      "plant_type": "Annual / short-lived perennial vegetable",
+      "growth_habit": "Bushy plant, 0.5\u20131.5 m tall",
+      "lifespan": "Annual (perennial in tropics)",
+      "climate": "Warm temperate to tropical",
+      "temperature_range_celsius": "20\u201330",
+      "humidity": "Moderate (60\u201370%)",
+      "soil_type": "Well-drained loam, pH 6.0\u20137.0",
+      "watering": "Regular; consistent moisture; avoid waterlogging",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Transplanting seedlings",
+        "Direct seeding"
+      ],
+      "growing_season": "60\u201390 days to maturity",
+      "harvest_time": "Year-round (tropics); Summer\u2013Autumn (temperate)",
+      "yield_per_hectare_tonnes": "20\u201340",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 31,
+        "carbohydrates_g": 6.0,
+        "fiber_g": 2.1,
+        "protein_g": 1.0,
+        "fat_g": 0.3,
+        "vitamin_c_mg": 127.7,
+        "potassium_mg": 211
+      },
+      "economic_importance": "Important vegetable crop globally; high vitamin C content; used fresh, cooked, dried, and in condiments",
+      "top_producing_countries": [
+        "China",
+        "Mexico",
+        "Turkey",
+        "Indonesia",
+        "USA"
+      ],
+      "plantvillage_classes": [
+        "Pepper,_bell___Bacterial_spot",
+        "Pepper,_bell___healthy"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Bacterial Spot",
+          "pathogen": "Xanthomonas campestris pv. vesicatoria",
+          "type": "Bacterial",
+          "symptoms": "Small water-soaked spots on leaves turning brown/black with yellow halo; raised scab-like lesions on fruit",
+          "management": "Copper bactericides, crop rotation, use certified disease-free seed, resistant varieties"
+        }
+      ],
+      "total_images_in_dataset": 2475,
+      "healthy_images": 1478,
+      "diseased_images": 997
+    },
+    {
+      "crop_id": 9,
+      "crop_name": "Potato",
+      "scientific_name": "Solanum tuberosum",
+      "family": "Solanaceae",
+      "origin": "Andes, South America (Peru/Bolivia)",
+      "plant_type": "Annual tuberous vegetable",
+      "growth_habit": "Herbaceous, 0.5\u20131.0 m tall",
+      "lifespan": "Annual",
+      "climate": "Cool temperate",
+      "temperature_range_celsius": "15\u201320",
+      "humidity": "Moderate (60\u201380%)",
+      "soil_type": "Loose, well-drained sandy loam, pH 5.0\u20136.5",
+      "watering": "Consistent moisture (500\u2013700 mm/season); critical at tuber initiation",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Seed tubers (vegetative)"
+      ],
+      "growing_season": "70\u2013120 days from planting",
+      "harvest_time": "3\u20134 months after planting",
+      "yield_per_hectare_tonnes": "15\u201340",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 77,
+        "carbohydrates_g": 17.5,
+        "fiber_g": 2.2,
+        "protein_g": 2.0,
+        "fat_g": 0.1,
+        "vitamin_c_mg": 19.7,
+        "potassium_mg": 425
+      },
+      "economic_importance": "Fourth largest food crop in the world; staple in many countries; used for food, starch, alcohol, and animal feed",
+      "top_producing_countries": [
+        "China",
+        "India",
+        "Russia",
+        "Ukraine",
+        "USA"
+      ],
+      "plantvillage_classes": [
+        "Potato___Early_blight",
+        "Potato___Late_blight",
+        "Potato___healthy"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Early Blight",
+          "pathogen": "Alternaria solani",
+          "type": "Fungal",
+          "symptoms": "Dark brown lesions with concentric rings (target board pattern) on older leaves; yellowing and defoliation",
+          "management": "Chlorothalonil, mancozeb fungicides; crop rotation; remove infected plant debris"
+        },
+        {
+          "name": "Late Blight",
+          "pathogen": "Phytophthora infestans",
+          "type": "Oomycete (water mold)",
+          "symptoms": "Water-soaked dark lesions on leaves with white sporulation underneath; rapidly spreads in cool wet conditions; brown rot in tubers",
+          "management": "Metalaxyl, chlorothalonil; resistant varieties; avoid overhead irrigation; destroy infected plants"
+        }
+      ],
+      "historical_significance": "Phytophthora infestans caused the Great Irish Famine (1845\u20131852)",
+      "total_images_in_dataset": 2152,
+      "healthy_images": 152,
+      "diseased_images": 2000
+    },
+    {
+      "crop_id": 10,
+      "crop_name": "Raspberry",
+      "scientific_name": "Rubus idaeus",
+      "family": "Rosaceae",
+      "origin": "Europe and Northern Asia",
+      "plant_type": "Deciduous shrub / cane fruit",
+      "growth_habit": "Erect or arching canes, 1\u20132 m tall",
+      "lifespan": "Perennial (crown), biennial (canes)",
+      "climate": "Cool temperate",
+      "temperature_range_celsius": "15\u201322",
+      "humidity": "Moderate (60\u201375%)",
+      "soil_type": "Well-drained slightly acidic loam, pH 5.6\u20136.5",
+      "watering": "Consistent moisture; avoid waterlogging",
+      "sunlight": "Full sun to partial shade",
+      "propagation": [
+        "Root cuttings",
+        "Suckers",
+        "Tissue culture"
+      ],
+      "growing_season": "Spring to Summer",
+      "harvest_time": "June\u2013August (summer varieties); August\u2013October (autumn)",
+      "yield_per_hectare_tonnes": "4\u201312",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 52,
+        "carbohydrates_g": 11.9,
+        "fiber_g": 6.5,
+        "protein_g": 1.2,
+        "fat_g": 0.7,
+        "vitamin_c_mg": 26.2,
+        "potassium_mg": 151
+      },
+      "economic_importance": "High-value berry crop; used fresh, frozen, in jams, juices, confectionery, and nutraceuticals",
+      "top_producing_countries": [
+        "Russia",
+        "Poland",
+        "USA",
+        "Serbia",
+        "Chile"
+      ],
+      "plantvillage_classes": [
+        "Raspberry___healthy"
+      ],
+      "diseases_in_dataset": [],
+      "notes": "Only healthy class in PlantVillage; no diseased raspberry images included",
+      "total_images_in_dataset": 371,
+      "healthy_images": 371,
+      "diseased_images": 0
+    },
+    {
+      "crop_id": 11,
+      "crop_name": "Soybean",
+      "scientific_name": "Glycine max",
+      "family": "Fabaceae (Leguminosae)",
+      "origin": "East Asia (China)",
+      "plant_type": "Annual legume",
+      "growth_habit": "Erect bushy plant, 0.6\u20131.5 m tall",
+      "lifespan": "Annual",
+      "climate": "Warm temperate to subtropical",
+      "temperature_range_celsius": "20\u201330",
+      "humidity": "Moderate to high (60\u201380%)",
+      "soil_type": "Well-drained loam to clay loam, pH 6.0\u20137.0",
+      "watering": "500\u2013700 mm/season; critical at flowering and pod fill",
+      "sunlight": "Full sun; photoperiod sensitive (short-day plant)",
+      "propagation": [
+        "Direct seeding"
+      ],
+      "growing_season": "90\u2013120 days",
+      "harvest_time": "September\u2013November",
+      "yield_per_hectare_tonnes": "2\u20134",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 446,
+        "carbohydrates_g": 30.2,
+        "fiber_g": 9.3,
+        "protein_g": 36.5,
+        "fat_g": 19.9,
+        "vitamin_c_mg": 6.0,
+        "potassium_mg": 1797
+      },
+      "economic_importance": "World's most important oilseed and protein crop; used for oil, meal, tofu, soy milk, biodiesel, and livestock feed",
+      "top_producing_countries": [
+        "USA",
+        "Brazil",
+        "Argentina",
+        "China",
+        "India"
+      ],
+      "plantvillage_classes": [
+        "Soybean___healthy"
+      ],
+      "diseases_in_dataset": [],
+      "notes": "Only healthy class in PlantVillage; no diseased soybean images included",
+      "total_images_in_dataset": 5090,
+      "healthy_images": 5090,
+      "diseased_images": 0
+    },
+    {
+      "crop_id": 12,
+      "crop_name": "Squash",
+      "scientific_name": "Cucurbita pepo / Cucurbita maxima",
+      "family": "Cucurbitaceae",
+      "origin": "Mesoamerica (Mexico and Central America)",
+      "plant_type": "Annual vine vegetable",
+      "growth_habit": "Trailing or bushy vine",
+      "lifespan": "Annual",
+      "climate": "Warm to hot, frost-sensitive",
+      "temperature_range_celsius": "20\u201330",
+      "humidity": "Moderate (50\u201370%)",
+      "soil_type": "Well-drained, fertile loam or sandy loam, pH 6.0\u20137.5",
+      "watering": "Regular deep watering; avoid wetting foliage",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Direct seeding",
+        "Transplants"
+      ],
+      "growing_season": "50\u201375 days",
+      "harvest_time": "Summer to Autumn",
+      "yield_per_hectare_tonnes": "10\u201330",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 16,
+        "carbohydrates_g": 3.4,
+        "fiber_g": 1.1,
+        "protein_g": 1.2,
+        "fat_g": 0.2,
+        "vitamin_c_mg": 17.0,
+        "potassium_mg": 262
+      },
+      "economic_importance": "Versatile vegetable grown worldwide; seeds also used for oil and snacks; important in subsistence and commercial farming",
+      "top_producing_countries": [
+        "China",
+        "India",
+        "Russia",
+        "Ukraine",
+        "Egypt"
+      ],
+      "plantvillage_classes": [
+        "Squash___Powdery_mildew"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Powdery Mildew",
+          "pathogen": "Podosphaera xanthii / Erysiphe cichoracearum",
+          "type": "Fungal",
+          "symptoms": "White powdery coating on leaf surfaces; yellowing, premature leaf senescence; reduced photosynthesis",
+          "management": "Sulfur fungicides, potassium bicarbonate, neem oil, resistant varieties, good air circulation"
+        }
+      ],
+      "notes": "Only diseased class in PlantVillage; no healthy squash images included",
+      "total_images_in_dataset": 1835,
+      "healthy_images": 0,
+      "diseased_images": 1835
+    },
+    {
+      "crop_id": 13,
+      "crop_name": "Strawberry",
+      "scientific_name": "Fragaria \u00d7 ananassa",
+      "family": "Rosaceae",
+      "origin": "Garden hybrid from North and South America",
+      "plant_type": "Herbaceous perennial fruit plant",
+      "growth_habit": "Low-growing plant with runners, 15\u201330 cm tall",
+      "lifespan": "Perennial (3\u20135 years in commercial production)",
+      "climate": "Temperate; cool nights aid flavor",
+      "temperature_range_celsius": "15\u201326",
+      "humidity": "Moderate (60\u201370%)",
+      "soil_type": "Sandy loam, well-drained, slightly acidic pH 5.5\u20136.5",
+      "watering": "Drip irrigation preferred; consistent moisture",
+      "sunlight": "Full sun",
+      "propagation": [
+        "Runners (stolons)",
+        "Crown division",
+        "Seeds"
+      ],
+      "growing_season": "Spring",
+      "harvest_time": "April\u2013June (spring planting)",
+      "yield_per_hectare_tonnes": "20\u201350",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 32,
+        "carbohydrates_g": 7.7,
+        "fiber_g": 2.0,
+        "protein_g": 0.7,
+        "fat_g": 0.3,
+        "vitamin_c_mg": 58.8,
+        "potassium_mg": 153
+      },
+      "economic_importance": "Top berry crop globally by fresh market value; used fresh, frozen, in jams, ice cream, and bakery products",
+      "top_producing_countries": [
+        "China",
+        "USA",
+        "Mexico",
+        "Turkey",
+        "Egypt"
+      ],
+      "plantvillage_classes": [
+        "Strawberry___Leaf_scorch",
+        "Strawberry___healthy"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Leaf Scorch",
+          "pathogen": "Diplocarpon earlianum",
+          "type": "Fungal",
+          "symptoms": "Small dark purple to reddish irregular spots on upper leaf surface; centers may turn tan/gray; leaves appear scorched",
+          "management": "Captan or myclobutanil fungicides; remove infected leaves; avoid overhead watering; use resistant cultivars"
+        }
+      ],
+      "total_images_in_dataset": 1564,
+      "healthy_images": 456,
+      "diseased_images": 1109
+    },
+    {
+      "crop_id": 14,
+      "crop_name": "Tomato",
+      "scientific_name": "Solanum lycopersicum",
+      "family": "Solanaceae",
+      "origin": "Western South America (Peru, Ecuador)",
+      "plant_type": "Annual / short-lived perennial vegetable",
+      "growth_habit": "Indeterminate or determinate vine, 0.5\u20133 m",
+      "lifespan": "Annual (perennial in tropics)",
+      "climate": "Warm temperate to subtropical",
+      "temperature_range_celsius": "20\u201327",
+      "humidity": "Moderate (60\u201370%); high humidity promotes disease",
+      "soil_type": "Well-drained loam, pH 6.0\u20136.8",
+      "watering": "Consistent irrigation; mulching reduces water loss",
+      "sunlight": "Full sun (8+ hours)",
+      "propagation": [
+        "Transplants from nursery",
+        "Direct seeding"
+      ],
+      "growing_season": "60\u2013100 days from transplant",
+      "harvest_time": "Year-round (tropical); Summer\u2013Autumn (temperate)",
+      "yield_per_hectare_tonnes": "20\u201380 (field); up to 500 in greenhouse",
+      "nutritional_value_per_100g": {
+        "calories_kcal": 18,
+        "carbohydrates_g": 3.9,
+        "fiber_g": 1.2,
+        "protein_g": 0.9,
+        "fat_g": 0.2,
+        "vitamin_c_mg": 13.7,
+        "potassium_mg": 237
+      },
+      "economic_importance": "Most widely consumed vegetable globally; used fresh, canned, as sauce, paste, juice; major processing industry",
+      "top_producing_countries": [
+        "China",
+        "India",
+        "Turkey",
+        "USA",
+        "Italy"
+      ],
+      "plantvillage_classes": [
+        "Tomato___Bacterial_spot",
+        "Tomato___Early_blight",
+        "Tomato___Late_blight",
+        "Tomato___Leaf_Mold",
+        "Tomato___Septoria_leaf_spot",
+        "Tomato___Spider_mites_Two-spotted_spider_mite",
+        "Tomato___Target_Spot",
+        "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+        "Tomato___Tomato_mosaic_virus",
+        "Tomato___healthy"
+      ],
+      "diseases_in_dataset": [
+        {
+          "name": "Bacterial Spot",
+          "pathogen": "Xanthomonas vesicatoria / X. euvesicatoria",
+          "type": "Bacterial",
+          "symptoms": "Small, water-soaked, greasy spots on leaves turning brown/black; spots on fruits; defoliation",
+          "management": "Copper-based bactericides, avoid overhead irrigation, crop rotation, resistant varieties"
+        },
+        {
+          "name": "Early Blight",
+          "pathogen": "Alternaria solani",
+          "type": "Fungal",
+          "symptoms": "Dark brown bull's-eye lesions on older leaves; yellowing around spots; stem lesions; fruit rot at stem end",
+          "management": "Chlorothalonil, mancozeb; remove lower infected leaves; crop rotation"
+        },
+        {
+          "name": "Late Blight",
+          "pathogen": "Phytophthora infestans",
+          "type": "Oomycete",
+          "symptoms": "Greasy gray-green patches on leaves turning brown/black; white sporulation on undersides; fruit rot",
+          "management": "Metalaxyl, copper fungicides; destroy infected plants; avoid wet conditions"
+        },
+        {
+          "name": "Leaf Mold",
+          "pathogen": "Passalora fulva (Fulvia fulva)",
+          "type": "Fungal",
+          "symptoms": "Pale green/yellow spots on upper leaf surface; olive-green to gray mold on undersides; mainly in greenhouses",
+          "management": "Chlorothalonil, mancozeb; improve ventilation; reduce humidity below 85%"
+        },
+        {
+          "name": "Septoria Leaf Spot",
+          "pathogen": "Septoria lycopersici",
+          "type": "Fungal",
+          "symptoms": "Circular spots with dark brown borders, grayish-white centers, and tiny black dots (pycnidia) on lower leaves",
+          "management": "Chlorothalonil, copper; remove infected leaves; mulch; avoid overhead watering"
+        },
+        {
+          "name": "Spider Mites (Two-Spotted Spider Mite)",
+          "pathogen": "Tetranychus urticae",
+          "type": "Pest (Mite)",
+          "symptoms": "Fine stippling/bronzing on leaves; yellow speckling; webbing under leaves; eventual leaf drop",
+          "management": "Abamectin, bifenazate; neem oil; predatory mites (Phytoseiulus persimilis); increase humidity"
+        },
+        {
+          "name": "Target Spot",
+          "pathogen": "Corynespora cassiicola",
+          "type": "Fungal",
+          "symptoms": "Round to irregular lesions with concentric rings resembling a target; yellowing and defoliation",
+          "management": "Difenoconazole, chlorothalonil fungicides; crop rotation"
+        },
+        {
+          "name": "Tomato Yellow Leaf Curl Virus (TYLCV)",
+          "pathogen": "Tomato yellow leaf curl virus",
+          "type": "Viral (transmitted by whitefly Bemisia tabaci)",
+          "symptoms": "Upward curling and yellowing of leaves, stunted growth, flower drop, drastic yield loss",
+          "management": "Control whitefly vector (imidacloprid, neem); reflective mulches; resistant varieties; remove infected plants"
+        },
+        {
+          "name": "Tomato Mosaic Virus (ToMV)",
+          "pathogen": "Tomato mosaic virus",
+          "type": "Viral (mechanically transmitted)",
+          "symptoms": "Mottled light and dark green mosaic on leaves; leaf distortion; stunting; reduced fruit quality",
+          "management": "Use certified virus-free seed, heat treatment, disinfect tools; no direct chemical control"
+        }
+      ],
+      "total_images_in_dataset": 18160,
+      "healthy_images": 1591,
+      "diseased_images": 16569
+    }
+  ]
+}

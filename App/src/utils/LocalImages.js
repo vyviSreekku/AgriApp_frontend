@@ -40,7 +40,7 @@ const PEST_IMAGES = {
         "berry borer": require("../../images/pests/coffee/berry borer.jpg"),
         "green scale": require("../../images/pests/coffee/green scale.jpg"),
         "red borer": require("../../images/pests/coffee/red borer.jpg"),
-        "short hole borer": require("../../images/pests/coffee/short hole borer.jpg"),
+        "short hole borer": require("../../images/pests/coffee/shot hole borer.jpg"),
         "white stem borer": require("../../images/pests/coffee/white stem borer.jpg"),
     },
     "cotton": {
@@ -432,6 +432,24 @@ const WEED_IMAGES = {
     },
 };
 
+// Crop overview images (PlantVillage crops)
+const CROP_IMAGES = {
+    "apple": require("../../images/plant_images/1.png"),
+    "blueberry": require("../../images/plant_images/2.png"),
+    "cherry": require("../../images/plant_images/3.png"),
+    "corn (maize)": require("../../images/plant_images/4.png"),
+    "grape": require("../../images/plant_images/5.png"),
+    "orange": require("../../images/plant_images/6.png"),
+    "peach": require("../../images/plant_images/7.png"),
+    "bell pepper": require("../../images/plant_images/8.png"),
+    "potato": require("../../images/plant_images/9.png"),
+    "raspberry": require("../../images/plant_images/10.png"),
+    "soybean": require("../../images/plant_images/11.png"),
+    "squash": require("../../images/plant_images/12.png"),
+    "strawberry": require("../../images/plant_images/13.png"),
+    "tomato": require("../../images/plant_images/14.png"),
+};
+
 // Aliases for common names -> Scientific/File names
 const ALIASES = {
     // Weeds common names
@@ -508,6 +526,12 @@ export const getLocalImage = (group, category, name) => {
     }
     
     return null;
+};
+
+export const getCropImage = (name) => {
+    if (!name) return null;
+    const key = String(name).toLowerCase().trim();
+    return CROP_IMAGES[key] || null;
 };
 
 /**

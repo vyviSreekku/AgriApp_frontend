@@ -1,4 +1,4 @@
-import { API_URL } from '../utils/config';
+import { getApiUrl } from '../utils/config';
 
 /**
  * Analyze soil type from an uploaded image
@@ -7,6 +7,7 @@ import { API_URL } from '../utils/config';
  */
 export const analyzeSoil = async (imageUri) => {
   try {
+    const baseUrl = await getApiUrl();
     // Create FormData for multipart upload
     const formData = new FormData();
     
@@ -24,7 +25,7 @@ export const analyzeSoil = async (imageUri) => {
 
     console.log('[DEBUG soilService] Uploading image:', { filename, type, uri: imageUri });
 
-    const response = await fetch(`${API_URL}/soil/analyze`, {
+    const response = await fetch(`${baseUrl}/soil/analyze`, {
       method: 'POST',
       body: formData,
       headers: {

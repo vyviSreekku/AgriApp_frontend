@@ -4,6 +4,7 @@ import authService from '../services/authService';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getApiUrl, setApiUrl } from '../utils/config';
 
 export default function ProfileScreen({ navigation }) {
   const [user, setUser] = useState(null);
@@ -13,14 +14,26 @@ export default function ProfileScreen({ navigation }) {
   const [crops, setCrops] = useState(['Wheat', 'Rice', 'Corn', 'Tomato']);
   const [showAddCropModal, setShowAddCropModal] = useState(false);
   const [newCropName, setNewCropName] = useState('');
+  const [serverUrl, setServerUrl] = useState('');
+  const [showServerModal, setShowServerModal] = useState(false);
 
   useEffect(() => {
     loadUser();
+    loadServerUrl();
   }, []);
 
   async function loadUser() {
     const userData = await authService.getUser();
     setUser(userData);
+  }
+
+  async function loadServerUrl() {
+    try {
+      const url = await getApiUrl();
+      setServerUrl(url);
+    } catch (error) {
+      console.warn('Failed to load server URL:', error);
+    }
   }
 
   const handleAddCrop = () => {
@@ -65,6 +78,24 @@ export default function ProfileScreen({ navigation }) {
         }
       ]
     );
+  };
+
+  const handleSaveServerUrl = async () => {
+    const trimmed = String(serverUrl || '').trim();
+
+    if (!trimmed) {
+      Alert.alert('Invalid URL', 'Please enter a valid server URL.');
+      return;
+    }
+
+    try {
+      await setApiUrl(trimmed);
+      setShowServerModal(false);
+      Alert.alert('Saved', 'Server URL has been updated.');
+    } catch (error) {
+      console.warn('Failed to save server URL:', error);
+      Alert.alert('Error', 'Failed to save server URL. Please try again.');
+    }
   };
 
   const MenuItem = ({ icon, iconFamily = 'Feather', title, subtitle, onPress, showArrow = true, customRight }) => (
@@ -197,6 +228,13 @@ export default function ProfileScreen({ navigation }) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>App</Text>
             <View style={styles.menuCard}>
+              <MenuItem 
+                icon="settings" 
+                title="Server Settings" 
+                subtitle={serverUrl ? serverUrl : 'Configure backend server URL'}
+                onPress={() => setShowServerModal(true)}
+              />
+              <View style={styles.menuDivider} />
               <MenuItem icon="help-circle" title="Help & Support" subtitle="FAQs and contact us" />
               <View style={styles.menuDivider} />
               <MenuItem icon="info" title="About" subtitle="App version 1.0.0" />
@@ -260,6 +298,54 @@ export default function ProfileScreen({ navigation }) {
             </View>
           </View>
         </Modal>
+
+        {/* Server Settings Modal */}
+        <Modal
+          visible={showServerModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowServerModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Server Settings</Text>
+                <TouchableOpacity onPress={() => setShowServerModal(false)}>
+                  <Ionicons name="close" size={24} color="#64748b" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.modalDescription}>
+                Enter the backend server URL (for example: http://192.168.1.6:8000).
+              </Text>
+
+              <TextInput
+                style={styles.modalInput}
+                placeholder="http://your-server-ip:8000"
+                value={serverUrl}
+                onChangeText={setServerUrl}
+                autoCapitalize="none"
+                keyboardType="url-address"
+              />
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity 
+                  style={styles.modalCancelButton}
+                  onPress={() => setShowServerModal(false)}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.modalAddButton}
+                  onPress={handleSaveServerUrl}
+                >
+                  <Text style={styles.modalAddText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -305,6 +391,7 @@ const styles = StyleSheet.create({
   modalContent: { backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 400, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 10 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   modalTitle: { fontSize: 20, fontWeight: '800', color: '#1e293b' },
+  modalDescription: { fontSize: 14, color: '#64748b', marginBottom: 12 },
   modalInput: { borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, padding: 16, fontSize: 16, color: '#1e293b', backgroundColor: '#f8fafc', marginBottom: 20 },
   modalButtons: { flexDirection: 'row', gap: 12 },
   modalCancelButton: { flex: 1, padding: 14, borderRadius: 12, backgroundColor: '#f1f5f9', alignItems: 'center' },
