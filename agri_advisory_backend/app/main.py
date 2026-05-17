@@ -21,12 +21,13 @@ from .models import community_post
 from .models import community_post_image
 from .models import community_comment
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
-    yield
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     Base.metadata.create_all(bind=engine)
+#     yield
 
-app = FastAPI(lifespan=lifespan)
+# app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 os.makedirs("media", exist_ok=True)
 app.mount("/media", StaticFiles(directory="media"), name="media")

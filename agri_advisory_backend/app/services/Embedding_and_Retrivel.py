@@ -4,11 +4,16 @@ from typing import List, Dict, Any, Optional
 import json
 import os
 import time
+import threading
 import asyncio
 import warnings
 import re
+from pathlib import Path
+
 import numpy as np
+import requests
 from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
 
 # Suppress MiniRAG graph warnings (clean console)
 warnings.filterwarnings("ignore", category=UserWarning, module="minirag")
@@ -20,8 +25,11 @@ from google import genai
 # 🔴 IMPORTANT: DO NOT hardcode key in real project
 # Set once in terminal:
 # setx GEMINI_API_KEY "YOUR_API_KEY"
+load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyADsKd9Vl967GhthoVwHFjKKM3phu6sde0").strip()
+# 🔴 IMPORTANT: DO NOT hardcode key in real project
+# Set GEMINI_API_KEY in your environment or in a .env file
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY is not set. Please set it in your environment before starting the backend.")
 
@@ -35,8 +43,27 @@ MODEL_CANDIDATES = [
 ]
 MODEL_NAME = MODEL_CANDIDATES[0]
 
+# ---------------- OLLAMA SETUP (FOR MINIRAG GRAPH) ----------------
+
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b-instruct-q4_K_M")
+OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "600"))  # seconds
+
+
+# --- Rate limiting: 1 request per minute ---
 LAST_CALL = 0
-MIN_INTERVAL = 60   # 1 call per minute (safe for free tier)
+MIN_INTERVAL = 30  # seconds
+_rate_limit_lock = threading.Lock()
+
+# Batching configuration for entity extraction (to reduce Gemini calls)
+# Use a batch size of 1 to keep each Ollama request as small/fast as possible.
+BATCH_SIZE = 1
+BATCH_TIMEOUT = 3.0  # seconds to wait for more items before flushing
+
+# internal batching state
+_extraction_queue: List[tuple[str, asyncio.Future]] = []
+_extraction_lock = asyncio.Lock()
+_extraction_task: Optional[asyncio.Task] = None
 
 # ---------------- EMBEDDING MODEL ----------------
 
@@ -60,9 +87,148 @@ embedding_func = EmbeddingFunc(
 
 # ---------------- DISABLE ENTITY EXTRACTION ----------------
 
-async def gemini_llm_func_noop(prompt: str, **kwargs) -> str:
-    return json.dumps({"entities": [], "keywords": []})
+# ---------------- GEMINI-BASED ENTITY EXTRACTION ----------------
 
+async def gemini_llm_func(prompt: str, **kwargs) -> str:
+    """Batched Gemini extraction: queue the prompt and wait for
+    the batch worker to call Gemini and return per-prompt results.
+    Returns a JSON string: {"entities": [...], "keywords": [...]}.
+    """
+    global _extraction_task
+
+    loop = asyncio.get_event_loop()
+    fut: asyncio.Future = loop.create_future()
+
+    # enqueue prompt and start worker if needed
+    async with _extraction_lock:
+        _extraction_queue.append((prompt, fut))
+        if _extraction_task is None or _extraction_task.done():
+            _extraction_task = asyncio.create_task(_batch_worker())
+
+    # wait for result
+    try:
+        result = await fut
+        return result
+    except Exception:
+        return json.dumps({"entities": [], "keywords": []})
+
+
+async def _batch_worker():
+    """Flush queued prompts in batches. Each batch is sent as one Gemini
+    request which returns a JSON containing per-item results.
+    """
+    global _extraction_queue, _extraction_task, LAST_CALL
+
+    while True:
+        # wait a short period to allow batch to grow
+        await asyncio.sleep(BATCH_TIMEOUT)
+
+        async with _extraction_lock:
+            if not _extraction_queue:
+                _extraction_task = None
+                return
+            batch = _extraction_queue[:BATCH_SIZE]
+            _extraction_queue = _extraction_queue[BATCH_SIZE:]
+
+        prompts = [p for p, _ in batch]
+
+        # build combined prompt
+        combined = """
+Extract entities and keywords for each numbered item. Respond ONLY with a JSON
+object: {"results": [{"index":0,"entities": [...],"keywords":[...]}, ...]}
+
+Items:
+"""
+        for i, p in enumerate(prompts):
+            combined += f"\n--- ITEM {i} ---\n{p}\n"
+
+        # Rate-limit global calls
+        now = time.time()
+        wait_time = MIN_INTERVAL - (now - LAST_CALL)
+        if wait_time > 0:
+            await asyncio.sleep(wait_time)
+
+        # Call Ollama with retries/backoff (mainly defensive; local models
+        # typically won't hit 429s, but we keep the logic symmetric).
+        text = ""
+        backoff = 1
+        for attempt in range(4):
+            try:
+                print(
+                    f"[BATCH] Attempt {attempt+1}: sending batch of {len(prompts)} prompts "
+                    f"to Ollama (model={OLLAMA_MODEL})"
+                )
+
+                def _call_ollama() -> str:
+                    resp = requests.post(
+                        OLLAMA_URL,
+                        json={
+                            "model": OLLAMA_MODEL,
+                            "prompt": combined,
+                            "stream": False,
+                        },
+                        timeout=OLLAMA_TIMEOUT,
+                    )
+                    resp.raise_for_status()
+                    data = resp.json()
+                    return data.get("response", "") or ""
+
+                text = await asyncio.get_event_loop().run_in_executor(
+                    None,
+                    _call_ollama,
+                )
+
+                print(f"[BATCH] ✓ Received response from Ollama (len={len(text)})")
+                preview = text[:300].replace('\n', ' ')
+                print(f"[BATCH] Response preview: {preview}")
+                break
+            except Exception as e:
+                status = getattr(getattr(e, "response", None), "status_code", None)
+                msg = str(e)
+                if status == 429 or "429" in msg or "Too Many Requests" in msg:
+                    print(f"[BATCH][WARN] Ollama rate limited (attempt {attempt+1}), sleeping {backoff}s")
+                    await asyncio.sleep(backoff)
+                    backoff = min(backoff * 2, 30)
+                    continue
+                print(f"[BATCH][ERROR] Ollama batch error: {e}")
+                break
+
+        LAST_CALL = time.time()
+
+        # parse response
+        results_map = {}
+        try:
+            parsed = json.loads(text)
+            # Expect either {"results": [...]}
+            if isinstance(parsed, dict) and "results" in parsed and isinstance(parsed["results"], list):
+                for item in parsed["results"]:
+                    idx = item.get("index")
+                    if idx is None:
+                        continue
+                    results_map[int(idx)] = {"entities": item.get("entities", []), "keywords": item.get("keywords", [])}
+        except Exception:
+            m = re.search(r"(\{.*\})", text, re.S)
+            if m:
+                try:
+                    parsed = json.loads(m.group(1))
+                    if isinstance(parsed, dict) and "results" in parsed and isinstance(parsed["results"], list):
+                        for item in parsed["results"]:
+                            idx = item.get("index")
+                            if idx is None:
+                                continue
+                            results_map[int(idx)] = {"entities": item.get("entities", []), "keywords": item.get("keywords", [])}
+                except Exception:
+                    results_map = {}
+
+        # set futures
+        for i, (_, fut) in enumerate(batch):
+            res = results_map.get(i, {"entities": [], "keywords": []})
+            if not fut.done():
+                # small debug: how many entities/keywords
+                ent_count = len(res.get("entities", [])) if isinstance(res, dict) else 0
+                kw_count = len(res.get("keywords", [])) if isinstance(res, dict) else 0
+                print(f"[BATCH] Resolving future idx={i} entities={ent_count} keywords={kw_count}")
+                fut.set_result(json.dumps(res))
 # ---------------- ASYNC HELPER ----------------
 
 def run_async(coro):
@@ -78,14 +244,19 @@ def run_async(coro):
 def init_minirag():
     print("[INIT] Initializing MiniRAG...")
 
-    os.makedirs("./minirag_storage", exist_ok=True)
+    # Always resolve storage relative to the backend root so it
+    # doesn't depend on the current working directory.
+    backend_root = Path(__file__).resolve().parents[2]
+    storage_dir = backend_root / "minirag_storage"
+
+    os.makedirs(storage_dir, exist_ok=True)
 
     rag = MiniRAG(
-        working_dir="./minirag_storage",
+        working_dir=str(storage_dir),
         chunk_token_size=900,
         chunk_overlap_token_size=150,
         embedding_func=embedding_func,
-        llm_model_func=gemini_llm_func_noop
+        llm_model_func=gemini_llm_func,
     )
 
     print("[INIT] ✓ MiniRAG initialized successfully")
@@ -232,6 +403,9 @@ def add_json_files(rag: MiniRAG, json_paths: List[str]):
         run_async(rag.ainsert(texts))
 
         print(f"[INSERT] ✓ Successfully inserted texts from {os.path.basename(path)}")
+    
+    # Final marker so you can easily see when all JSON ingestion is done
+    print("\n[INSERT] \u2713 All JSON files ingested. You can now check minirag_storage.")
 
 # ---------------- QUERY NORMALIZATION ----------------
 
@@ -338,13 +512,16 @@ def gemini_generate(context: str, question: str) -> str:
 
     print("\n[GENERATE] Preparing to call Gemini API...")
 
-    # Rate limiting
-    now = time.time()
-    wait_time = MIN_INTERVAL - (now - LAST_CALL)
-    if wait_time > 0:
-        print(f"[RATE LIMIT] Waiting {wait_time:.1f} seconds...")
-        time.sleep(wait_time)
-    LAST_CALL = time.time()
+
+    # --- Strict rate limiting: 1 request per minute ---
+    global LAST_CALL
+    with _rate_limit_lock:
+        now = time.time()
+        wait_time = MIN_INTERVAL - (now - LAST_CALL)
+        if wait_time > 0:
+            print(f"[RATE LIMIT] Waiting {wait_time:.1f} seconds...")
+            time.sleep(wait_time)
+        LAST_CALL = time.time()
 
     # Limit context size
     MAX_CONTEXT_CHARS = 3000

@@ -7,7 +7,9 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "check-firebase-android": "node scripts/check-firebase-android.js",
+    "android-sha": "scripts\\get-android-sha.bat"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -15,6 +17,8 @@
     "@huggingface/tokenizers": "^0.1.2",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
+    "@react-native-firebase/app": "^24.0.0",
+    "@react-native-firebase/auth": "^24.0.0",
     "@react-navigation/bottom-tabs": "^6.5.16",
     "@react-navigation/native": "^6.1.14",
     "@react-navigation/stack": "^6.3.25",

@@ -1,4 +1,4 @@
-package com.smolchatrn;
+package com.planthub;
 
 import android.util.Log;
 import com.facebook.react.bridge.Callback;

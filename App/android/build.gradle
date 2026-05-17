@@ -9,6 +9,8 @@ buildscript {
     classpath('com.android.tools.build:gradle')
     classpath('com.facebook.react:react-native-gradle-plugin')
     classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+    // Required for Firebase on Android (reads android/app/google-services.json)
+    classpath('com.google.gms:google-services:4.4.2')
   }
 }
 
@@ -22,3 +24,30 @@ allprojects {
 
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
+
+// onnxruntime-react-native uses `latest.integration` for its AAR dependency.
+// That can resolve to a newer ONNX Runtime version than what the module's native build expects,
+// causing missing `libonnxruntime.so` during CMake/Ninja.
+// Force a consistent version to keep the native build and extracted AAR in sync.
+def onnxRuntimeAndroidVersion = (findProperty('ONNXRUNTIME_ANDROID_VERSION') ?: '1.24.3').toString()
+
+subprojects {
+  configurations.configureEach {
+    resolutionStrategy {
+      force "com.microsoft.onnxruntime:onnxruntime-android:${onnxRuntimeAndroidVersion}"
+      force "com.microsoft.onnxruntime:onnxruntime-android-qnn:${onnxRuntimeAndroidVersion}"
+      force "com.microsoft.onnxruntime:onnxruntime-extensions-android:${onnxRuntimeAndroidVersion}"
+    }
+  }
+
+  // Expo SDK 54+: `:expo:verifyReleaseResources` can fail if the `expo` library project
+  // doesn't have direct dependencies that provide AppCompat/Material resources referenced
+  // by merged resources (e.g. `@integer/abc_config_activityDefaultDur`, `?attr/colorAccent`).
+  // Ensure these are present for the `expo` project so resource linking succeeds.
+  if (name == "expo") {
+    plugins.withId("com.android.library") {
+      dependencies.add("implementation", "androidx.appcompat:appcompat:1.7.1")
+      dependencies.add("implementation", "com.google.android.material:material:1.12.0")
+    }
+  }
+}

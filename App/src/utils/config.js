@@ -8,7 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const STORAGE_KEY = 'agri_app:api_url';
 
 // Fallback URL used when nothing has been configured yet
-const DEFAULT_API_URL = 'http://192.168.1.6:8000';
+// Default pointed to the deployed Azure backend provided by the user
+const DEFAULT_API_URL = 'https://agri-fastapi-backend-f2hwbvhwa8bugvcu.centralindia-01.azurewebsites.net';
 
 // In-memory value that services will read through getApiUrl()
 let currentApiUrl = DEFAULT_API_URL;

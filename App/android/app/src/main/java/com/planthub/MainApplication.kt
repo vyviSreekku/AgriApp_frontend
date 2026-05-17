@@ -1,4 +1,4 @@
-package com.smolchatrn
+package com.planthub
 
 import android.app.Application
 import ai.onnxruntime.reactnative.OnnxruntimePackage

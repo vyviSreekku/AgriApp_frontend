@@ -4,12 +4,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons, Feather } from "@expo/vector-icons";
-import authService from '../services/authService';
+import useAuth from '../auth/useAuth';
 
 // Auth screens
-import LoginScreen from '../screens/LoginScreen';
-import OtpScreen from '../screens/OtpScreen';
 import ProfileSetupScreen from '../screens/ProfileSetupScreen';
+import PhoneOtpLoginScreen from '../screens/PhoneOtpLoginScreen';
 
 // Import screens
 
@@ -76,8 +75,7 @@ function CommunityStackScreen() {
 function AuthStackScreen() {
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
-      <AuthStack.Screen name="Login" component={LoginScreen} />
-      <AuthStack.Screen name="OTP" component={OtpScreen} />
+      <AuthStack.Screen name="PhoneOTP" component={PhoneOtpLoginScreen} />
       <AuthStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
     </AuthStack.Navigator>
   );
@@ -181,29 +179,9 @@ function MainAppTabs() {
 }
 
 const BottomTabNavigator = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    checkLoginStatus();
-    
-    // Listen for auth changes
-    const interval = setInterval(async () => {
-      const loggedIn = await authService.isLoggedIn();
-      if (loggedIn !== isLoggedIn) {
-        setIsLoggedIn(loggedIn);
-      }
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [isLoggedIn]);
-
-  async function checkLoginStatus() {
-    const loggedIn = await authService.isLoggedIn();
-    setIsLoggedIn(loggedIn);
-  }
-
-  if (isLoggedIn === null) {
+  if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
         <ActivityIndicator size="large" color="#4f46e5" />
@@ -214,7 +192,7 @@ const BottomTabNavigator = () => {
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {isLoggedIn ? (
+        {user ? (
           <RootStack.Screen name="MainApp" component={MainAppTabs} />
         ) : (
           <RootStack.Screen name="Auth" component={AuthStackScreen} />

@@ -1,4 +1,4 @@
-package com.smolchatrn
+package com.planthub
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

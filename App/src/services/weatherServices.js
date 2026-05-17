@@ -204,8 +204,9 @@ export const mapConditionToIcon = (condition) => {
  * @returns {number} Temperature value
  */
 export const extractTemperature = (tempString) => {
-  const match = tempString.match(/(\d+)/);
-  return match ? parseInt(match[0], 10) : 25; // Default to 25 if parsing fails
+  if (!tempString || typeof tempString !== 'string') return 25;
+  const match = tempString.match(/(-?\d+(?:\.\d+)?)/);
+  return match ? parseFloat(match[0]) : 25; // Default to 25 if parsing fails
 };
 
 /**
@@ -231,10 +232,75 @@ export const fetchAllWeatherData = async (latitude, longitude) => {
       fetchWeatherData(latitude, longitude),
       fetchForecastData(latitude, longitude)
     ]);
-    
+    // If the backend returned only forecast-style data (no current 'main'/'weather'),
+    // synthesize a simple current snapshot from the first forecast day so UI consumers
+    // that expect `main.temp`, `weather[0]` and `wind` still work.
+    let merged = { ...weatherData };
+
+    // Normalize responses that provide a current snapshot in a custom shape
+    // (e.g. `temperature_value`, `condition`, `debug_raw_data`) into the
+    // expected `main`, `weather`, and `wind` structure used across the app.
+    if ((!merged.main || !merged.weather) && (merged.temperature_value !== undefined || merged.temperature || merged.condition || merged.debug_raw_data)) {
+      const tempVal = merged.temperature_value !== undefined
+        ? merged.temperature_value
+        : (typeof merged.temperature === 'string' ? extractTemperature(merged.temperature) : merged.temperature);
+
+      merged.main = merged.main || {
+        temp: tempVal ?? null,
+        temp_min: merged.debug_raw_data?.currentConditionsHistory?.minTemperature?.degrees ?? null,
+        temp_max: merged.debug_raw_data?.currentConditionsHistory?.maxTemperature?.degrees ?? null,
+        humidity: merged.humidity ?? merged.debug_raw_data?.relativeHumidity ?? null
+      };
+
+      const conditionText = merged.condition || merged.debug_raw_data?.weatherCondition?.description?.text || 'Clear';
+      merged.weather = merged.weather || [{
+        main: conditionText,
+        icon: mapConditionToIcon(conditionText)
+      }];
+
+      if (!merged.wind && merged.debug_raw_data?.wind) {
+        const w = merged.debug_raw_data.wind;
+        merged.wind = {
+          speed: (typeof w.speed === 'object' && w.speed?.value) ? w.speed.value : (w.speed || null),
+          direction: w.direction?.cardinal || w.direction?.degrees || null
+        };
+      }
+
+      merged.temperature_value = merged.temperature_value ?? merged.main?.temp;
+    }
+
+    const forecastArray = forecastData.forecast || [];
+
+    if ((!merged.main || !merged.weather) && Array.isArray(forecastArray) && forecastArray.length > 0) {
+      const first = forecastArray[0];
+
+      // Build a lightweight current object using available forecast fields
+      merged.main = merged.main || {
+        temp: first.main?.temp || first.day?.temp_max || first.temp || null,
+        temp_min: first.main?.temp_min || first.day?.temp_min || null,
+        temp_max: first.main?.temp_max || first.day?.temp_max || null,
+        humidity: first.main?.humidity || first.day?.humidity || null
+      };
+
+      merged.weather = merged.weather || [{
+        main: first.weather?.[0]?.main || first.day?.condition || 'Clear',
+        icon: first.weather?.[0]?.icon || mapConditionToIcon(first.day?.condition || 'Clear')
+      }];
+
+      // Attach simple wind info if available
+      if (!merged.wind && (first.day?.wind || first.wind)) {
+        const w = first.day?.wind || first.wind;
+        merged.wind = typeof w.speed === 'object' && w.speed?.value ? { speed: w.speed.value } : { speed: w.speed || null };
+      }
+
+      // Keep some legacy convenience fields UI checks rely on
+      merged.condition = merged.condition || first.day?.condition;
+      merged.temperature_value = merged.temperature_value || merged.main?.temp;
+    }
+
     return {
-      ...weatherData,
-      forecast: forecastData.forecast || []
+      ...merged,
+      forecast: forecastArray
     };
   } catch (error) {
     console.error('Error fetching all weather data:', error);

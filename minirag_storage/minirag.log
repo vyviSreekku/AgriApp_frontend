@@ -1,0 +1,5 @@
+2026-04-03 20:13:20,716 - minirag - INFO - Loaded document status storage with 0 records
+2026-04-03 20:13:20,821 - minirag - INFO - [New Docs] inserting 231 docs
+2026-04-03 20:13:21,306 - minirag - INFO - [New Chunks] inserting 231 chunks
+2026-04-03 20:13:21,307 - minirag - INFO - Inserting 231 vectors to chunks
+2026-04-03 20:13:33,572 - minirag - INFO - [Entity Extraction]...

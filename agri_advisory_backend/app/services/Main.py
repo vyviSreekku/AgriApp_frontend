@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     # 2. Index JSON (force rebuild each run to ensure embeddings are stored)
     add_json_files(rag, [r"D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\agri_advisory_backend\app\dataset\pest.json",r"D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\agri_advisory_backend\app\dataset\weed.json",r"D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\agri_advisory_backend\app\dataset\village_plant_disease_dataset.json"])
-
+    
     # 3. Ask a question
     question = "Groundnut weeds control_methods"
     print("\nQuestion:", question)
