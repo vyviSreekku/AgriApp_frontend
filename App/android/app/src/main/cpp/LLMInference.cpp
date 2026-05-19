@@ -13,6 +13,10 @@
 #define LOGe(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
 
 LLMInference::LLMInference() {
+    _ctx         = nullptr;
+    _model       = nullptr;
+    _sampler     = nullptr;
+    _chatTemplate = nullptr;
     _batch       = nullptr;
     _contextSize = 0;
     _batchLimit  = 0;

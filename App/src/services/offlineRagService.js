@@ -167,6 +167,11 @@ const downloadIfMissing = async (url, destinationPath) => {
   return destinationPath;
 };
 
+const downloadFreshFile = async (url, destinationPath) => {
+  await RNFS.unlink(destinationPath).catch(() => {});
+  return downloadIfMissing(url, destinationPath);
+};
+
 const ensureTokenizer = async () => {
   if (!tokenizerPromise) {
     tokenizerPromise = (async () => {
@@ -206,14 +211,28 @@ const ensureEmbeddingSession = async () => {
       await ensureDirectory();
       await downloadIfMissing(EMBEDDING_MODEL_URL, EMBEDDING_MODEL_PATH);
 
-      return InferenceSession.create(EMBEDDING_MODEL_PATH, {
-        executionProviders: ['cpu'],
-        graphOptimizationLevel: 'all',
-        intraOpNumThreads: 2,
-        interOpNumThreads: 1,
-        enableCpuMemArena: true,
-        enableMemPattern: true,
-      });
+      try {
+        return await InferenceSession.create(EMBEDDING_MODEL_PATH, {
+          executionProviders: ['cpu'],
+          graphOptimizationLevel: 'all',
+          intraOpNumThreads: 2,
+          interOpNumThreads: 1,
+          enableCpuMemArena: true,
+          enableMemPattern: true,
+        });
+      } catch (error) {
+        console.warn('Offline RAG embedding model failed to load, redownloading once:', error?.message || error);
+        await downloadFreshFile(EMBEDDING_MODEL_URL, EMBEDDING_MODEL_PATH);
+
+        return InferenceSession.create(EMBEDDING_MODEL_PATH, {
+          executionProviders: ['cpu'],
+          graphOptimizationLevel: 'all',
+          intraOpNumThreads: 2,
+          interOpNumThreads: 1,
+          enableCpuMemArena: true,
+          enableMemPattern: true,
+        });
+      }
     })().catch((error) => {
       embeddingSessionPromise = null;
       throw error;
@@ -730,8 +749,14 @@ const loadCachedRagBundle = async () => {
       }
 
       console.log(`Offline RAG loading cached bundle from ${bundleInfo.path} (${bundleInfo.sizeLabel})`);
-      const jsonText = await RNFS.readFile(RAG_BUNDLE_PATH, 'utf8');
-      ragBundleCache = parseRagBundle(JSON.parse(jsonText));
+      try {
+        const jsonText = await RNFS.readFile(RAG_BUNDLE_PATH, 'utf8');
+        ragBundleCache = parseRagBundle(JSON.parse(jsonText));
+      } catch (error) {
+        console.warn('Offline RAG cached bundle is invalid, deleting it:', error?.message || error);
+        await RNFS.unlink(RAG_BUNDLE_PATH).catch(() => {});
+        return null;
+      }
       console.log(`Offline RAG cached bundle loaded successfully (${ragBundleCache.chunks.length} chunks)`);
       return ragBundleCache;
     })().finally(() => {

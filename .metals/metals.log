@@ -831,3 +831,191 @@ WARNING: Unmatched cancel notification for request id 30
 2026.03.26 08:23:02 INFO  Memory monitor stopped
 2026.03.26 08:23:02 INFO  shutting down Metals
 2026.03.26 08:23:03 INFO  Exiting server
+2026.05.18 16:52:50 INFO  Started: Metals version 1.6.7 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.120.0.
+2026.05.18 16:52:50 INFO  Memory monitor started
+2026.05.18 16:52:54 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.05.18 16:55:00 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.05.18 16:55:00 WARN  Build server is not auto-connectable.
+2026.05.18 18:56:10 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.05.18 18:56:31 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.18 18:58:05 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.18 18:58:06 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.05.18 18:58:08 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 18:58:08 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java
+2026.05.18 18:58:08 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 18:58:08 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 18:58:09 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+May 18, 2026 6:58:09 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 4
+2026.05.18 18:58:10 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 18:58:11 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:08:14 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:08:46 INFO  Shutting down server
+2026.05.18 19:08:46 INFO  Memory monitor stopped
+2026.05.18 19:08:46 INFO  shutting down Metals
+2026.05.18 19:08:46 INFO  Exiting server
+2026.05.18 19:11:13 INFO  Started: Metals version 1.6.7 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.120.0.
+2026.05.18 19:11:16 INFO  Memory monitor started
+2026.05.18 19:11:31 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.05.18 19:11:37 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+May 18, 2026 7:11:38 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2
+2026.05.18 19:11:38 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:11:38 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:11:38 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:11:38 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+May 18, 2026 7:11:38 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 8
+May 18, 2026 7:11:38 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9
+2026.05.18 19:11:53 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:13:07 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:13:07 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:13:07 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:13:07 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+May 18, 2026 7:13:08 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 13
+May 18, 2026 7:13:08 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 14
+2026.05.18 19:13:10 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:15:22 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:15:24 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:15:32 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:17:10 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.05.18 19:17:14 WARN  Build server is not auto-connectable.
+2026.05.18 19:17:14 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java
+2026.05.18 19:17:15 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:17:19 INFO  time: code lens generation in 5.05s
+2026.05.18 19:17:19 INFO  time: code lens generation in 5.04s
+2026.05.18 19:17:49 INFO  Shutting down server
+2026.05.18 19:17:49 INFO  Memory monitor stopped
+2026.05.18 19:17:49 INFO  shutting down Metals
+2026.05.18 19:19:24 INFO  Started: Metals version 1.6.7 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.120.0.
+2026.05.18 19:19:24 INFO  time: initialize in 0.3s
+2026.05.18 19:19:25 INFO  Memory monitor started
+2026.05.18 19:19:40 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.05.18 19:19:42 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:20:07 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:20:21 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:20:21 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:20:21 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:20:21 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+May 18, 2026 7:20:21 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10
+May 18, 2026 7:20:21 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11
+May 18, 2026 7:20:21 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 12
+2026.05.18 19:22:16 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:22:18 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:22:25 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:23:25 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.05.18 19:23:25 WARN  Build server is not auto-connectable.
+2026.05.18 19:23:25 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java
+2026.05.18 19:23:25 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:27:07 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:29:06 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java
+2026.05.18 19:29:06 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:31:53 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 19:31:54 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java
+2026.05.18 19:31:54 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.18 19:47:34 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 19:48:28 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 19:49:49 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 19:50:44 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 19:50:44 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java
+2026.05.18 19:52:53 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 19:52:53 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 19:52:57 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 19:52:57 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java
+2026.05.18 20:00:08 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+2026.05.18 20:27:24 INFO  Shutting down server
+2026.05.18 20:27:24 INFO  Memory monitor stopped
+2026.05.18 20:27:24 INFO  shutting down Metals
+2026.05.18 20:27:25 INFO  Exiting server
+2026.05.19 11:04:46 INFO  Started: Metals version 1.6.7 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.120.0.
+2026.05.19 11:04:46 INFO  time: initialize in 0.18s
+2026.05.19 11:04:48 INFO  Memory monitor started
+2026.05.19 11:04:57 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.05.19 11:05:23 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:05:25 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java
+2026.05.19 11:05:26 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:05:26 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java. Using fallback presentation compiler.
+May 19, 2026 11:05:26 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2
+2026.05.19 11:05:26 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:05:26 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:05:26 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+May 19, 2026 11:05:28 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10
+May 19, 2026 11:05:28 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11
+2026.05.19 11:05:30 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:08:12 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:08:12 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:08:12 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:08:12 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+May 19, 2026 11:08:13 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 14
+May 19, 2026 11:08:13 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 15
+May 19, 2026 11:08:13 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 16
+2026.05.19 11:08:15 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:09:18 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:09:19 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:09:27 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:10:25 INFO  Shutting down server
+2026.05.19 11:10:25 INFO  Memory monitor stopped
+2026.05.19 11:10:25 INFO  shutting down Metals
+2026.05.19 11:30:43 INFO  Started: Metals version 1.6.7 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.120.0.
+2026.05.19 11:30:52 INFO  Memory monitor started
+2026.05.19 11:31:01 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.05.19 11:31:03 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:31:04 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:33:00 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:33:00 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:33:00 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:33:00 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:33:00 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+May 19, 2026 11:33:01 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10
+May 19, 2026 11:33:01 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11
+May 19, 2026 11:33:01 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 12
+2026.05.19 11:34:14 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:34:20 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:34:22 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:34:22 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:34:36 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.19 11:34:41 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:34:46 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:34:58 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:34:58 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.19 11:34:58 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:35:06 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.19 11:35:07 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.05.19 11:35:07 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:35:13 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.05.19 11:35:13 WARN  Build server is not auto-connectable.
+2026.05.19 11:35:13 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.05.19 11:35:13 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\node_modules\react-native-fs\android\src\main\java\com\rnfs\RNFSManager.java
+2026.05.19 11:35:13 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java
+2026.05.19 11:35:13 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:35:14 INFO  time: code lens generation in 1.1s
+2026.05.19 11:35:14 INFO  time: code lens generation in 1.1s
+2026.05.19 11:35:15 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:35:16 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.19 11:35:21 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.19 11:35:21 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java
+2026.05.19 11:35:21 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 11:35:29 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.19 11:36:34 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.19 11:36:34 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModule.java. Using fallback presentation compiler.
+2026.05.19 14:24:25 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 14:24:33 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 14:26:31 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 14:26:46 INFO  Shutting down server
+2026.05.19 14:26:46 INFO  Memory monitor stopped
+2026.05.19 14:26:46 INFO  shutting down Metals

@@ -21,7 +21,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.smolchatrn"
+      "package": "com.anonymous.planthub"
     },
     "web": {
       "favicon": "./assets/favicon.png"

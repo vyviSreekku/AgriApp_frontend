@@ -138,6 +138,15 @@ export default function LoginScreen({ navigation }) {
                 </LinearGradient>
             </TouchableOpacity>
 
+            {/* Demo Login Info */}
+            <View style={styles.demoBox}>
+                <MaterialCommunityIcons name="information-outline" size={18} color="#0284c7" />
+                <View style={styles.demoTextContainer}>
+                    <Text style={styles.demoLabel}>Demo Login</Text>
+                    <Text style={styles.demoInfo}>Phone: <Text style={styles.demoBold}>9999999999</Text> • OTP: <Text style={styles.demoBold}>123456</Text></Text>
+                </View>
+            </View>
+
             <Text style={styles.footerNote}>
                 By continuing, you agree to our Terms of Service & Privacy Policy.
             </Text>
@@ -332,5 +341,35 @@ const styles = StyleSheet.create({
       fontSize: 12,
       marginTop: 'auto',
       marginBottom: 10,
+  },
+
+  demoBox: {
+      flexDirection: 'row',
+      backgroundColor: '#e0f2fe',
+      borderLeftWidth: 4,
+      borderLeftColor: '#0284c7',
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 16,
+      alignItems: 'flex-start',
+      gap: 10,
+  },
+  demoTextContainer: {
+      flex: 1,
+  },
+  demoLabel: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: '#0284c7',
+      marginBottom: 2,
+  },
+  demoInfo: {
+      fontSize: 12,
+      color: '#0369a1',
+      lineHeight: 16,
+  },
+  demoBold: {
+      fontWeight: '700',
+      color: '#0284c7',
   },
 });

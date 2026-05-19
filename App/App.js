@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
-import { AuthProvider } from './src/auth/AuthProvider';
 import OfflineRagService from './src/services/offlineRagService';
 
 /**
@@ -40,9 +39,5 @@ export default function App() {
     };
   }, []);
 
-  return (
-    <AuthProvider>
-      <BottomTabNavigator />
-    </AuthProvider>
-  );
+  return <BottomTabNavigator/>;
 }

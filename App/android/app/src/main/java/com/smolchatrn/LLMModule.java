@@ -1,6 +1,7 @@
-package com.planthub;
+package com.smolchatrn;
 
 import android.util.Log;
+import java.io.File;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -56,12 +57,45 @@ public class LLMModule extends ReactContextBaseJavaModule {
             boolean useMlock = config.getBoolean("useMlock");
 
             Log.i(TAG, "loadModel called with path: " + modelPath);
-            nativeInit(modelPath, minP, temperature, storeChats, contextSize, chatTemplate, nThreads, nThreadsBatch, batchSize, microBatchSize, maxOutputTokens, flashAttentionType, offloadKqv, useMmap, useMlock);
-            if (!nativeIsModelReady()) {
-                Log.e(TAG, "nativeInit completed but model is not ready");
-                promise.reject("MODEL_LOAD_FAILED", "Native model initialization failed");
+
+            // Defensive check: ensure the model file is present before calling native code.
+            if (modelPath == null || modelPath.isEmpty()) {
+                Log.e(TAG, "loadModel failed: modelPath is null or empty");
+                promise.reject("MODEL_FILE_MISSING", "modelPath is null or empty");
                 return;
             }
+
+            File f = new File(modelPath);
+            if (!f.exists() || !f.canRead()) {
+                Log.e(TAG, "loadModel failed: model file does not exist or is not readable: " + modelPath);
+                promise.reject("MODEL_FILE_MISSING", "Model file missing or not readable: " + modelPath);
+                return;
+            }
+
+            try {
+                nativeInit(modelPath, minP, temperature, storeChats, contextSize, chatTemplate, nThreads, nThreadsBatch, batchSize, microBatchSize, maxOutputTokens, flashAttentionType, offloadKqv, useMmap, useMlock);
+            } catch (UnsatisfiedLinkError ule) {
+                Log.e(TAG, "Native library or symbol missing during nativeInit", ule);
+                promise.reject("NATIVE_LIB_ERROR", ule.getMessage());
+                return;
+            } catch (Throwable t) {
+                Log.e(TAG, "Unexpected error during nativeInit", t);
+                promise.reject("NATIVE_INIT_ERROR", t.getMessage());
+                return;
+            }
+
+            try {
+                if (!nativeIsModelReady()) {
+                    Log.e(TAG, "nativeInit completed but model is not ready");
+                    promise.reject("MODEL_LOAD_FAILED", "Native model initialization failed");
+                    return;
+                }
+            } catch (Throwable t) {
+                Log.e(TAG, "Error while checking native model readiness", t);
+                promise.reject("MODEL_READY_CHECK_FAILED", t.getMessage());
+                return;
+            }
+
             Log.i(TAG, "Model loaded successfully via nativeInit");
             promise.resolve(true);
 
@@ -98,6 +132,16 @@ public class LLMModule extends ReactContextBaseJavaModule {
         try {
             if (!nativeIsModelReady()) {
                 Log.e(TAG, "generateResponse called before model was ready");
+                // Emit an error event to JS so frontend can surface a friendly message
+                try {
+                    if (getReactApplicationContext().hasActiveCatalystInstance()) {
+                        getReactApplicationContext()
+                            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                            .emit("onError", "Model not initialized");
+                    }
+                } catch (Throwable t) {
+                    Log.w(TAG, "Failed to emit onError event", t);
+                }
                 return;
             }
             Log.i(TAG, "generateResponse called with prompt: " + prompt);

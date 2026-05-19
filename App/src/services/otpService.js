@@ -2,6 +2,8 @@
 // Replace with real SMS provider (Twilio / Firebase) in production.
 
 const store = {}; // { phone: { otp: '123456', expiresAt: timestamp } }
+const DEMO_PHONE = '9999999999';
+const DEMO_OTP = '123456';
 
 function randomOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -10,7 +12,7 @@ function randomOtp() {
 export default {
   sendOtp(phone, name) {
     return new Promise((resolve) => {
-      const otp = randomOtp();
+      const otp = phone === DEMO_PHONE ? DEMO_OTP : randomOtp();
       const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
       store[phone] = { otp, expiresAt, name };
       // Simulate SMS by logging to console (Metro/terminal)
@@ -22,6 +24,10 @@ export default {
 
   verifyOtp(phone, code) {
     return new Promise((resolve) => {
+      if (phone === DEMO_PHONE && code === DEMO_OTP) {
+        return resolve(true);
+      }
+
       const entry = store[phone];
       if (!entry) return resolve(false);
       if (Date.now() > entry.expiresAt) {

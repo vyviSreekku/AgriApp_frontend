@@ -1,4 +1,5 @@
 import RNFS from 'react-native-fs';
+import NetInfo from '@react-native-community/netinfo';
 import { NativeModules, DeviceEventEmitter } from 'react-native';
 
 // Destructure the native module
@@ -82,6 +83,46 @@ const truncateForLog = (value, maxLength = MAX_PROMPT_LOG_CHARS) => {
   return `${value.slice(0, maxLength - 3).replace(/\s+/g, ' ').trimEnd()}...`;
 };
 
+const MIN_VALID_MODEL_BYTES = 100 * 1024 * 1024;
+
+const hasInternetAccess = async () => {
+  try {
+    const state = await NetInfo.fetch();
+    return Boolean(state.isConnected && state.isInternetReachable !== false);
+  } catch (error) {
+    console.warn('Failed to check network state before model download:', error);
+    return false;
+  }
+};
+
+const getModelFileInfo = async () => {
+  const exists = await RNFS.exists(DESTINATION_PATH);
+  if (!exists) {
+    return { exists: false, size: 0 };
+  }
+
+  const stat = await RNFS.stat(DESTINATION_PATH);
+  return {
+    exists: true,
+    size: Number(stat.size || 0),
+  };
+};
+
+const isLikelyValidModel = async () => {
+  try {
+    const info = await getModelFileInfo();
+    if (!info.exists) return false;
+    if (info.size < MIN_VALID_MODEL_BYTES) return false;
+    // Prefer explicit file extension check for common GGUF models
+    if (MODEL_FILE_NAME && MODEL_FILE_NAME.toLowerCase().includes('.gguf')) return true;
+    // Fall back to size-based confidence
+    return info.size >= MIN_VALID_MODEL_BYTES;
+  } catch (err) {
+    console.warn('Failed to probe model file validity:', err);
+    return false;
+  }
+};
+
 export const ModelManager = {
   hasModel: async () => RNFS.exists(DESTINATION_PATH),
 
@@ -118,9 +159,15 @@ export const ModelManager = {
         return false;
       }
 
-      const fileExists = await RNFS.exists(DESTINATION_PATH);
+      const modelFileInfo = await getModelFileInfo();
 
-      if (!fileExists) {
+      if (!modelFileInfo.exists) {
+        const online = await hasInternetAccess();
+        if (!online) {
+          console.warn('Offline model file is missing and the device is offline. Skipping download.');
+          return false;
+        }
+
         console.log("Model file not found. Starting download from:", MODEL_URL);
         
         // Download if missing
@@ -146,12 +193,53 @@ export const ModelManager = {
           return false;
         }
         console.log("Model download completed successfully.");
+      } else if (modelFileInfo.size < MIN_VALID_MODEL_BYTES) {
+        console.warn(`Offline model file looks incomplete (${modelFileInfo.size} bytes). Removing it before load.`);
+        await RNFS.unlink(DESTINATION_PATH).catch(() => {});
+
+        const online = await hasInternetAccess();
+        if (!online) {
+          console.warn('Offline model file is incomplete and the device is offline. Skipping load.');
+          return false;
+        }
+
+        console.log('Retrying model download after removing incomplete cache.');
+        const download = RNFS.downloadFile({
+          fromUrl: MODEL_URL,
+          toFile: DESTINATION_PATH,
+          progress: (res) => {
+            const totalBytes = res.contentLength || 0;
+            const percent = totalBytes > 0 ? (res.bytesWritten / totalBytes) : 0;
+            if (onProgress) onProgress(percent);
+          },
+          background: true,
+          discretionary: true,
+        });
+        const result = await download.promise;
+
+        if (result.statusCode !== 200) {
+          console.error('Redownload failed with status code:', result.statusCode);
+          await RNFS.unlink(DESTINATION_PATH).catch(() => {});
+          return false;
+        }
+        console.log('Model redownload completed successfully.');
       } else {
         console.log("Model file already exists at:", DESTINATION_PATH);
         if(onProgress) onProgress(1.0); // Notify completion immediately
       }
 
       const activePreset = getActivePerformancePreset();
+
+      // If we're offline at this point, only attempt native load when the
+      // existing file looks like a valid model. If it doesn't, skip loading.
+      const onlineNow = await hasInternetAccess();
+      if (!onlineNow) {
+        const valid = await isLikelyValidModel();
+        if (!valid) {
+          console.warn('Device is offline and model is missing or not a valid cache. Skipping native load.');
+          return false;
+        }
+      }
 
       // Load into C++ Memory via Native Module
       const modelConfig = {
@@ -169,14 +257,22 @@ export const ModelManager = {
         maxOutputTokens: activePreset.config.maxOutputTokens,
         flashAttentionType: activePreset.config.flashAttentionType,
         offloadKqv: activePreset.config.offloadKqv,
-        useMmap: true,
+        // mmap has been unstable for this model on some devices; keep the
+        // compute settings unchanged and load the file via standard reads.
+        useMmap: false,
         useMlock: false,
       };
 
       console.log("Loading model into memory...");
       console.log(`Model performance preset: ${activePreset.name}`);
       console.log(`Model config: ctx=${modelConfig.contextSize} threads=${modelConfig.nThreads} batchThreads=${modelConfig.nThreadsBatch} batch=${modelConfig.batchSize} ubatch=${modelConfig.microBatchSize} maxOutputTokens=${modelConfig.maxOutputTokens} flashAttn=${modelConfig.flashAttentionType} mmap=${modelConfig.useMmap}`);
-      await LLMModule.loadModel(modelConfig);
+      try {
+        await LLMModule.loadModel(modelConfig);
+      } catch (nativeErr) {
+        console.error('Native loadModel failed or rejected:', nativeErr);
+        // When offline, don't attempt redownload here; just surface failure.
+        return false;
+      }
       const ready = await ModelManager.isModelReady();
       if (!ready) {
         console.error('Native model reported not ready after loadModel');
@@ -285,3 +381,15 @@ export const ModelManager = {
 };
 
 export default ModelManager;
+
+/**
+ * Register a handler for native-side model errors (emitted as `onError`).
+ * Returns an unsubscribe function.
+ */
+export const onLLMError = (handler) => {
+  if (typeof handler !== 'function') return () => {};
+  const sub = DeviceEventEmitter.addListener('onError', handler);
+  return () => {
+    try { sub.remove(); } catch (e) { DeviceEventEmitter.removeAllListeners('onError'); }
+  };
+};
