@@ -17,7 +17,7 @@ const DARK_TXT = "#0f172a";
 const LIGHT_BG = "#f0fdf4";
 const WHITE = "#ffffff";
 
-export default function DiseaseDetectionScreen() {
+export default function DiseaseDetectionScreen({ route }) {
   const [image, setImage] = useState(null);
   const [diseaseData, setDiseaseData] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -43,11 +43,12 @@ export default function DiseaseDetectionScreen() {
     }
   };
 
-  const analyzeDisease = async () => {
-    if (!image) return Alert.alert('No image', 'Please select a photo.');
+  const analyzeDisease = async (imageUri) => {
+    const uri = imageUri || image;
+    if (!uri) return Alert.alert('No image', 'Please select a photo.');
     setIsAnalyzing(true);
     try {
-      const result = await detectDisease(image);
+      const result = await detectDisease(uri);
       setDiseaseData(result?.detection || null);
     } catch (error) {
       Alert.alert('Error', 'Analysis failed. Please try again.');
@@ -55,6 +56,16 @@ export default function DiseaseDetectionScreen() {
       setIsAnalyzing(false);
     }
   };
+
+  // If navigated here with a captured image, set it and auto-analyze
+  useEffect(() => {
+    if (route?.params?.capturedImage) {
+      const img = route.params.capturedImage;
+      setImage(img);
+      setDiseaseData(null);
+      analyzeDisease(img);
+    }
+  }, [route?.params?.capturedImage]);
 
   const renderContent = () => {
     if (!diseaseData) return (

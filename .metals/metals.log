@@ -1019,3 +1019,18 @@ WARNING: Unmatched cancel notification for request id 12
 2026.05.19 14:26:46 INFO  Shutting down server
 2026.05.19 14:26:46 INFO  Memory monitor stopped
 2026.05.19 14:26:46 INFO  shutting down Metals
+2026.05.19 23:01:04 INFO  Started: Metals version 1.6.7 in folders 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend' for client Visual Studio Code 1.120.0.
+2026.05.19 23:01:04 INFO  Memory monitor started
+2026.05.19 23:01:07 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.05.19 23:01:07 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 23:01:36 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 23:01:37 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 23:01:40 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 23:04:11 WARN  no build tool detected in workspace 'D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.05.19 23:04:11 WARN  Build server is not auto-connectable.
+2026.05.19 23:04:11 WARN  no build target for: D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java
+2026.05.19 23:04:12 INFO  no build target found for D:\FINAL_YEAR\React_App_new\AgriApp_frontend_and_backend\App\android\app\src\main\java\com\smolchatrn\LLMModulePackage.java. Using fallback presentation compiler.
+2026.05.19 23:06:18 INFO  Shutting down server
+2026.05.19 23:06:18 INFO  Memory monitor stopped
+2026.05.19 23:06:18 INFO  shutting down Metals
+2026.05.19 23:06:18 INFO  Exiting server

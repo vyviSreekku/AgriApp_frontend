@@ -20,7 +20,7 @@ const PlantImageCaptureScreen = ({ navigation }) => {
     try {
       // Request camera permissions
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      
+
       if (status !== 'granted') {
         Alert.alert(
           'Permission Required',
@@ -101,6 +101,9 @@ const PlantImageCaptureScreen = ({ navigation }) => {
 
     // Navigate to the appropriate screen with the image
     switch (selectedCategory) {
+      case 'disease':
+        navigation.navigate('DiseaseDetection', { capturedImage: image });
+        break;
       case 'pest':
         navigation.navigate('PestDetection', { capturedImage: image });
         break;
@@ -130,6 +133,14 @@ const PlantImageCaptureScreen = ({ navigation }) => {
       icon: 'ladybug',
       color: '#f59e42',
       bgColor: '#fef3c7',
+    },
+    {
+      id: 'disease',
+      name: 'Disease Detection',
+      description: 'Identify plant diseases and treatment',
+      icon: 'biohazard',
+      color: '#ef4444',
+      bgColor: '#fee2e2',
     },
     {
       id: 'weed',

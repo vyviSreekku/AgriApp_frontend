@@ -1,8 +1,0 @@
-{
-  "title": "Test crop info",
-  "description": "This is a short test about rice pests and fertilizer guidance.",
-  "sections": [
-    {"heading": "Pest", "text": "Aphids can be controlled by early detection and neem oil."},
-    {"heading": "Fertilizer", "text": "Apply nitrogen at tillering stage."}
-  ]
-}
